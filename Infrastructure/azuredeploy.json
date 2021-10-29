@@ -80,7 +80,8 @@
           "name": "standard"
         },
         "tenantId": "[parameters('tenantId')]",
-        "accessPolicies": []
+        "accessPolicies": [],
+        "enableRbacAuthorization": true
       }
     }
   ]
