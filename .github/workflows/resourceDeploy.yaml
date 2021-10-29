@@ -1,0 +1,33 @@
+name: Create Azure Resources
+
+on: workflow_dispatch
+
+env:
+  AZURE_RESOURCE_GROUP: RaceResults
+
+jobs:
+  deploy_arm_templates:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Source Code
+      uses: actions/checkout@v2
+
+    - name: Login for az cli commands 
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+    - name: Get Azure SubscriptionId
+      run: |
+        CURRENT_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
+        echo "AZURE_SUBSCRIPTION_ID=$CURRENT_SUBSCRIPTION_ID" >> $GITHUB_ENV
+        echo "Current SubscriptionId: $CURRENT_SUBSCRIPTION_ID"
+
+    - name: Deploy ARM templates
+      uses: azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
+        template: Infrastructure/azuredeploy.json
+        parameters: Infrastructure/azuredeploy.parameters.json
+        deploymentName: gha-deployment-${{ github.run_id }}-${{ github.run_number }}
