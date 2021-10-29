@@ -4,6 +4,18 @@
   "parameters": {
     "region": {
       "value": "westus"
+    },
+    "appServicePlanName": {
+      "value": "raceresults-asp"
+    },
+    "webAppName": {
+      "value": "raceresults-app"
+    },
+    "databaseName": {
+      "value": "raceresults-db"
+    },
+    "keyVaultName": {
+      "value": "raceresults-kv"
     }
   }
 }

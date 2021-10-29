@@ -1,6 +1,6 @@
 name: Create Azure Resources
 
-on: 
+on:
   push:
     branches:
       - 'main'
@@ -27,7 +27,11 @@ jobs:
       run: |
         CURRENT_SUBSCRIPTION_ID=$(az account show --query id -o tsv)
         echo "AZURE_SUBSCRIPTION_ID=$CURRENT_SUBSCRIPTION_ID" >> $GITHUB_ENV
-        echo "Current SubscriptionId: $CURRENT_SUBSCRIPTION_ID"
+
+    - name: Get Azure TenantId
+      run: |
+        CURRENT_TENANT_ID=$(az account show --query homeTenantId -o tsv)
+        echo "AZURE_TENANT_ID=$CURRENT_TENANT_ID" >> $GITHUB_ENV
 
     - name: Deploy ARM templates
       uses: azure/arm-deploy@v1
@@ -35,5 +39,5 @@ jobs:
         subscriptionId: ${{ env.AZURE_SUBSCRIPTION_ID }}
         resourceGroupName: ${{ env.AZURE_RESOURCE_GROUP }}
         template: Infrastructure/azuredeploy.json
-        parameters: Infrastructure/azuredeploy.parameters.json
+        parameters: Infrastructure/azuredeploy.parameters.json tenantId=${{ env.AZURE_TENANT_ID }}
         deploymentName: gha-deployment-${{ github.run_id }}-${{ github.run_number }}
