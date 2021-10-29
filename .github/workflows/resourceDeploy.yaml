@@ -1,6 +1,12 @@
 name: Create Azure Resources
 
-on: workflow_dispatch
+on: 
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'Infrastructure/**'
+      - '.github/workflows/resourceDeploy.yaml'
 
 env:
   AZURE_RESOURCE_GROUP: RaceResults
