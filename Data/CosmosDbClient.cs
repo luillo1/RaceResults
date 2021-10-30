@@ -1,6 +1,5 @@
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Fluent;
 
 namespace RaceResults.Data
 {
@@ -16,11 +15,7 @@ namespace RaceResults.Data
 
         public CosmosDbClient()
         {
-            CosmosClientBuilder builder = new CosmosClientBuilder(
-                "https://raceresults-db.documents.azure.com/",
-                new DefaultAzureCredential());
-
-            this.cosmosClient = builder.Build();
+            this.cosmosClient = new CosmosClient(CosmosDbClient.AccountEndpoint, new DefaultAzureCredential());
             this.database = this.cosmosClient.CreateDatabaseIfNotExistsAsync(CosmosDbClient.DatabaseName).GetAwaiter().GetResult();
         }
 
