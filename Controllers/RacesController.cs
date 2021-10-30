@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Data;
 using RaceResults.Models;
 
 namespace RaceResults.Controllers
@@ -11,22 +11,23 @@ namespace RaceResults.Controllers
     [Route("[controller]")]
     public class RacesController : ControllerBase
     {
+        private readonly ICosmosDbContainerClient<Race> containerClient;
+
         private readonly ILogger<RacesController> logger;
 
-        public RacesController(ILogger<RacesController> logger)
+        public RacesController(
+                ICosmosDbContainerProvider cosmosDbContainerProvider,
+                ILogger<RacesController> logger)
         {
+            this.containerClient = cosmosDbContainerProvider.RaceContainer;
             this.logger = logger;
         }
 
         [HttpGet]
-        public IEnumerable<Race> Get()
+        public async Task<IEnumerable<Race>> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new Race
-            {
-                Date = DateTime.Now
-            })
-            .ToArray();
+            IEnumerable<Race> result = await this.containerClient.GetItemsAsync();
+            return result;
         }
     }
 }

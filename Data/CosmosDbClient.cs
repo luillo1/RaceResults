@@ -17,7 +17,7 @@ namespace RaceResults.Data
         public CosmosDbClient()
         {
             CosmosClientBuilder builder = new CosmosClientBuilder(
-                CosmosDbClient.AccountEndpoint,
+                "https://raceresults-db.documents.azure.com/",
                 new DefaultAzureCredential());
 
             this.cosmosClient = builder.Build();
