@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using RaceResults.Common;
+using RaceResults.Data;
 
 namespace RaceResults
 {
@@ -15,13 +17,18 @@ namespace RaceResults
             Configuration = configuration;
         }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSingleton<IKeyVaultClient, KeyVaultClient>();
+            services.AddSingleton<ICosmosDbClient, CosmosDbClient>();
+            services.AddSingleton<ICosmosDbContainerProvider>(services =>
+                    {
+                        ICosmosDbClient client = services.GetRequiredService<ICosmosDbClient>();
+                        return new CosmosDbContainerProvider(client);
+                    });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
