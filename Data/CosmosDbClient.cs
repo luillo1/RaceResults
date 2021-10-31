@@ -16,7 +16,7 @@ namespace RaceResults.Data
         public CosmosDbClient()
         {
             this.cosmosClient = new CosmosClient(CosmosDbClient.AccountEndpoint, new DefaultAzureCredential());
-            this.database = this.cosmosClient.CreateDatabaseIfNotExistsAsync(CosmosDbClient.DatabaseName).GetAwaiter().GetResult();
+            this.database = this.cosmosClient.GetDatabase(CosmosDbClient.DatabaseName);
         }
 
         public Container GetContainer(string containerName)
