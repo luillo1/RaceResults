@@ -15,7 +15,18 @@ namespace RaceResults.Data
 
         public CosmosDbClient()
         {
-            this.cosmosClient = new CosmosClient(CosmosDbClient.AccountEndpoint, new DefaultAzureCredential());
+            CosmosClientOptions clientOptions = new CosmosClientOptions()
+            {
+                SerializerOptions = new CosmosSerializationOptions()
+                {
+                    IgnoreNullValues = true,
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                }
+            };
+            this.cosmosClient = new CosmosClient(
+                    CosmosDbClient.AccountEndpoint,
+                    new DefaultAzureCredential(),
+                    clientOptions);
             this.database = this.cosmosClient.GetDatabase(CosmosDbClient.DatabaseName);
         }
 

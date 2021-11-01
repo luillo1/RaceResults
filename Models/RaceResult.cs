@@ -1,15 +1,19 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Models
 {
     public class RaceResult
     {
-        public string Id { get; set; }
+        public Guid Id { get; } = Guid.NewGuid();
 
+        [Required]
         public Runner Runner { get; set; }
 
+        [Required]
         public Race Race { get; set; }
 
+        [Required]
         public TimeSpan Time { get; set; }
     }
 }

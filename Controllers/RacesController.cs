@@ -24,10 +24,17 @@ namespace RaceResults.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Race>> Get()
+        public async Task<IActionResult> Get()
         {
             IEnumerable<Race> result = await this.containerClient.GetItemsAsync();
-            return result;
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(Race race)
+        {
+            await this.containerClient.AddItemAsync(race);
+            return CreatedAtAction(nameof(Post), new { id = race.Id }, race);
         }
     }
 }

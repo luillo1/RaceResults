@@ -23,18 +23,19 @@ namespace RaceResults.Controllers
             this.logger = logger;
         }
 
-        [HttpPost]
-        public async Task<RaceResult> Post(RaceResult raceResult)
-        {
-            await this.containerClient.AddItemAsync(raceResult);
-            return raceResult;
-        }
-
         [HttpGet]
-        public async Task<IEnumerable<RaceResult>> Get()
+        public async Task<IActionResult> Get()
         {
             IEnumerable<RaceResult> result = await this.containerClient.GetItemsAsync();
-            return result;
+            return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Post(RaceResult raceResult)
+        {
+            await this.containerClient.AddItemAsync(raceResult);
+            return CreatedAtAction(nameof(Post), new { id = raceResult.Id }, raceResult);
+        }
+
     }
 }

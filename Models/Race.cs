@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Models
 {
@@ -12,14 +13,18 @@ namespace RaceResults.Models
 
     public class Race
     {
-        public string Id { get; set; }
+        public Guid Id { get; } = Guid.NewGuid();
 
+        [Required]
         public string Name { get; set; }
 
+        [Required]
         public DateTime Date { get; set; }
 
+        [Required]
         public string Location { get; set; }
 
+        [Required]
         public Distance Distance { get; set; }
     }
 }
