@@ -6,6 +6,9 @@ npm-debug.log*
 # Typescript v1 declaration files
 typings/
 
+# VScode
+.vscode/
+
 # Optional npm cache directory
 .npm
 
