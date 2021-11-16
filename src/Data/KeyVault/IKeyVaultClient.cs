@@ -1,6 +1,4 @@
-using System.Threading.Tasks;
-
-namespace RaceResults.Common
+namespace RaceResults.Data.KeyVault
 {
     public interface IKeyVaultClient
     {

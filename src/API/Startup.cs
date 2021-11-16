@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RaceResults.Common;
-using RaceResults.Data;
+using RaceResults.Data.KeyVault;
+using RaceResults.Data.CosmosDb;
 
 namespace RaceResults
 {
