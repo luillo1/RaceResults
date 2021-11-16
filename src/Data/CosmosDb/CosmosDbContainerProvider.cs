@@ -1,6 +1,6 @@
-using RaceResults.Models;
+using RaceResults.Common.Models;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public class CosmosDbContainerProvider : ICosmosDbContainerProvider
     {

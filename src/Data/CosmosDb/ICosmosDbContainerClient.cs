@@ -2,7 +2,7 @@ using Microsoft.Azure.Cosmos;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public interface ICosmosDbContainerClient<T>
     {

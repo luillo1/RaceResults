@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace RaceResults.Models
+namespace RaceResults.Common.Models
 {
     public class RaceResult
     {

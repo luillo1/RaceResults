@@ -1,6 +1,6 @@
 using Microsoft.Azure.Cosmos;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public interface ICosmosDbClient
     {

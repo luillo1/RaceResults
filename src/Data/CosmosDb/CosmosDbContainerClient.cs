@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public class CosmosDbContainerClient<T> : ICosmosDbContainerClient<T>
     {

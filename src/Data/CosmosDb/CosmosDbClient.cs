@@ -1,7 +1,7 @@
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public class CosmosDbClient : ICosmosDbClient
     {
