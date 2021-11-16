@@ -1,19 +1,15 @@
 using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 
-namespace RaceResults.Data
+namespace RaceResults.Data.CosmosDb
 {
     public class CosmosDbClient : ICosmosDbClient
     {
-        private const string AccountEndpoint = "https://raceresults-db.documents.azure.com/";
-
-        private const string DatabaseName = "RaceResultsDb";
-
         private readonly CosmosClient cosmosClient;
 
         private readonly Database database;
 
-        public CosmosDbClient()
+        public CosmosDbClient(string endpoint, string databaseName)
         {
             CosmosClientOptions clientOptions = new CosmosClientOptions()
             {
@@ -23,11 +19,12 @@ namespace RaceResults.Data
                     PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
                 }
             };
+
             this.cosmosClient = new CosmosClient(
-                    CosmosDbClient.AccountEndpoint,
+                    endpoint,
                     new DefaultAzureCredential(),
                     clientOptions);
-            this.database = this.cosmosClient.GetDatabase(CosmosDbClient.DatabaseName);
+            this.database = this.cosmosClient.GetDatabase(databaseName);
         }
 
         public Container GetContainer(string containerName)

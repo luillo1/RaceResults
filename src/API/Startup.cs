@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RaceResults.Common;
-using RaceResults.Data;
+using RaceResults.Data.KeyVault;
+using RaceResults.Data.CosmosDb;
 
 namespace RaceResults
 {
@@ -21,7 +21,12 @@ namespace RaceResults
         {
             services.AddControllers();
             services.AddSingleton<IKeyVaultClient, KeyVaultClient>();
-            services.AddSingleton<ICosmosDbClient, CosmosDbClient>();
+            services.AddSingleton<ICosmosDbClient>(services =>
+                    {
+                        string endpoint = this.Configuration["CosmosDb:Endpoint"];
+                        string databaseName = this.Configuration["CosmosDb:DatabaseName"];
+                        return new CosmosDbClient(endpoint, databaseName);
+                    });
             services.AddSingleton<ICosmosDbContainerProvider>(services =>
                     {
                         ICosmosDbClient client = services.GetRequiredService<ICosmosDbClient>();

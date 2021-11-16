@@ -8,7 +8,7 @@ on:
 env:
   AZURE_WEBAPP_NAME: raceresults-app
   AZURE_WEBAPP_PACKAGE_PATH: '.'
-  DOTNET_VERSION: '5.0'
+  DOTNET_VERSION: '6.0.x'
   AZURE_RESOURCE_GROUP_NAME: RaceResults
   
 jobs:
@@ -21,12 +21,13 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: ${{ env.DOTNET_VERSION }} 
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+          include-prerelease: true
       
       - name: dotnet build and publish
         run: |
-          dotnet build --configuration Release
-          dotnet publish -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/RaceResultsApp' 
+          dotnet build --configuration Release src/API
+          dotnet publish -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/RaceResultsApp' src/API
 
       - name: 'Run Azure webapp deploy action using publish profile credentials'
         uses: azure/webapps-deploy@v2

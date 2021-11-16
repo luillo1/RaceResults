@@ -2,8 +2,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using RaceResults.Data;
-using RaceResults.Models;
+using RaceResults.Data.CosmosDb;
+using RaceResults.Common.Models;
 
 namespace RaceResults.Controllers
 {

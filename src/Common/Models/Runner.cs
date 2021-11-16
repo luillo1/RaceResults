@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace RaceResults.Models
+namespace RaceResults.Common.Models
 {
     public class Runner
     {
