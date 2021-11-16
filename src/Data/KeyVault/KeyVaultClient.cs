@@ -1,5 +1,6 @@
 using Azure.Identity;
 using Azure.Security.KeyVault.Secrets;
+using System.Threading.Tasks;
 
 namespace RaceResults.Data.KeyVault
 {
