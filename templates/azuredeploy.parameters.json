@@ -11,8 +11,11 @@
     "webAppName": {
       "value": "raceresults-app"
     },
-    "databaseName": {
+    "mainDatabaseName": {
       "value": "raceresults-db"
+    },
+    "sandboxDatabaseName": {
+      "value": "raceresultssb-db"
     },
     "keyVaultName": {
       "value": "raceresults-kv"

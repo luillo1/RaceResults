@@ -11,7 +11,10 @@
     "webAppName": {
       "type": "string"
     },
-    "databaseName": {
+    "mainDatabaseName": {
+      "type": "string"
+    },
+    "sandboxDatabaseName": {
       "type": "string"
     },
     "keyVaultName": {
@@ -49,7 +52,28 @@
       }
     },
     {
-      "name": "[parameters('databaseName')]",
+      "name": "[parameters('mainDatabaseName')]",
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2021-06-15",
+      "location": "[parameters('region')]",
+      "properties": {
+        "createMode": "Default",
+        "databaseAccountOfferType": "Standard",
+        "capabilities": [
+          {
+            "name": "EnableServerless"
+          }
+        ],
+        "locations": [
+          {
+            "locationName": "[parameters('region')]",
+            "failoverPriority": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "[parameters('sandboxDatabaseName')]",
       "type": "Microsoft.DocumentDB/databaseAccounts",
       "apiVersion": "2021-06-15",
       "location": "[parameters('region')]",
