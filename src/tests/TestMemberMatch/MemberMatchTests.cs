@@ -1,13 +1,12 @@
 using MemberMatch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Diagnostics;
 using System.Linq;
 
 namespace TestMemberMatch
 {
     [TestClass]
-    public class UnitTest1
+    public class MemberMatchTests
     {
 
         [TestMethod]
@@ -20,7 +19,6 @@ namespace TestMemberMatch
             Assert.AreEqual(score1, -11.51291, delta: .001);
             var probability1 = Scorer.ScoreToProbability(score1);
             Assert.AreEqual(probability1, 1e-5, delta: 0.0001);
-
         }
 
         [TestMethod]
