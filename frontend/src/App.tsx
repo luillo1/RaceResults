@@ -1,37 +1,43 @@
 import React from "react";
-import { useAppDispatch, useAppSelector } from "./app/hooks";
-import { useFetchRunnerQuery } from "./features/runners/runners-api-slice";
+import { Loader, Segment, Table } from "semantic-ui-react";
+import { useFetchRunnerQuery } from "./slices/runners/runners-api-slice";
 import logo from "./logo.svg";
 import "./App.css";
 
 function App() {
-  const { data = [], isFetching } = useFetchRunnerQuery("foo");
+  const { data = [], isFetching } = useFetchRunnerQuery();
+
+  const table = (
+    <Table celled>
+      <Table.Header>
+        <Table.Row>
+          <Table.HeaderCell>First Name</Table.HeaderCell>
+          <Table.HeaderCell>Last Name</Table.HeaderCell>
+          <Table.HeaderCell>Nicknames</Table.HeaderCell>
+        </Table.Row>
+      </Table.Header>
+
+      <Table.Body>
+        {data.map((runner) => (
+          <Table.Row key={runner.firstName}>
+            <Table.Cell>{runner.firstName}</Table.Cell>
+            <Table.Cell>{runner.lastName}</Table.Cell>
+            <Table.Cell>{runner.nicknames.join(", ")}</Table.Cell>
+          </Table.Row>
+        ))}
+      </Table.Body>
+    </Table>
+  );
 
   return (
     <div className="App">
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
+        <p>Hello Vite + React! </p>
 
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {" | "}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
+        <Segment inverted>
+          {isFetching ? <Loader active inverted content="Loading" /> : table}
+        </Segment>
       </header>
     </div>
   );

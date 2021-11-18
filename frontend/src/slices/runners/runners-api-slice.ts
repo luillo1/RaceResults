@@ -1,19 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const API_KEY = "TODO";
-const BASE_URL = "TODO";
 
 interface Runner {
-  organizationId: string,
-  firstName: string,
-  lastName: string,
-  aliases: string[]
+  organizationId: string;
+  firstName: string;
+  lastName: string;
+  nicknames: string[];
 }
 
 export const runnersApiSlice = createApi({
   reducerPath: "runnersApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: BASE_URL,
     prepareHeaders(headers) {
       headers.set("x-api-key", API_KEY);
 
@@ -22,9 +20,9 @@ export const runnersApiSlice = createApi({
   }),
   endpoints(builder) {
     return {
-      fetchRunner: builder.query<Runner[], string>({
-        query(id) {
-          return `/runners?id=${id}`;
+      fetchRunner: builder.query<Runner[], void>({
+        query() {
+          return "/api/runners";
         }
       })
     };
