@@ -32,7 +32,7 @@
       "apiVersion": "2021-02-01",
       "location": "[parameters('region')]",
       "sku": {
-        "name": "F1"
+        "name": "S1"
       },
       "properties": {}
     },
