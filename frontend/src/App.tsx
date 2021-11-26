@@ -1,10 +1,13 @@
-import React from "react";
-import { Loader, Segment, Table } from "semantic-ui-react";
+import React, { useRef } from "react";
+import { Container, Table } from "semantic-ui-react";
 import { useFetchRunnerQuery } from "./slices/runners/runners-api-slice";
-import logo from "./logo.svg";
 import "./App.css";
+import Navbar from "./components/navbar";
+import Home from "./pages/home";
+import { Routes, Route } from "react-router-dom";
 
 function App() {
+  /*
   const { data = [], isFetching } = useFetchRunnerQuery();
 
   const table = (
@@ -28,18 +31,18 @@ function App() {
       </Table.Body>
     </Table>
   );
+  */
 
+  const appRef = useRef(null);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React! </p>
-
-        <Segment inverted>
-          {isFetching ? <Loader active inverted content="Loading" /> : table}
-        </Segment>
-      </header>
-    </div>
+    <Container fluid ref={appRef}>
+      <Navbar appRef={appRef} />
+      <Container>
+        <Routes>
+          <Route path="/" element={<Home />}></Route>
+        </Routes>
+      </Container>
+    </Container>
   );
 }
 
