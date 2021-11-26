@@ -13,4 +13,12 @@
     <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.22.1" />
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.6.2" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="frontend\**" />
+    <Compile Remove="frontend\**" />
+    <EmbeddedResource Remove="frontend\**" />
+    <None Remove="frontend\**" />
+  </ItemGroup>
+
 </Project>
