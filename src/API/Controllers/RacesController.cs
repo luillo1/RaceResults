@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Data.CosmosDb;
 using RaceResults.Common.Models;
+using System;
 
 namespace RaceResults.Controllers
 {
@@ -24,17 +25,28 @@ namespace RaceResults.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAll()
         {
             IEnumerable<Race> result = await this.containerClient.GetItemsAsync();
             return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post(Race race)
+        [HttpGet("{id}")]
+        public IActionResult Get(Guid id)
         {
-            await this.containerClient.AddItemAsync(race);
-            return CreatedAtAction(nameof(Post), new { id = race.Id }, race);
+            return Ok();
+        }
+
+        [HttpPost]
+        public IActionResult Create(Race race)
+        {
+            return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(Guid id)
+        {
+            return NoContent();
         }
     }
 }
