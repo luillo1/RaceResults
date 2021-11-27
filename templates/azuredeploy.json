@@ -8,7 +8,10 @@
     "appServicePlanName": {
       "type": "string"
     },
-    "webAppName": {
+    "apiWebAppName": {
+      "type": "string"
+    },
+    "clientWebAppName": {
       "type": "string"
     },
     "mainDatabaseName": {
@@ -37,7 +40,7 @@
       "properties": {}
     },
     {
-      "name": "[parameters('webAppName')]",
+      "name": "[parameters('apiWebAppName')]",
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
       "location": "[parameters('region')]",
@@ -49,6 +52,17 @@
       },
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', parameters('appServicePlanName'))]"
+      }
+    },
+        {
+      "apiVersion": "2019-12-01-preview",
+      "name": "[parameters('clientWebAppName')]",
+      "type": "Microsoft.Web/staticSites",
+      "location": "[parameters('region')]",
+      "properties": {},
+      "sku": {
+        "Tier": "Standard",
+        "Name": "Standard"
       }
     },
     {
