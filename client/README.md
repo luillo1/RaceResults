@@ -1,4 +1,4 @@
-﻿# RaceResults Frontend
+# RaceResults Frontend
 
 This is the frontend webpage for https://raceresults.run.
 
