@@ -5,11 +5,17 @@
     "region": {
       "value": "westus"
     },
+    "clientWebAppRegion": {
+      "value": "westus2"
+    },
     "appServicePlanName": {
       "value": "raceresults-asp"
     },
-    "webAppName": {
+    "apiWebAppName": {
       "value": "raceresults-app"
+    },
+    "clientWebAppName": {
+      "value": "raceresults-client"
     },
     "mainDatabaseName": {
       "value": "raceresults-db"

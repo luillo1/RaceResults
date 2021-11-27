@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\RaceResults.Common.csproj" />
+    <ProjectReference Include="..\Data\RaceResults.Data.csproj" />
+  </ItemGroup>
+</Project>

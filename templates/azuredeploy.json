@@ -5,10 +5,16 @@
     "region": {
       "type": "string"
     },
+    "clientWebAppRegion": {
+      "type": "string"
+    },
     "appServicePlanName": {
       "type": "string"
     },
-    "webAppName": {
+    "apiWebAppName": {
+      "type": "string"
+    },
+    "clientWebAppName": {
       "type": "string"
     },
     "mainDatabaseName": {
@@ -32,12 +38,12 @@
       "apiVersion": "2021-02-01",
       "location": "[parameters('region')]",
       "sku": {
-        "name": "F1"
+        "name": "S1"
       },
       "properties": {}
     },
     {
-      "name": "[parameters('webAppName')]",
+      "name": "[parameters('apiWebAppName')]",
       "type": "Microsoft.Web/sites",
       "apiVersion": "2021-02-01",
       "location": "[parameters('region')]",
@@ -48,7 +54,19 @@
         "type": "SystemAssigned"
       },
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', parameters('appServicePlanName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverFarms', parameters('appServicePlanName'))]",
+        "httpsOnly": true
+      }
+    },
+        {
+      "apiVersion": "2019-12-01-preview",
+      "name": "[parameters('clientWebAppName')]",
+      "type": "Microsoft.Web/staticSites",
+      "location": "[parameters('clientWebAppRegion')]",
+      "properties": {},
+      "sku": {
+        "Tier": "Standard",
+        "Name": "Standard"
       }
     },
     {
