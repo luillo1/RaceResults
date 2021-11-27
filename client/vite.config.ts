@@ -19,7 +19,11 @@ export default defineConfig(({ mode }) => {
     };
   } else {
     return {
-      plugins: [react()]
+      plugins: [react()],
+      root: "src",
+      build: {
+        outDir: "../build"
+      }
     };
   }
 });
