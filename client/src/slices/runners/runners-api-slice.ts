@@ -9,12 +9,14 @@ interface Runner {
   nicknames: string[];
 }
 
+console.log(import.meta.env);
+
 export const runnersApiSlice = createApi({
   reducerPath: "runnersApi",
   baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders(headers) {
-      headers.set("x-api-key", API_KEY);
-
+      headers.set("Access-Control-Allow-Origin", "*");
       return headers;
     }
   }),
@@ -22,7 +24,7 @@ export const runnersApiSlice = createApi({
     return {
       fetchRunner: builder.query<Runner[], void>({
         query() {
-          return "/api/runners";
+          return "/runners";
         }
       })
     };
