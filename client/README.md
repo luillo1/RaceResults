@@ -1,4 +1,4 @@
-﻿# RaceResults Frontend
+# RaceResults Frontend
 
 This is the frontend webpage for https://raceresults.run.
 
@@ -18,6 +18,6 @@ running `npm run dev`.
 
 ## Backend connection
 
-While running in development mode, all calls to a `/api` endpoint will be forwarded to the proxy server
+While running in development mode, all calls to a backend will be forwarded to the proxy server
 `https://localhost:5001/`. This can be configured by editing `vite.config.ts`. This proxy is the default
 URL when running the backend API (which can be started by running `dotnet run` from the `/api/src/API` directory).
