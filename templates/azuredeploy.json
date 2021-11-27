@@ -5,6 +5,9 @@
     "region": {
       "type": "string"
     },
+    "clientWebAppRegion": {
+      "type": "string"
+    },
     "appServicePlanName": {
       "type": "string"
     },
@@ -59,7 +62,7 @@
       "apiVersion": "2019-12-01-preview",
       "name": "[parameters('clientWebAppName')]",
       "type": "Microsoft.Web/staticSites",
-      "location": "[parameters('region')]",
+      "location": "[parameters('clientWebAppRegion')]",
       "properties": {},
       "sku": {
         "Tier": "Standard",
