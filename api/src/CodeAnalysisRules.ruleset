@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<RuleSet Name="RaceResults Ruleset" ToolsVersion="14.0">
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.SpecialRules">
+        <Rule Id="SA0001"  Action="None" />          <!-- XML comment analysis disabled -->
+    </Rules>
+
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.SpacingRules">
+    </Rules>
+   
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.ReadabilityRules">
+        <Rule Id="SA1101"  Action="None" />          <!-- Prefix local calls with this -->
+    </Rules>
+	
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.OrderingRules">
+        <Rule Id="SA1201"  Action="None" />          <!-- Elements should appear in the correct order -->
+        <Rule Id="SA1210"  Action="Error" />         <!-- Using directives should be ordered alphabetically by namespace -->
+    </Rules>
+
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.NamingRules">
+    </Rules>
+
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.MaintainabilityRules">
+    </Rules>
+	
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.LayoutRules">
+    </Rules>
+	
+    <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers.DocumentationRules">
+        <Rule Id="SA1633"  Action="None" />          <!-- File should have header -->
+    </Rules>
+</RuleSet>

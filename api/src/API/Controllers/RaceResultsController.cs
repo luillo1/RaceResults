@@ -1,12 +1,12 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using RaceResults.Common.Models;
-using RaceResults.Data.Core;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-
 namespace RaceResults.Api.Controllers
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
+    using RaceResults.Common.Models;
+    using RaceResults.Data.Core;
+
     [ApiController]
     [Route("[controller]")]
     public class RaceResultsController : ControllerBase
@@ -43,6 +43,5 @@ namespace RaceResults.Api.Controllers
             await this.containerClient.AddItemAsync(raceResult);
             return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
         }
-
     }
 }

@@ -1,8 +1,8 @@
-using Azure.Identity;
-using Microsoft.Azure.Cosmos;
-
 namespace RaceResults.Data.Core
 {
+    using Azure.Identity;
+    using Microsoft.Azure.Cosmos;
+
     public class CosmosDbClient : ICosmosDbClient
     {
         private readonly CosmosClient cosmosClient;
@@ -16,8 +16,8 @@ namespace RaceResults.Data.Core
                 SerializerOptions = new CosmosSerializationOptions()
                 {
                     IgnoreNullValues = true,
-                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-                }
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                },
             };
 
             this.cosmosClient = new CosmosClient(
