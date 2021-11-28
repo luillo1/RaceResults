@@ -6,7 +6,8 @@ on:
     branches:
       - main
     paths:
-      - 'client'
+      - 'client/**'
+      - '.github/workflows/frontendDeploy.yaml'
 
 jobs:
   build-and-deploy:
