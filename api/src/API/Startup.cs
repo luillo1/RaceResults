@@ -19,6 +19,7 @@ namespace RaceResults.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddApplicationInsightsTelemetry();
             services.AddSingleton<IKeyVaultClient, KeyVaultClient>();
             services.AddSingleton<ICosmosDbClient>(services =>
                     {
