@@ -13,17 +13,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/setup-node@v1
-          with:
-            node-version: "16.x"
-        - name: navigate to frontend root
-          run: cd client
-        - name: Install packages
-          run: |
-            npm install
-        - name: run eslint
-          run: npm run lint
-        - name: build frontend
-          run: npm run build
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: "16.x"
+      - name: navigate to frontend root
+        run: cd client
+      - name: Install packages
+        run: |
+          npm install
+      - name: run eslint
+        run: npm run lint
+      - name: build frontend
+        run: npm run build
