@@ -1,7 +1,7 @@
+using RaceResults.Common.Models;
+
 namespace RaceResults.Data.Core
 {
-    using RaceResults.Common.Models;
-
     public interface ICosmosDbContainerProvider
     {
         ICosmosDbContainerClient<RaceResult> RaceResultContainer { get; }

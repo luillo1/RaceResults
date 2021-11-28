@@ -1,10 +1,10 @@
+using System;
+using System.Threading.Tasks;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+
 namespace RaceResults.Data.Core
 {
-    using System;
-    using System.Threading.Tasks;
-    using Azure.Identity;
-    using Azure.Security.KeyVault.Secrets;
-
     public class KeyVaultClient : IKeyVaultClient
     {
         private const string KeyVaultEndpoint = "https://raceresults-kv.vault.azure.net/";

@@ -1,8 +1,8 @@
+using System;
+using System.ComponentModel.DataAnnotations;
+
 namespace RaceResults.Common.Models
 {
-    using System;
-    using System.ComponentModel.DataAnnotations;
-
     public enum Distance
     {
         FiveK,

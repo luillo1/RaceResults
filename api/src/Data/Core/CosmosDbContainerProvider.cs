@@ -1,7 +1,7 @@
+using RaceResults.Common.Models;
+
 namespace RaceResults.Data.Core
 {
-    using RaceResults.Common.Models;
-
     public class CosmosDbContainerProvider : ICosmosDbContainerProvider
     {
         private const string RaceResultContainerName = "RaceResultContainer";

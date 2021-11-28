@@ -1,8 +1,8 @@
+using Azure.Identity;
+using Microsoft.Azure.Cosmos;
+
 namespace RaceResults.Data.Core
 {
-    using Azure.Identity;
-    using Microsoft.Azure.Cosmos;
-
     public class CosmosDbClient : ICosmosDbClient
     {
         private readonly CosmosClient cosmosClient;

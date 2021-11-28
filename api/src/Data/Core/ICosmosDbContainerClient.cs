@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace RaceResults.Data.Core
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-
     public interface ICosmosDbContainerClient<T>
     {
         Task<T> GetItemAsync(string id);
