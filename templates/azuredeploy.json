@@ -62,11 +62,13 @@
       }
     },
         {
-      "apiVersion": "2019-12-01-preview",
+      "apiVersion": "2021-02-01",
       "name": "[parameters('clientWebAppName')]",
       "type": "Microsoft.Web/staticSites",
       "location": "[parameters('clientWebAppRegion')]",
-      "properties": {},
+      "properties": {
+        "provider": "GitHub"
+      },
       "sku": {
         "Tier": "Standard",
         "Name": "Standard"
