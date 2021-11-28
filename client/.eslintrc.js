@@ -25,7 +25,9 @@ module.exports = {
     "space-before-function-paren": ["error", "never"],
     semi: ["warn", "always"],
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"]
+    "@typescript-eslint/no-use-before-define": ["error"],
+    "no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": ["error"]
   },
   settings: {
     react: {
