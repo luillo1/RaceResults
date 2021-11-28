@@ -1,26 +1,41 @@
-import React, { useRef, forwardRef } from "react";
-import { Container, Segment } from "semantic-ui-react";
+import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
-import Home from "./pages/home";
+import Runners from "./pages/runners";
 import { Routes, Route } from "react-router-dom";
+import { PublicClientApplication } from "@azure/msal-browser";
+import { MsalProvider } from "@azure/msal-react";
+import { Logout } from "./pages/logout";
+import { RequireLogin } from "./utils/RequireLogin";
+import Home from "./pages/home";
 
-function App() {
-  console.log(import.meta.env);
+interface AppProps {
+  // Used to make the navbar sticky while scrolling the entire document
+  pca: PublicClientApplication;
+}
 
+function App({ pca }: AppProps) {
   const appRef = useRef(null);
 
   return (
     <div ref={appRef}>
-      <div>
+      <MsalProvider instance={pca}>
         <Navbar appRef={appRef} />
-        <br />
-        <Container>
+        <div>
           <Routes>
-            <Route path="/" element={<Home />}></Route>
+            <Route path="/" element={<Home />} />
+            <Route
+              path="/runners"
+              element={
+                <RequireLogin>
+                  <Runners />
+                </RequireLogin>
+              }
+            />
+            <Route path="/logout" element={<Logout />} />
           </Routes>
-        </Container>
-      </div>
+        </div>
+      </MsalProvider>
     </div>
   );
 }

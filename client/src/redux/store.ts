@@ -5,7 +5,6 @@ export const store = configureStore({
   reducer: {
     [runnersApiSlice.reducerPath]: runnersApiSlice.reducer
   },
-
   middleware: (getDefaultMiddleware) => {
     /*
     * This is where we can add a bunch of API-specific middleware
