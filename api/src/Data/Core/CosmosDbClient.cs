@@ -16,8 +16,8 @@ namespace RaceResults.Data.Core
                 SerializerOptions = new CosmosSerializationOptions()
                 {
                     IgnoreNullValues = true,
-                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
-                }
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                },
             };
 
             this.cosmosClient = new CosmosClient(

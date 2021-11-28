@@ -1,7 +1,7 @@
-using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
 using System;
 using System.Threading.Tasks;
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
 
 namespace RaceResults.Data.Core
 {

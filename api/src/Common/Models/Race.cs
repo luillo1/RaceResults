@@ -8,7 +8,7 @@ namespace RaceResults.Common.Models
         FiveK,
         TenK,
         HalfMarathon,
-        Marathon
+        Marathon,
     }
 
     public class Race

@@ -1,9 +1,9 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace RaceResults.Api.Controllers
 {
