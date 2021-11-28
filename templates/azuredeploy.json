@@ -69,7 +69,8 @@
       "properties": {
         "provider": "GitHub",
         "repositoryUrl": "https://github.com/luillo1/RaceResults",
-        "branch": "main",
+        "branch": "main"
+      },
       "sku": {
         "Tier": "Standard",
         "Name": "Standard"
