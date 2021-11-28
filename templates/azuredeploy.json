@@ -67,8 +67,9 @@
       "type": "Microsoft.Web/staticSites",
       "location": "[parameters('clientWebAppRegion')]",
       "properties": {
-        "provider": "GitHub"
-      },
+        "provider": "GitHub",
+        "repositoryUrl": "https://github.com/luillo1/RaceResults",
+        "branch": "main",
       "sku": {
         "Tier": "Standard",
         "Name": "Standard"
