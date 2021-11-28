@@ -25,6 +25,9 @@
     },
     "keyVaultName": {
       "value": "raceresults-kv"
+    },
+    "appInsightsName": {
+      "value": "raceresults-ai"
     }
   }
 }

@@ -26,6 +26,9 @@
     "keyVaultName": {
       "type": "string"
     },
+    "appInsightsName": {
+      "type": "string"
+    },
     "tenantId": {
       "type": "string"
     }
@@ -124,6 +127,16 @@
         "tenantId": "[parameters('tenantId')]",
         "accessPolicies": [],
         "enableRbacAuthorization": true
+      }
+    },
+    {
+      "type": "Microsoft.Insights/Components",
+      "apiVersion": "2020-02-02",
+      "name": "[parameters('appInsightsName')]",
+      "location": "[parameters('region')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
       }
     }
   ]
