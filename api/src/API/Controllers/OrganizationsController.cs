@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
@@ -7,6 +8,7 @@ using RaceResults.Data.Core;
 
 namespace RaceResults.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class OrganizationsController : ControllerBase
