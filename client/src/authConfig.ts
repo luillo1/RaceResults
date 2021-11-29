@@ -25,7 +25,7 @@ export const msalConfig = {
   },
   system: {
     loggerOptions: {
-      loggerCallback: (level: any, message: any, containsPii: any) => {
+      loggerCallback: (level: LogLevel, message: string, containsPii: boolean) => {
         if (containsPii) {
           return;
         }

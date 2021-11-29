@@ -9,7 +9,7 @@ import LoginLoading from "../pages/loginLoading";
   Wrap a page/component with this component to ensure the user is logged
   in before the component is rendered.
 */
-export const RequireLogin: FC<{}> = ({ children }) => {
+export const RequireLogin: FC<unknown> = ({ children }) => {
   const authRequest = {
     ...loginRequest
   };
