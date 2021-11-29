@@ -8,7 +8,6 @@ using RaceResults.Data.Core;
 
 namespace RaceResults.Api.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("[controller]")]
     public class RacesController : ControllerBase
