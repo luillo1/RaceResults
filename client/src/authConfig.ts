@@ -51,5 +51,5 @@ export const msalConfig = {
 
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest = {
-  scopes: ["User.Read"]
+  scopes: ["User.Read", "api://c0fa99d9-ffc5-4e38-8a87-a0c0e5774150/RaceResults.ReadWrite"]
 };
