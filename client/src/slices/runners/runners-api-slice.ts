@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { loginRequest } from "../../authConfig";
 import { msalInstance } from "../../utils/mcalInstance";
 
 interface Runner {
@@ -21,7 +22,7 @@ export const runnersApiSlice = createApi({
       const accounts = msalInstance.getAllAccounts();
       if (activeAccount || accounts.length > 0) {
         const request = {
-          scopes: ["User.Read"],
+          ...loginRequest,
           account: activeAccount || accounts[0]
         };
 
