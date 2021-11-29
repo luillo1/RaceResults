@@ -1,5 +1,5 @@
-import React, { useRef, forwardRef } from "react";
-import { Container, Segment } from "semantic-ui-react";
+import React, { useRef } from "react";
+import { Container } from "semantic-ui-react";
 import "./App.css";
 import Navbar from "./components/navbar";
 import Home from "./pages/home";

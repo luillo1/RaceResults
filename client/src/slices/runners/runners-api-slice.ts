@@ -1,7 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const API_KEY = "TODO";
-
 interface Runner {
   organizationId: string;
   firstName: string;
