@@ -22,7 +22,7 @@ export const runnersApiSlice = createApi({
       const accounts = msalInstance.getAllAccounts();
       if (activeAccount || accounts.length > 0) {
         const request = {
-          scopes: loginRequest.scopes,
+          ...loginRequest,
           account: activeAccount || accounts[0]
         };
 
