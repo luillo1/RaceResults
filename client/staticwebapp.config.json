@@ -1,0 +1,29 @@
+{
+  "routes": [
+    {
+      "route": "/assets/*",
+      "methods": ["GET"]
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "index.html",
+    "exclude": ["/assets/*"]
+  },
+  "responseOverrides": {
+    "400": {
+      "rewrite": "/invalid-invitation-error.html"
+    },
+    "403": {
+      "rewrite": "/custom-forbidden-page.html"
+    },
+    "404": {
+      "rewrite": "/404.html"
+    }
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "https://api.raceresults.run"
+  },
+  "mimeTypes": {
+    ".json": "text/json"
+  }
+}
