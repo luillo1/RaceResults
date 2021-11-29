@@ -12,7 +12,7 @@ export const runnersApiSlice = createApi({
   reducerPath: "runnersApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
-    prepareHeaders: async(headers, { getState }) => {
+    prepareHeaders: async(headers) => {
       //
       // See if we're logged in. If we are, attach the bearer
       // token to this request.

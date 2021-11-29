@@ -6,8 +6,9 @@ on:
     branches:
       - main
     paths:
-      - 'client/**'
-      - '.github/workflows/frontendDeploy.yaml'
+      - "client/**"
+      - ".github/workflows/frontendDeploy.yaml"
+      - ".github/workflows/frontendCI.yaml"
 
 jobs:
   build-and-deploy:
@@ -23,4 +24,3 @@ jobs:
           action: "upload"
           app_location: "/client"
           output_location: "/build"
-
