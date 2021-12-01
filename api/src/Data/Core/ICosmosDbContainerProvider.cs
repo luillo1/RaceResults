@@ -4,13 +4,13 @@ namespace RaceResults.Data.Core
 {
     public interface ICosmosDbContainerProvider
     {
-        ICosmosDbContainerClient<RaceResult> RaceResultContainer { get; }
+        IRaceResultContainerClient RaceResultContainer { get; }
 
-        ICosmosDbContainerClient<Race> RaceContainer { get; }
+        IRaceContainerClient RaceContainer { get; }
 
-        ICosmosDbContainerClient<Runner> RunnerContainer { get; }
+        IMemberContainerClient MemberContainer { get; }
 
-        ICosmosDbContainerClient<Organization> OrganizationContainer { get; }
+        IOrganizationContainerClient OrganizationContainer { get; }
 
         ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
     }

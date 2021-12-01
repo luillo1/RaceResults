@@ -4,9 +4,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class Runner
+    public class Member : IModel
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; set; }
+
+        [Required]
+        public Guid OrganizationId { get; set; }
+
+        [Required]
+        public string OrgAssignedMemberId { get; set; }
 
         [Required]
         public string FirstName { get; set; }
@@ -15,5 +21,10 @@ namespace RaceResults.Common.Models
         public string LastName { get; set; }
 
         public List<string> Nicknames { get; set; }
+
+        public string GetPartitionKey()
+        {
+            return OrganizationId.ToString();
+        }
     }
 }
