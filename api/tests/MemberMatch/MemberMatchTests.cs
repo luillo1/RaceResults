@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.MemberMatch;
+using System.Linq;
 
 namespace TestMemberMatch
 {
@@ -314,6 +316,91 @@ namespace TestMemberMatch
             Assert.AreEqual(probability, 0.8693, delta: 0.0001);
         }
 
+        [TestMethod]
+        public void TestBig1()
+        {
+            // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
+            string root = @"D:\OneDrive\Shares\RaceResults";
+
+            string[] separatingStrings = { ".", ",", " " };
+            //!!!TODO split on all whitespace, too.
+
+            int index2 = -1;
+            foreach (string line in File.ReadLines(root + "/sample_members.tsv"))
+            {
+                index2++;
+                if (index2 == 0)
+                {
+                    continue;
+                }
+                var fields = line.Split('\t');
+                Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
+
+                List<string> ProcessName(string field)
+                {
+                    /* Rules for names:
+                        Assume no accent marks !!!TODO
+                        trim spaces from ends !!!TODO
+                        capitalize everything
+                        make any middle name part of the first or last name via spaces
+                        Remove "." and "'"
+                        ignore any one character names
+                        Split on hyphens, slashes, and spaces and treat as nicknames
+                        treat the nickname column as a first name nickname
+                        remove empty strings
+                    */
+                    field = field.ToUpperInvariant().Trim();
+                    ///TODO what about other single-quote like characters such as back quote
+                    field = field.Replace(".", string.Empty).Replace("'", string.Empty);
+                    ///TODO and all whitespace?
+                    string[] names = field.Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var names2 =
+                        (from name in names
+                         where name.Length > 1
+                         select name).ToList();
+                    return names2;
+                }
+
+
+                var first_names = ProcessName(fields[0]);
+                var last_names = ProcessName(fields[1]);
+                first_names.AddRange(ProcessName(fields[2]));
+                string city = fields[3].ToUpperInvariant();
+                Debug.WriteLine(line);
+                Debug.WriteLine($"  firsts {string.Join(",", first_names)}");
+                Debug.WriteLine($"  lasts {string.Join(",", last_names)}");
+                Debug.WriteLine($"  city {city}");
+            }
+
+
+            var scorer = new Scorer(root + "/name_probability.tsv");
+            Assert.AreEqual(scorer.Delta(name: "JOHN", isContained: true), 2.90924881, delta: .001);
+
+            // Version #1 -- do things slowly
+            // !!!TODO dictionary of member names
+            // !!!TODO look up delta for each name at the start
+            // !!!TODO run in parallel
+            int index = -1;
+            foreach (string line2 in File.ReadLines(root + "/sample_results_nocity.txt"))
+            {
+                index++;
+                if (index == 0)
+                {
+                    continue;
+                }
+
+                var upper_line = line2.ToUpperInvariant();
+                string[] tokens = upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+                Debug.WriteLine(line2);
+                foreach (var token in tokens)
+                {
+                    Debug.WriteLine($"  > {token}");
+                }
+            }
+        }
+
+
+
         private Scorer TestScorer()
         {
             var nameToProbability = new Dictionary<string, double>()
@@ -328,5 +415,5 @@ namespace TestMemberMatch
         }
 
     }
-    
+
 }
