@@ -23,7 +23,7 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod1()
         {
-            var scorer = TestScorer();
+            var scorer = this.TestScorer();
 
             // We have a member named John and we see
             // "John" in a line of some results. 1% of Americans are
@@ -52,8 +52,8 @@ namespace TestMemberMatch
             // 32.75 of 100,000 Americans have the name Alice
             // 823.92 of 100,000 Americans have the name Smith
             // What is the score and probability that this line refers to our member?
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             var score1 = Scorer.DefaultPriorScore + scorer.Delta(name: "ALICE", isContained: true);
             var score2 = score1 + scorer.Delta(name: "SMITH", isContained: true);
             Assert.AreEqual(score2, 0.2883, delta: .001);
@@ -87,8 +87,8 @@ namespace TestMemberMatch
             // 154.27 of 100,000 Americans have the name Alison
             // 63.54  of 100,000 Americans have the name Allison
             // What is the score and probability that this line refers to our member?
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             var score0 = scorer.Delta(name: "ALICE", isContained: false, probabilityAppearsInLineFromReference: .5);
             var score1 = scorer.Delta(name: "ALISON", isContained: true, probabilityAppearsInLineFromReference: .05);
             var score2 = scorer.Delta(name: "ALLISON", isContained: false, probabilityAppearsInLineFromReference: .05);
@@ -113,8 +113,8 @@ namespace TestMemberMatch
             // "Alice" in a line of some results.
             // What is the score and
             // probability that this line refers to our member?
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             var score = Scorer.DefaultPriorScore;
             score += scorer.Delta(name: "ALICE", isContained: true);
 
@@ -143,8 +143,8 @@ namespace TestMemberMatch
             // We found a line containing "Alison" and we wonder if it refers to our member
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does not contain "Smith", but it does contain "Bellevue" her town.
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
             bool[] firstNameIsContainedList = new[] { false, true, false };
             string[] lastNameList = new[] { "SMITH" };
@@ -183,8 +183,8 @@ namespace TestMemberMatch
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does contain "Smith", but it does not contain "Bellevue" her town
             // even though there are city names in the results.
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
             bool[] firstNameIsContainedList = new[] { true, false, false };
             string[] lastNameList = new[] { "SMITH" };
@@ -223,8 +223,8 @@ namespace TestMemberMatch
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does contain "Smith". None of the results contain city info, so we skip
             // that.
-            var scorer = TestScorer();
 
+            var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
             bool[] firstNameIsContainedList = new[] { true, false, false };
             string[] lastNameList = new[] { "SMITH" };
@@ -257,7 +257,8 @@ namespace TestMemberMatch
             // for whom "Alison" and "Allison" are nicknames.
             // The line also contains "Smith" and "Bellevue", her town.
             // We can also see that 300 of the 3000 result lines mention "Bellevue".
-            var scorer = TestScorer();
+
+            var scorer = this.TestScorer();
 
             // We list each first name and related nicknames.
             // Behind the scenes it looks up the probability
@@ -318,12 +319,14 @@ namespace TestMemberMatch
             var nameToProbability = new Dictionary<string, double>()
             {
                 { "JOHN", .01 },
-                { "ALICE", 32.75 / 100_000 },
-                { "SMITH",  823.92 / 100_000 },
-                { "ALISON", 154.27 / 100_000 },
-                { "ALLISON", 63.54 / 100_000 },
+                { "ALICE", 32.75 / 100_000},
+                { "SMITH",  823.92 / 100_000},
+                { "ALISON", 154.27 / 100_000},
+                { "ALLISON", 63.54 / 100_000},
             };
             return new Scorer(nameToProbability);
         }
+
     }
+    
 }
