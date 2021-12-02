@@ -325,6 +325,8 @@ namespace TestMemberMatch
             string[] separatingStrings = { ".", ",", " " };
             //!!!TODO split on all whitespace, too.
 
+            var nameToMembers = new Dictionary<string, HashSet<Member>>();
+
             int index2 = -1;
             foreach (string line in File.ReadLines(root + "/sample_members.tsv"))
             {
@@ -350,9 +352,11 @@ namespace TestMemberMatch
                         remove empty strings
                     */
                     field = field.ToUpperInvariant().Trim();
-                    ///TODO what about other single-quote like characters such as back quote
+
+                    // TODO what about other single-quote like characters such as back quote
                     field = field.Replace(".", string.Empty).Replace("'", string.Empty);
-                    ///TODO and all whitespace?
+
+                    // TODO and all whitespace?
                     string[] names = field.Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries);
                     var names2 =
                         (from name in names
@@ -361,7 +365,7 @@ namespace TestMemberMatch
                     return names2;
                 }
 
-
+                // TODO: don't use _ in name. Move this into class. Move class into its own file.
                 var first_names = ProcessName(fields[0]);
                 var last_names = ProcessName(fields[1]);
                 first_names.AddRange(ProcessName(fields[2]));
@@ -370,8 +374,31 @@ namespace TestMemberMatch
                 Debug.WriteLine($"  firsts {string.Join(",", first_names)}");
                 Debug.WriteLine($"  lasts {string.Join(",", last_names)}");
                 Debug.WriteLine($"  city {city}");
+                var member = new Member { FirstList = first_names, LastList = last_names, City = city };
+
+
+                foreach (var name in member.FirstList.Concat(member.LastList))
+                {
+                    var memberList = nameToMembers.GetValueOrDefault(name);
+                    if (memberList is null)
+                    {
+                        nameToMembers[name] = new HashSet<Member> { member };
+                    }
+                    else
+                    {
+                        memberList.Add(member);
+                    }
+                }
+
             }
 
+            // TODO be consistent between using plurals "members" and "list" (e.g. memberList)
+            foreach (var nameAndMemberList in nameToMembers)
+            {
+                var name = nameAndMemberList.Key;
+                var memberList = nameAndMemberList.Value;
+                Debug.WriteLine($"{name} -> {string.Join(", ", memberList)}");
+            }
 
             var scorer = new Scorer(root + "/name_probability.tsv");
             Assert.AreEqual(scorer.Delta(name: "JOHN", isContained: true), 2.90924881, delta: .001);
@@ -390,12 +417,45 @@ namespace TestMemberMatch
                 }
 
                 var upper_line = line2.ToUpperInvariant();
-                string[] tokens = upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries);
+                var tokensSet = upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries).ToHashSet();
+
+                var memberSetFromResultList = (
+                    from token in tokensSet
+                    let memberSet = nameToMembers.GetValueOrDefault(token)
+                    where memberSet != null
+                    from member in memberSet
+                    select member
+                    ).ToHashSet();
+
                 Debug.WriteLine(line2);
-                foreach (var token in tokens)
+                foreach (var token in tokensSet)
                 {
-                    Debug.WriteLine($"  > {token}");
+                    Debug.WriteLine($"  > '{token}'");
                 }
+                Debug.WriteLine($"-> {string.Join(", ", memberSetFromResultList)}");
+
+                foreach(var member in memberSetFromResultList)
+                {
+                    var firstNameList = member.FirstList;
+                    var firstNameIsContainedList = (
+                        from first in member.FirstList
+                        select tokensSet.Contains(first)
+                        ).ToArray();
+                    var lastNameList = member.LastList;
+                    var lastNameIsContainedList = (
+                        from last in member.LastList
+                        select tokensSet.Contains(last)
+                        ).ToArray();
+
+                    var score = Scorer.DefaultPriorScore;
+                    score += scorer.Delta(nameList: firstNameList,
+                                         isContainedList: firstNameIsContainedList);
+                    score += scorer.Delta(nameList: lastNameList,
+                                         isContainedList: lastNameIsContainedList);
+                    Debug.WriteLine($"   {score} : {member}");
+                    Debug.WriteLine("TODO remove");
+                }
+
             }
         }
 
@@ -412,6 +472,18 @@ namespace TestMemberMatch
                 { "ALLISON", 63.54 / 100_000},
             };
             return new Scorer(nameToProbability);
+        }
+    }
+
+    public class Member
+    {
+        public List<string> FirstList;
+        public List<string> LastList;
+        public string City;
+
+        public override string ToString()
+        {
+            return $"{string.Join("/", this.FirstList)} {string.Join("/", this.LastList)} @ {this.City}";
         }
 
     }
