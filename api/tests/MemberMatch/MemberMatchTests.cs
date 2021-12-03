@@ -323,103 +323,28 @@ namespace TestMemberMatch
             // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
             string root = @"D:\OneDrive\Shares\RaceResults";
 
-            string[] separatingStrings = { ".", ",", " ", "\t" };
             //!!!TODO split on all whitespace, too.
+            string[] separatingStrings = { ".", ",", " ", "\t" };
 
-            var nameToMembers = new Dictionary<string, HashSet<Member>>();
-            var citySet = new HashSet<string>();
-
-            int index2 = -1;
-            foreach (string line in File.ReadLines(root + "/sample_members.tsv"))
-            {
-                index2++;
-                if (index2 == 0)
-                {
-                    continue;
-                }
-                var fields = line.Split('\t');
-                Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
-
-                // TODO: don't use _ in name. Move this into class. Move class into its own file.
-                var first_names = this.ProcessName(fields[0]);
-                var last_names = this.ProcessName(fields[1]);
-                first_names.AddRange(this.ProcessName(fields[2]));
-                string city = fields[3].ToUpperInvariant();
-                Debug.WriteLine(line);
-                Debug.WriteLine($"  firsts {string.Join(",", first_names)}");
-                Debug.WriteLine($"  lasts {string.Join(",", last_names)}");
-                Debug.WriteLine($"  city {city}");
-                var member = new Member { FirstList = first_names, LastList = last_names, City = city };
-                citySet.Add(city);
-
-                foreach (var name in member.FirstList.Concat(member.LastList))
-                {
-                    var memberList = nameToMembers.GetValueOrDefault(name);
-                    if (memberList is null)
-                    {
-                        nameToMembers[name] = new HashSet<Member> { member };
-                    }
-                    else
-                    {
-                        memberList.Add(member);
-                    }
-                }
-
-            }
-
-            // TODO be consistent between using plurals "members" and "list" (e.g. memberList)
-            foreach (var nameAndMemberList in nameToMembers)
-            {
-                var name = nameAndMemberList.Key;
-                var memberList = nameAndMemberList.Value;
-                Debug.WriteLine($"{name} -> {string.Join(", ", memberList)}");
-            }
+            //TODO make this a class
+            var (nameToMembers, citySet) = this.NewMembers(root + "/sample_members.tsv");
 
             var scorer = new Scorer(root + "/name_probability.tsv");
             Assert.AreEqual(scorer.Delta(name: "JOHN", isContained: true), 2.90924881, delta: .001);
 
             foreach (var (withCity, filename, minimumScore, expectedFile) in new[] {
                 (true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt"),
-                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt") })
+                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt"), })
             {
-                var resultList = new List<string>();
-                int index = -1;
-                foreach (string line2 in File.ReadLines(root + filename))
-                {
-                    index++;
-                    if (index == 0)
-                    {
-                        continue;
-                    }
-
-                    resultList.Add(line2.ToUpperInvariant());
-                }
-
                 Dictionary<string, double> cityToFrequency;
-                if (withCity)
-                {
-                    int total = resultList.Count;
-                    cityToFrequency = (
-                       from city in citySet
-                       let count = (
-                        from result in resultList
-                        where result.Contains(city) // TODO OK that substrings will match?
-                        select 1
-                       ).Sum()
-                       select (city, (count + 1.0) / (total + 2.0))
-                       ).ToDictionary(pair => pair.city, pair => pair.Item2);
-                }
-                else
-                {
-                    cityToFrequency = null;
-                }
+                cityToFrequency = MemberMatchTests.NewCityToFrequency(withCity, root + filename, citySet);
 
-                // Version #1 -- do things slowly
-                // !!!TODO look up delta for each name at the start
+                // !!!TODO could look up delta for each name at the start
                 // !!!TODO run in parallel
                 var outputText = new StringBuilder();
-                foreach (string upper_line in resultList)
+                foreach (string line in File.ReadLines(root + filename).Skip(1))
                 {
+                    string upper_line = line.ToUpperInvariant();
                     var tokensSet =
                         (from token in upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
                          from token2 in this.ProcessName(token)
@@ -439,6 +364,7 @@ namespace TestMemberMatch
                     {
                         Debug.WriteLine($"  > '{token}'");
                     }
+
                     Debug.WriteLine($"-> {string.Join(", ", memberSetFromResultList)}");
 
                     var memberAndScoreList = (
@@ -451,7 +377,7 @@ namespace TestMemberMatch
 
                     if (memberAndScoreList.Count > 0)
                     {
-                        outputText.AppendLine(upper_line);
+                        outputText.AppendLine(line);
 
                         foreach (var (member, score) in memberAndScoreList)
                         {
@@ -462,14 +388,91 @@ namespace TestMemberMatch
                     }
                 }
 
-                if (true)
+                string expectedPath = root + expectedFile;
+                if (File.Exists(expectedPath))
                 {
-                    string expected = File.ReadAllText(root + expectedFile);
+                    string expected = File.ReadAllText(expectedPath);
                     Trace.Assert(expected == outputText.ToString(), "Output text is not as expected.");
                 }
                 else
                 {
-                    File.WriteAllText(root + expectedFile + ".temp", outputText.ToString());
+                    File.WriteAllText(expectedPath + ".temp", outputText.ToString());
+                    Trace.Assert(false, "Can't find expected output.");
+                }
+            }
+        }
+
+        private static Dictionary<string, double> NewCityToFrequency(bool withCity, string filePath, HashSet<string> citySet)
+        {
+            if (!withCity)
+            {
+                return null;
+            }
+
+            var resultList = (
+                from line in File.ReadLines(filePath).Skip(1)
+                select line.ToUpperInvariant())
+                .ToList();
+
+            int total = resultList.Count;
+            var cityToFrequency = (
+                from city in citySet
+                let count = (
+                    from result in resultList
+                    where result.Contains(city) // TODO OK that substrings will match?
+                    select 1)
+                    .Sum()
+                select (city, (count + 1.0) / (total + 2.0)))
+                .ToDictionary(pair => pair.city, pair => pair.Item2);
+
+            return cityToFrequency;
+        }
+
+        private (Dictionary<string, HashSet<Member>>, HashSet<string>) NewMembers(string filename)
+        {
+            var nameToMembers = new Dictionary<string, HashSet<Member>>();
+            var citySet = new HashSet<string>();
+
+            foreach (string line in File.ReadLines(filename).Skip(1))
+            {
+                var fields = line.Split('\t');
+                Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
+
+                // TODO: don't use _ in name. Move this into class. Move class into its own file.
+                var member = new Member
+                {
+                    FirstList = this.ProcessName(fields[0]).Concat(this.ProcessName(fields[2])).ToList(),
+                    LastList = this.ProcessName(fields[1]),
+                    City = fields[3].ToUpperInvariant(),
+                };
+                Debug.WriteLine(line);
+                Debug.WriteLine($" {member}");
+
+                AddMemberToIndex(nameToMembers, member);
+                citySet.Add(member.City);
+            }
+
+            // TODO be consistent between using plurals "members" and "list" (e.g. memberList)
+            foreach (var (name, memberList) in nameToMembers)
+            {
+                Debug.WriteLine($"{name} -> {string.Join(", ", memberList)}");
+            }
+
+            return (nameToMembers, citySet);
+        }
+
+        private static void AddMemberToIndex(Dictionary<string, HashSet<Member>> nameToMembers, Member member)
+        {
+            foreach (var name in member.FirstList.Concat(member.LastList))
+            {
+                var memberList = nameToMembers.GetValueOrDefault(name);
+                if (memberList is null)
+                {
+                    nameToMembers[name] = new HashSet<Member> { member };
+                }
+                else
+                {
+                    memberList.Add(member);
                 }
             }
         }
@@ -500,6 +503,7 @@ namespace TestMemberMatch
                 bool cityIsContained = line.Contains(member.City); // TODO: This test function appears in two places and could get out of sync
                 score += Scorer.Delta(probabilityAppearsInLineByCoincidence: cityFrequency, isContained: cityIsContained);
             }
+
             return score;
         }
 
