@@ -1,10 +1,10 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RaceResults.MemberMatch;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RaceResults.MemberMatch;
 
 namespace TestMemberMatch
 {
@@ -14,8 +14,11 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod0()
         {
-            // If we look at nothing, what's the score and probability
-            // that a result line refers to a particular member?
+            /*
+               If we look at nothing, what's the score and probability
+               that a result line refers to a particular member?
+            */
+
             var score1 = Scorer.DefaultPriorScore;
             Assert.AreEqual(score1, -11.51291, delta: .001);
             var probability1 = Scorer.ScoreToProbability(score1);
@@ -27,10 +30,13 @@ namespace TestMemberMatch
         {
             var scorer = this.TestScorer();
 
-            // We have a member named John and we see
-            // "John" in a line of some results. 1% of Americans are
-            // named "John". What is the score and
-            // probability that this line refers to our member?
+            /*
+               We have a member named John and we see
+               "John" in a line of some results. 1% of Americans are
+               named "John". What is the score and
+               probability that this line refers to our member?
+            */
+
             var score1 = Scorer.DefaultPriorScore + scorer.Delta(name: "JOHN", isContained: true);
             Assert.AreEqual(score1, -7.4185, delta: .001);
             var probability1 = Scorer.ScoreToProbability(score1);
@@ -71,7 +77,8 @@ namespace TestMemberMatch
             // 32.75 of 100,000 Americans have the name Alice
             // 823.92 of 100,000 Americans have the name Smith
             // What is the score and probability that this line refers to our member?
-            var scorer = TestScorer();
+
+            var scorer = this.TestScorer();
             var score1 = Scorer.DefaultPriorScore + scorer.Delta(name: "ALICE", isContained: true);
             var score2 = score1 + scorer.Delta(name: "SMITH", isContained: false);
             Assert.AreEqual(score2, -4.9077, delta: .001);
@@ -159,18 +166,18 @@ namespace TestMemberMatch
 
             // Evidence from First Name
             score += scorer.Delta(
-                    nameList: firstNameList,
-                    isContainedList: firstNameIsContainedList);
+                                 nameList: firstNameList,
+                                 isContainedList: firstNameIsContainedList);
 
             // Evidence from Last Name
             score += scorer.Delta(
-                    nameList: lastNameList,
-                    isContainedList: lastNameIsContainedList);
+                                 nameList: lastNameList,
+                                 isContainedList: lastNameIsContainedList);
 
             // Evidence from City
             score += Scorer.Delta(
-                    probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
-                    isContainedList: cityIsContainedList);
+                                 probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
+                                 isContainedList: cityIsContainedList);
 
             // Results
             Assert.AreEqual(score, -7.15334, delta: .001);
@@ -199,18 +206,18 @@ namespace TestMemberMatch
 
             // Evidence from First Name
             score += scorer.Delta(
-                    nameList: firstNameList,
-                    isContainedList: firstNameIsContainedList);
+                                 nameList: firstNameList,
+                                 isContainedList: firstNameIsContainedList);
 
             // Evidence from Last Name
             score += scorer.Delta(
-                    nameList: lastNameList,
-                    isContainedList: lastNameIsContainedList);
+                                 nameList: lastNameList,
+                                 isContainedList: lastNameIsContainedList);
 
             // Evidence from City
             score += Scorer.Delta(
-                    probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
-                    isContainedList: cityIsContainedList);
+                                 probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
+                                 isContainedList: cityIsContainedList);
 
             // Results
             Assert.AreEqual(score, -0.704623, delta: .001);
@@ -237,13 +244,13 @@ namespace TestMemberMatch
 
             // Evidence from First Name
             score += scorer.Delta(
-                    nameList: firstNameList,
-                    isContainedList: firstNameIsContainedList);
+                                 nameList: firstNameList,
+                                 isContainedList: firstNameIsContainedList);
 
             // Evidence from Last Name
             score += scorer.Delta(
-                    nameList: lastNameList,
-                    isContainedList: lastNameIsContainedList);
+                                 nameList: lastNameList,
+                                 isContainedList: lastNameIsContainedList);
 
             // Results
             Assert.AreEqual(score, 0.10601, delta: .001);
@@ -292,22 +299,22 @@ namespace TestMemberMatch
             // Seeing "Alice" on the line moves the score up by 8 to -4.
             // We now think there is a 1.5% chance this line refers to our Alice.
             score += scorer.Delta(
-                    nameList: firstNameList,
-                    isContainedList: firstNameIsContainedList);
+                                 nameList: firstNameList,
+                                 isContainedList: firstNameIsContainedList);
             Debug.WriteLine($"Score {score} -- probability {Scorer.ScoreToProbability(score):P3}");
 
             // Seeing "Smith" moves the score up by 4 to 0.
             // We now think there is a 52% chance this line refers to our Alice.
             score += scorer.Delta(
-                    nameList: lastNameList,
-                    isContainedList: lastNameIsContainedList);
+                                 nameList: lastNameList,
+                                 isContainedList: lastNameIsContainedList);
             Debug.WriteLine($"Score {score} -- probability {Scorer.ScoreToProbability(score):P3}");
 
             // Seeing "Bellevue" moves the score from 0 to 2.
             // We now think there is an 87% chance this line refers to our Alice.
             score += Scorer.Delta(
-                    probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
-                    isContainedList: cityIsContainedList);
+                                 probabilityAppearsInLineByCoincidenceList: cityConcidenceList,
+                                 isContainedList: cityIsContainedList);
             Debug.WriteLine($"Score {score} -- probability {Scorer.ScoreToProbability(score):P3}");
 
             // Check Results
@@ -322,37 +329,30 @@ namespace TestMemberMatch
             // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
             string root = @"D:\OneDrive\Shares\RaceResults";
 
-            //TODO make this a class
-            var (nameToMemberSet, citySet) = this.Members(root + "/sample_members.tsv");
-
             var scorer = new Scorer(root + "/name_probability.tsv");
-            Assert.AreEqual(scorer.Delta(name: "JOHN", isContained: true), 2.90924881, delta: .001);
+            var members = this.Members(root + "/sample_members.tsv");
 
-            foreach (var (withCity, filename, minimumScore, expectedFile) in new[] {
-                (true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt"),
-                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt"), })
+            foreach (var (withCity, filename, minimumScore, expectedFile) in new[]
             {
-                var cityToFrequency = MemberMatchTests.CityToFrequency(withCity, root + filename, citySet);
+                                (true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt"),
+                                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt"),
+            })
+            {
+                var cityToFrequency = MemberMatchTests.CityToFrequency(members, withCity, root + filename);
 
-                // !!!TODO could look up delta for each name at the start
-                // !!!TODO run in parallel
+                var query =
+                    from line in File.ReadLines(root + filename).Skip(1)
+                    let memberAndScoreList = this.MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
+                    where memberAndScoreList.Count > 0
+                    select (line, memberAndScoreList);
+
                 var outputText = new StringBuilder();
-                foreach (string line in File.ReadLines(root + filename).Skip(1))
+                foreach (var (line, memberAndScoreList) in query)
                 {
-                    Debug.WriteLine(line);
-
-                    var memberAndScoreList = this.MemberAndScoreList(scorer, nameToMemberSet, cityToFrequency, line, minimumScore);
-
-                    if (memberAndScoreList.Count > 0)
+                    outputText.AppendLine(line);
+                    foreach (var (member, score) in memberAndScoreList)
                     {
-                        outputText.AppendLine(line);
-
-                        foreach (var (member, score) in memberAndScoreList)
-                        {
-                            outputText.AppendLine($"\t{score:0.00}\t{member}");
-                            Debug.WriteLine($"   {score:0.00} : {member}");
-                            Debug.WriteLine("TODO remove");
-                        }
+                        outputText.AppendLine($"\t{score:0.00}\t{member}");
                     }
                 }
 
@@ -372,24 +372,31 @@ namespace TestMemberMatch
 
         private List<(Member member, double score)> MemberAndScoreList(
             Scorer scorer,
-            Dictionary<string, HashSet<Member>> nameToMemberSet,
+            (Dictionary<string, HashSet<Member>>, HashSet<string>) members,
             Dictionary<string, double> cityToFrequency,
             string line,
-            double minimumScore
-            )
+            double minimumScore)
         {
+            Debug.WriteLine(line);
+
             var tokenizedLine = this.TokenizedLine(line);
 
+            var (nameToMemberSet, citySet) = members;
             var candidateMembers = CandidateMembers(nameToMemberSet, tokenizedLine);
-
 
             var memberAndScoreList = (
                 from member in candidateMembers
                 let score = ScoreMember(scorer, cityToFrequency, member, tokenizedLine)
                 where score > minimumScore
                 orderby score descending
-                select (member, score)
-                ).ToList();
+                select (member, score)).ToList();
+
+            foreach (var (member, score) in memberAndScoreList)
+            {
+                Debug.WriteLine($"   {score:0.00} : {member}");
+                Debug.WriteLine("TODO remove");
+            }
+
             return memberAndScoreList;
         }
 
@@ -428,12 +435,17 @@ namespace TestMemberMatch
             return (upper_line, tokenSet);
         }
 
-        private static Dictionary<string, double> CityToFrequency(bool withCity, string filePath, HashSet<string> citySet)
+        private static Dictionary<string, double> CityToFrequency(
+            (Dictionary<string, HashSet<Member>>, HashSet<string>) members,
+            bool withCity,
+            string filePath)
         {
             if (!withCity)
             {
                 return null;
             }
+
+            var (nameToMemberSet, citySet) = members;
 
             var resultList = (
                 from line in File.ReadLines(filePath).Skip(1)
@@ -441,6 +453,7 @@ namespace TestMemberMatch
                 .ToList();
 
             int total = resultList.Count;
+
             var cityToFrequency = (
                 from city in citySet
                 let count = (
@@ -510,13 +523,13 @@ namespace TestMemberMatch
             var firstNameList = member.FirstList;
             var firstNameIsContainedList = (
                 from first in member.FirstList
-                select tokenSet.Contains(first)
-                ).ToArray();
+                select tokenSet.Contains(first))
+                .ToArray();
             var lastNameList = member.LastList;
             var lastNameIsContainedList = (
                 from last in member.LastList
-                select tokenSet.Contains(last)
-                ).ToArray();
+                select tokenSet.Contains(last))
+                .ToArray();
 
             var score = Scorer.DefaultPriorScore;
             score += scorer.Delta(
@@ -562,16 +575,15 @@ namespace TestMemberMatch
             return names2;
         }
 
-
         private Scorer TestScorer()
         {
             var nameToProbability = new Dictionary<string, double>()
             {
                 { "JOHN", .01 },
-                { "ALICE", 32.75 / 100_000},
-                { "SMITH",  823.92 / 100_000},
-                { "ALISON", 154.27 / 100_000},
-                { "ALLISON", 63.54 / 100_000},
+                { "ALICE", 32.75 / 100_000 },
+                { "SMITH",  823.92 / 100_000 },
+                { "ALISON", 154.27 / 100_000 },
+                { "ALLISON", 63.54 / 100_000 },
             };
             return new Scorer(nameToProbability);
         }
@@ -587,7 +599,6 @@ namespace TestMemberMatch
         {
             return $"{string.Join("/", this.FirstList)} {string.Join("/", this.LastList)} @ {this.City}";
         }
-
     }
 
 }
