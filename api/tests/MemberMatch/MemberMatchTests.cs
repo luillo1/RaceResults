@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.MemberMatch;
 using System.Linq;
+using System.Text;
 
 namespace TestMemberMatch
 {
@@ -316,16 +317,17 @@ namespace TestMemberMatch
             Assert.AreEqual(probability, 0.8693, delta: 0.0001);
         }
 
-        // TODO SKIP [TestMethod]
+        [TestMethod]
         public void TestBig1()
         {
             // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
             string root = @"D:\OneDrive\Shares\RaceResults";
 
-            string[] separatingStrings = { ".", ",", " " };
+            string[] separatingStrings = { ".", ",", " ", "\t" };
             //!!!TODO split on all whitespace, too.
 
             var nameToMembers = new Dictionary<string, HashSet<Member>>();
+            var citySet = new HashSet<string>();
 
             int index2 = -1;
             foreach (string line in File.ReadLines(root + "/sample_members.tsv"))
@@ -339,16 +341,16 @@ namespace TestMemberMatch
                 Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
 
                 // TODO: don't use _ in name. Move this into class. Move class into its own file.
-                var first_names = ProcessName(fields[0]);
-                var last_names = ProcessName(fields[1]);
-                first_names.AddRange(ProcessName(fields[2]));
+                var first_names = this.ProcessName(fields[0]);
+                var last_names = this.ProcessName(fields[1]);
+                first_names.AddRange(this.ProcessName(fields[2]));
                 string city = fields[3].ToUpperInvariant();
                 Debug.WriteLine(line);
                 Debug.WriteLine($"  firsts {string.Join(",", first_names)}");
                 Debug.WriteLine($"  lasts {string.Join(",", last_names)}");
                 Debug.WriteLine($"  city {city}");
                 var member = new Member { FirstList = first_names, LastList = last_names, City = city };
-
+                citySet.Add(city);
 
                 foreach (var name in member.FirstList.Concat(member.LastList))
                 {
@@ -376,64 +378,129 @@ namespace TestMemberMatch
             var scorer = new Scorer(root + "/name_probability.tsv");
             Assert.AreEqual(scorer.Delta(name: "JOHN", isContained: true), 2.90924881, delta: .001);
 
-            // Version #1 -- do things slowly
-            // !!!TODO dictionary of member names
-            // !!!TODO look up delta for each name at the start
-            // !!!TODO run in parallel
-            int index = -1;
-            foreach (string line2 in File.ReadLines(root + "/sample_results_nocity.txt"))
+            foreach (var (withCity, filename, minimumScore, expectedFile) in new[] {
+                (true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt"),
+                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt") })
             {
-                index++;
-                if (index == 0)
+                var resultList = new List<string>();
+                int index = -1;
+                foreach (string line2 in File.ReadLines(root + filename))
                 {
-                    continue;
+                    index++;
+                    if (index == 0)
+                    {
+                        continue;
+                    }
+
+                    resultList.Add(line2.ToUpperInvariant());
                 }
 
-                var upper_line = line2.ToUpperInvariant();
-                var tokensSet =
-                    (from token in upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
-                     from token2 in this.ProcessName(token)
-                     select token2
-                     ).ToHashSet();
-
-                var memberSetFromResultList = (
-                    from token in tokensSet
-                    let memberSet = nameToMembers.GetValueOrDefault(token)
-                    where memberSet != null
-                    from member in memberSet
-                    select member
-                    ).ToHashSet();
-
-                Debug.WriteLine(line2);
-                foreach (var token in tokensSet)
+                Dictionary<string, double> cityToFrequency;
+                if (withCity)
                 {
-                    Debug.WriteLine($"  > '{token}'");
+                    int total = resultList.Count;
+                    cityToFrequency = (
+                       from city in citySet
+                       let count = (
+                        from result in resultList
+                        where result.Contains(city) // TODO OK that substrings will match?
+                        select 1
+                       ).Sum()
+                       select (city, (count + 1.0) / (total + 2.0))
+                       ).ToDictionary(pair => pair.city, pair => pair.Item2);
                 }
-                Debug.WriteLine($"-> {string.Join(", ", memberSetFromResultList)}");
-
-                foreach(var member in memberSetFromResultList)
+                else
                 {
-                    var firstNameList = member.FirstList;
-                    var firstNameIsContainedList = (
-                        from first in member.FirstList
-                        select tokensSet.Contains(first)
-                        ).ToArray();
-                    var lastNameList = member.LastList;
-                    var lastNameIsContainedList = (
-                        from last in member.LastList
-                        select tokensSet.Contains(last)
-                        ).ToArray();
-
-                    var score = Scorer.DefaultPriorScore;
-                    score += scorer.Delta(nameList: firstNameList,
-                                         isContainedList: firstNameIsContainedList);
-                    score += scorer.Delta(nameList: lastNameList,
-                                         isContainedList: lastNameIsContainedList);
-                    Debug.WriteLine($"   {score} : {member}");
-                    Debug.WriteLine("TODO remove");
+                    cityToFrequency = null;
                 }
 
+                // Version #1 -- do things slowly
+                // !!!TODO look up delta for each name at the start
+                // !!!TODO run in parallel
+                var outputText = new StringBuilder();
+                foreach (string upper_line in resultList)
+                {
+                    var tokensSet =
+                        (from token in upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
+                         from token2 in this.ProcessName(token)
+                         select token2
+                         ).ToHashSet();
+
+                    var memberSetFromResultList = (
+                        from token in tokensSet
+                        let memberSet = nameToMembers.GetValueOrDefault(token)
+                        where memberSet != null
+                        from member in memberSet
+                        select member
+                        ).ToHashSet();
+
+                    Debug.WriteLine(upper_line);
+                    foreach (var token in tokensSet)
+                    {
+                        Debug.WriteLine($"  > '{token}'");
+                    }
+                    Debug.WriteLine($"-> {string.Join(", ", memberSetFromResultList)}");
+
+                    var memberAndScoreList = (
+                        from member in memberSetFromResultList
+                        let score = ScoreMember(scorer, cityToFrequency, upper_line, tokensSet, member)
+                        where score > minimumScore
+                        orderby score descending
+                        select (member, score)
+                        ).ToList();
+
+                    if (memberAndScoreList.Count > 0)
+                    {
+                        outputText.AppendLine(upper_line);
+
+                        foreach (var (member, score) in memberAndScoreList)
+                        {
+                            outputText.AppendLine($"\t{score:0.00}\t{member}");
+                            Debug.WriteLine($"   {score:0.00} : {member}");
+                            Debug.WriteLine("TODO remove");
+                        }
+                    }
+                }
+
+                if (true)
+                {
+                    string expected = File.ReadAllText(root + expectedFile);
+                    Trace.Assert(expected == outputText.ToString(), "Output text is not as expected.");
+                }
+                else
+                {
+                    File.WriteAllText(root + expectedFile + ".temp", outputText.ToString());
+                }
             }
+        }
+
+        private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToFrequency, string line, HashSet<string> tokensSet, Member member)
+        {
+            var firstNameList = member.FirstList;
+            var firstNameIsContainedList = (
+                from first in member.FirstList
+                select tokensSet.Contains(first)
+                ).ToArray();
+            var lastNameList = member.LastList;
+            var lastNameIsContainedList = (
+                from last in member.LastList
+                select tokensSet.Contains(last)
+                ).ToArray();
+
+            var score = Scorer.DefaultPriorScore;
+            score += scorer.Delta(
+                                 nameList: firstNameList,
+                                 isContainedList: firstNameIsContainedList);
+            score += scorer.Delta(
+                                 nameList: lastNameList,
+                                 isContainedList: lastNameIsContainedList);
+            if (cityToFrequency != null)
+            {
+                double cityFrequency = cityToFrequency[member.City];
+                bool cityIsContained = line.Contains(member.City); // TODO: This test function appears in two places and could get out of sync
+                score += Scorer.Delta(probabilityAppearsInLineByCoincidence: cityFrequency, isContained: cityIsContained);
+            }
+            return score;
         }
 
         private List<string> ProcessName(string field)
