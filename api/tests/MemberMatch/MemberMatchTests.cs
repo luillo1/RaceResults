@@ -330,7 +330,7 @@ namespace TestMemberMatch
             string root = @"D:\OneDrive\Shares\RaceResults";
 
             var scorer = new Scorer(root + "/name_probability.tsv");
-            var members = this.Members(root + "/sample_members.tsv");
+            var members = new Members(root + "/sample_members.tsv");
 
             foreach (var (withCity, filename, minimumScore, expectedFile) in new[]
             {
@@ -339,7 +339,8 @@ namespace TestMemberMatch
             })
             {
                 StringBuilder outputText = null;
-                for (int i = 0; i < 1; ++i) // TODO for timing change to 25
+                // TODO for timing change to 25
+                for (int i = 0; i < 1; ++i)
                 {
                     var cityToFrequency = MemberMatchTests.CityToFrequency(members, withCity, root + filename);
 
@@ -376,7 +377,7 @@ namespace TestMemberMatch
 
         private List<(Member member, double score)> MemberAndScoreList(
             Scorer scorer,
-            (Dictionary<string, HashSet<Member>>, HashSet<string>) members,
+            Members members,
             Dictionary<string, double> cityToFrequency,
             string line,
             double minimumScore)
@@ -385,8 +386,7 @@ namespace TestMemberMatch
 
             var tokenizedLine = this.TokenizedLine(line);
 
-            var (nameToMemberSet, citySet) = members;
-            var candidateMembers = CandidateMembers(nameToMemberSet, tokenizedLine);
+            var candidateMembers = members.CandidateMembers(tokenizedLine);
 
             var memberAndScoreList = (
                 from member in candidateMembers
@@ -404,21 +404,6 @@ namespace TestMemberMatch
             return memberAndScoreList;
         }
 
-        private static HashSet<Member> CandidateMembers(Dictionary<string, HashSet<Member>> nameToMemberSet, (string, HashSet<string>) tokenizedLine)
-        {
-            var candidateMembers = (
-                from token in tokenizedLine.Item2
-                let memberSet = nameToMemberSet.GetValueOrDefault(token)
-                where memberSet != null
-                from member in memberSet
-                select member).
-                ToHashSet();
-
-            Debug.WriteLine($"-> {string.Join(", ", candidateMembers)}");
-
-            return candidateMembers;
-        }
-
         private (string, HashSet<string>) TokenizedLine(string line)
         {
             //!!!TODO split on all whitespace, too.
@@ -427,7 +412,7 @@ namespace TestMemberMatch
             string upper_line = line.ToUpperInvariant();
 
             var tokenSet = (from token in upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
-                            from token2 in this.ProcessName(token)
+                            from token2 in Member.ProcessName(token)
                             select token2)
                             .ToHashSet();
 
@@ -439,17 +424,12 @@ namespace TestMemberMatch
             return (upper_line, tokenSet);
         }
 
-        private static Dictionary<string, double> CityToFrequency(
-            (Dictionary<string, HashSet<Member>>, HashSet<string>) members,
-            bool withCity,
-            string filePath)
+        private static Dictionary<string, double> CityToFrequency(Members members, bool withCity, string filePath)
         {
             if (!withCity)
             {
                 return null;
             }
-
-            var (nameToMemberSet, citySet) = members;
 
             var resultList = (
                 from line in File.ReadLines(filePath).Skip(1)
@@ -459,7 +439,7 @@ namespace TestMemberMatch
             int total = resultList.Count;
 
             var cityToFrequency = (
-                from city in citySet
+                from city in members.citySet
                 let count = (
                     from result in resultList
                     where result.Contains(city) // TODO OK that substrings will match?
@@ -469,55 +449,6 @@ namespace TestMemberMatch
                 .ToDictionary(pair => pair.city, pair => pair.Item2);
 
             return cityToFrequency;
-        }
-
-        private (Dictionary<string, HashSet<Member>>, HashSet<string>) Members(string filename)
-        {
-            var nameToMemberSet = new Dictionary<string, HashSet<Member>>();
-            var citySet = new HashSet<string>();
-
-            foreach (string line in File.ReadLines(filename).Skip(1))
-            {
-                var fields = line.Split('\t');
-                Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
-
-                // TODO: don't use _ in name. Move this into class. Move class into its own file.
-                var member = new Member
-                {
-                    FirstList = this.ProcessName(fields[0]).Concat(this.ProcessName(fields[2])).ToList(),
-                    LastList = this.ProcessName(fields[1]),
-                    City = fields[3].ToUpperInvariant(),
-                };
-                Debug.WriteLine(line);
-                Debug.WriteLine($" {member}");
-
-                AddMemberToIndex(nameToMemberSet, member);
-                citySet.Add(member.City);
-            }
-
-            // TODO be consistent between using plurals "members" and "list" (e.g. memberList)
-            foreach (var (name, memberList) in nameToMemberSet)
-            {
-                Debug.WriteLine($"{name} -> {string.Join(", ", memberList)}");
-            }
-
-            return (nameToMemberSet, citySet);
-        }
-
-        private static void AddMemberToIndex(Dictionary<string, HashSet<Member>> nameToMemberSet, Member member)
-        {
-            foreach (var name in member.FirstList.Concat(member.LastList))
-            {
-                var memberList = nameToMemberSet.GetValueOrDefault(name);
-                if (memberList is null)
-                {
-                    nameToMemberSet[name] = new HashSet<Member> { member };
-                }
-                else
-                {
-                    memberList.Add(member);
-                }
-            }
         }
 
         private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToFrequency, Member member, (string, HashSet<string>) tokenizedLine)
@@ -552,33 +483,6 @@ namespace TestMemberMatch
             return score;
         }
 
-        private List<string> ProcessName(string field)
-        {
-            /* Rules for names:
-                Assume no accent marks !!!TODO
-                trim spaces from ends !!!TODO
-                capitalize everything
-                make any middle name part of the first or last name via spaces
-                Remove "." and "'"
-                ignore any one character names
-                Split on hyphens, slashes, and spaces and treat as nicknames
-                treat the nickname column as a first name nickname
-                remove empty strings
-            */
-            field = field.ToUpperInvariant().Trim();
-
-            // TODO what about other single-quote like characters such as back quote
-            field = field.Replace(".", string.Empty).Replace("'", string.Empty);
-
-            // TODO and all whitespace?
-            string[] names = field.Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-            var names2 =
-                (from name in names
-                 where name.Length > 1
-                 select name).ToList();
-            return names2;
-        }
-
         private Scorer TestScorer()
         {
             var nameToProbability = new Dictionary<string, double>()
@@ -592,17 +496,4 @@ namespace TestMemberMatch
             return new Scorer(nameToProbability);
         }
     }
-
-    public class Member
-    {
-        public List<string> FirstList;
-        public List<string> LastList;
-        public string City;
-
-        public override string ToString()
-        {
-            return $"{string.Join("/", this.FirstList)} {string.Join("/", this.LastList)} @ {this.City}";
-        }
-    }
-
 }
