@@ -338,21 +338,25 @@ namespace TestMemberMatch
                                 (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt"),
             })
             {
-                var cityToFrequency = MemberMatchTests.CityToFrequency(members, withCity, root + filename);
-
-                var query =
-                    from line in File.ReadLines(root + filename).Skip(1)
-                    let memberAndScoreList = this.MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
-                    where memberAndScoreList.Count > 0
-                    select (line, memberAndScoreList);
-
-                var outputText = new StringBuilder();
-                foreach (var (line, memberAndScoreList) in query)
+                StringBuilder outputText = null;
+                for (int i = 0; i < 1; ++i) // TODO for timing change to 25
                 {
-                    outputText.AppendLine(line);
-                    foreach (var (member, score) in memberAndScoreList)
+                    var cityToFrequency = MemberMatchTests.CityToFrequency(members, withCity, root + filename);
+
+                    var query =
+                        from line in File.ReadLines(root + filename).Skip(1)
+                        let memberAndScoreList = this.MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
+                        where memberAndScoreList.Count > 0
+                        select (line, memberAndScoreList);
+
+                    outputText = new StringBuilder();
+                    foreach (var (line, memberAndScoreList) in query)
                     {
-                        outputText.AppendLine($"\t{score:0.00}\t{member}");
+                        outputText.AppendLine(line);
+                        foreach (var (member, score) in memberAndScoreList)
+                        {
+                            outputText.AppendLine($"\t{score:0.00}\t{member}");
+                        }
                     }
                 }
 
