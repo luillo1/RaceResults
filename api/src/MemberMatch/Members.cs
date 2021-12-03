@@ -11,7 +11,8 @@ namespace RaceResults.MemberMatch
     public class Members
     {
         private Dictionary<string, HashSet<Member>> nameToMemberSet;
-        public HashSet<string> citySet;
+        private HashSet<string> citySet;
+
         public Members(string filename)
         {
             this.nameToMemberSet = new Dictionary<string, HashSet<Member>>();
@@ -56,6 +57,33 @@ namespace RaceResults.MemberMatch
             Debug.WriteLine($"-> {string.Join(", ", candidateMembers)}");
 
             return candidateMembers;
+        }
+
+        public Dictionary<string, double> CityToFrequency(bool withCity, string filePath)
+        {
+            if (!withCity)
+            {
+                return null;
+            }
+
+            var resultList = (
+                from line in File.ReadLines(filePath).Skip(1)
+                select line.ToUpperInvariant())
+                .ToList();
+
+            int total = resultList.Count;
+
+            var cityToFrequency = (
+                from city in this.citySet
+                let count = (
+                    from result in resultList
+                    where result.Contains(city) // TODO OK that substrings will match?
+                    select 1)
+                    .Sum()
+                select (city, (count + 1.0) / (total + 2.0)))
+                .ToDictionary(pair => pair.city, pair => pair.Item2);
+
+            return cityToFrequency;
         }
 
         private void AddMemberToIndex(Member member)

@@ -12,11 +12,6 @@ namespace RaceResults.MemberMatch
         public List<string> LastList;
         public string City;
 
-        public override string ToString()
-        {
-            return $"{string.Join("/", this.FirstList)} {string.Join("/", this.LastList)} @ {this.City}";
-        }
-
         public static List<string> ProcessName(string field)
         {
             /* Rules for names:
@@ -42,6 +37,11 @@ namespace RaceResults.MemberMatch
                  where name.Length > 1
                  select name).ToList();
             return names2;
+        }
+
+        public override string ToString()
+        {
+            return $"{string.Join("/", this.FirstList)} {string.Join("/", this.LastList)} @ {this.City}";
         }
     }
 }

@@ -339,14 +339,15 @@ namespace TestMemberMatch
             })
             {
                 StringBuilder outputText = null;
+
                 // TODO for timing change to 25
                 for (int i = 0; i < 1; ++i)
                 {
-                    var cityToFrequency = MemberMatchTests.CityToFrequency(members, withCity, root + filename);
+                    var cityToFrequency = members.CityToFrequency(withCity, root + filename);
 
                     var query =
                         from line in File.ReadLines(root + filename).Skip(1)
-                        let memberAndScoreList = this.MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
+                        let memberAndScoreList = MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
                         where memberAndScoreList.Count > 0
                         select (line, memberAndScoreList);
 
@@ -375,7 +376,7 @@ namespace TestMemberMatch
             }
         }
 
-        private List<(Member member, double score)> MemberAndScoreList(
+        private static List<(Member member, double score)> MemberAndScoreList(
             Scorer scorer,
             Members members,
             Dictionary<string, double> cityToFrequency,
@@ -384,7 +385,7 @@ namespace TestMemberMatch
         {
             Debug.WriteLine(line);
 
-            var tokenizedLine = this.TokenizedLine(line);
+            var tokenizedLine = TokenizedLine(line);
 
             var candidateMembers = members.CandidateMembers(tokenizedLine);
 
@@ -404,7 +405,7 @@ namespace TestMemberMatch
             return memberAndScoreList;
         }
 
-        private (string, HashSet<string>) TokenizedLine(string line)
+        private static (string, HashSet<string>) TokenizedLine(string line)
         {
             //!!!TODO split on all whitespace, too.
             string[] separatingStrings = { ".", ",", " ", "\t" };
@@ -422,33 +423,6 @@ namespace TestMemberMatch
             }
 
             return (upper_line, tokenSet);
-        }
-
-        private static Dictionary<string, double> CityToFrequency(Members members, bool withCity, string filePath)
-        {
-            if (!withCity)
-            {
-                return null;
-            }
-
-            var resultList = (
-                from line in File.ReadLines(filePath).Skip(1)
-                select line.ToUpperInvariant())
-                .ToList();
-
-            int total = resultList.Count;
-
-            var cityToFrequency = (
-                from city in members.citySet
-                let count = (
-                    from result in resultList
-                    where result.Contains(city) // TODO OK that substrings will match?
-                    select 1)
-                    .Sum()
-                select (city, (count + 1.0) / (total + 2.0)))
-                .ToDictionary(pair => pair.city, pair => pair.Item2);
-
-            return cityToFrequency;
         }
 
         private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToFrequency, Member member, (string, HashSet<string>) tokenizedLine)
