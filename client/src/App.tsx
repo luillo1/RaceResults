@@ -8,6 +8,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { Logout } from "./pages/logout";
 import { RequireLogin } from "./utils/RequireLogin";
 import Home from "./pages/home";
+import CreateOrganizationPage from "./pages/organizations/createOrganization";
 
 interface AppProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -29,6 +30,14 @@ function App({ pca }: AppProps) {
               element={
                 <RequireLogin>
                   <Runners />
+                </RequireLogin>
+              }
+            />
+            <Route
+              path="/organizations/new"
+              element={
+                <RequireLogin>
+                  <CreateOrganizationPage />
                 </RequireLogin>
               }
             />
