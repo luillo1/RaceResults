@@ -9,6 +9,11 @@ interface Runner {
   nicknames: string[];
 }
 
+interface Organization {
+  id: string;
+  name: string;
+}
+
 export const runnersApiSlice = createApi({
   reducerPath: "runnersApi",
   baseQuery: fetchBaseQuery({
@@ -39,9 +44,26 @@ export const runnersApiSlice = createApi({
         query() {
           return "/runners";
         }
+      }),
+      fetchOrganization: builder.query<Organization, string>({
+        query(id) {
+          return "/organizations/" + id;
+        }
+      }),
+      fetchOrganizations: builder.query<Organization[], void>({
+        query() {
+          return "/organizations";
+        }
+      }),
+      createOrganization: builder.mutation<Organization, Partial<Organization>>({
+        query: (post) => ({
+          url: "/organizations",
+          method: "POST",
+          body: post
+        })
       })
     };
   }
 });
 
-export const { useFetchRunnerQuery, useLazyFetchRunnerQuery } = runnersApiSlice;
+export const { useFetchRunnerQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = runnersApiSlice;

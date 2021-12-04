@@ -35,6 +35,7 @@ function Navbar(props: NavbarProps) {
             <Menu.Header style={{ paddingLeft: 15 }}>RaceResults</Menu.Header>
           </Menu.Item>
           <Menu.Item as={NavLink} to="/" name="home" />
+          <Menu.Item as={NavLink} to="/organizations" name="organizations" />
           <Menu.Item as={NavLink} to="/runners" name="runners" />
           <AuthenticatedTemplate>
             <Menu.Item className="borderless" position="right">
