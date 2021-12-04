@@ -8,6 +8,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { Logout } from "./pages/logout";
 import { RequireLogin } from "./utils/RequireLogin";
 import Home from "./pages/home";
+import NotFound from "./pages/notFound";
 
 interface AppProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -23,6 +24,7 @@ function App({ pca }: AppProps) {
         <Navbar appRef={appRef} />
         <div>
           <Routes>
+            <Route path="*" element={<NotFound />} />
             <Route path="/" element={<Home />} />
             <Route
               path="/runners"
