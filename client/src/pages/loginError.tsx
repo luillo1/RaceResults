@@ -5,7 +5,7 @@ import { MsalAuthenticationResult } from "@azure/msal-react";
 const LoginError = ({ error }: MsalAuthenticationResult) => {
   return (
     <Segment vertical>
-      <Container>
+      <Container textAlign="center">
         <Header icon>
           <Icon name="exclamation triangle" />
           There was an issue logging you in
