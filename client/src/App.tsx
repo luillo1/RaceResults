@@ -11,6 +11,7 @@ import Home from "./pages/home";
 import CreateOrganizationPage from "./pages/organizations/createOrganization";
 import OrganizationPage from "./pages/organizations/organization";
 import OrganizationsPage from "./pages/organizations/organizations";
+import NotFound from "./pages/notFound";
 
 interface AppProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -26,6 +27,7 @@ function App({ pca }: AppProps) {
         <Navbar appRef={appRef} />
         <div>
           <Routes>
+            <Route path="*" element={<NotFound />} />
             <Route path="/" element={<Home />} />
             <Route
               path="/runners"

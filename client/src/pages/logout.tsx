@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
 import { BrowserUtils } from "@azure/msal-browser";
-import { Container, Loader, Segment } from "semantic-ui-react";
+import { Loader } from "semantic-ui-react";
 import BasePage from "../utils/basePage";
 
 export function Logout() {

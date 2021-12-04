@@ -1,14 +1,6 @@
 import React, { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router";
-import {
-  Button,
-  Container,
-  Divider,
-  Form,
-  Header,
-  Message,
-  Segment
-} from "semantic-ui-react";
+import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
 import { useCreateOrganizationMutation } from "../../slices/runners/runners-api-slice";
 import BasePage from "../../utils/basePage";
 
