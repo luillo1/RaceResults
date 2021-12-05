@@ -1,4 +1,5 @@
 import Home from "../pages/home";
+import LoginSuccess from "../pages/loginSuccess";
 import { Logout } from "../pages/logout";
 import NotFound from "../pages/notFound";
 import CreateOrganizationPage from "../pages/organizations/createOrganization";
@@ -41,6 +42,7 @@ const createRouteWrapper = (
 
 /**
  * All of the routes in our application.
+ * <Route path="/auth/loginSuccess" element={<LoginSuccess />} />
  */
 const routes = {
   notFound: createRouteWrapper("*", <NotFound />, false),
@@ -64,6 +66,12 @@ const routes = {
     "/organizations/new",
     <CreateOrganizationPage />,
     true
+  ),
+
+  loginSuccess: createRouteWrapper(
+    "/auth/loginSuccess",
+    <LoginSuccess />,
+    false
   ),
 
   logout: createRouteWrapper("logout", <Logout />, false)
