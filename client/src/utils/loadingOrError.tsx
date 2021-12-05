@@ -7,16 +7,16 @@ export const LoadingOrError: FC<{
   isLoading: boolean;
   hasError: boolean;
 }> = ({ isLoading, hasError, children }) => {
+  if (hasError) {
+    return <NotFound />;
+  }
+
   if (isLoading) {
     return (
       <BasePage>
         <Loader active inline="centered" content="Loading..." />
       </BasePage>
     );
-  }
-
-  if (hasError) {
-    return <NotFound />;
   }
 
   return <>{children}</>;

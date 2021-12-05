@@ -1,17 +1,11 @@
 import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
-import Runners from "./pages/runners";
 import { Routes, Route } from "react-router-dom";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import { Logout } from "./pages/logout";
 import { RequireLogin } from "./utils/RequireLogin";
-import Home from "./pages/home";
-import CreateOrganizationPage from "./pages/organizations/createOrganization";
-import OrganizationPage from "./pages/organizations/organization";
-import OrganizationsPage from "./pages/organizations/organizations";
-import NotFound from "./pages/notFound";
+import routes from "./utils/route";
 
 interface AppProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -27,41 +21,25 @@ function App({ pca }: AppProps) {
         <Navbar appRef={appRef} />
         <div>
           <Routes>
-            <Route path="*" element={<NotFound />} />
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/runners"
-              element={
-                <RequireLogin>
-                  <Runners />
-                </RequireLogin>
+            {Object.values(routes).map((route, index) => {
+              console.log(index);
+              if (route.requiresLogin) {
+                return (
+                  <Route
+                    path={route.path}
+                    element={<RequireLogin>{route.element}</RequireLogin>}
+                  />
+                );
+              } else {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={route.element}
+                  />
+                );
               }
-            />
-            <Route
-              path="/organizations"
-              element={
-                <RequireLogin>
-                  <OrganizationsPage />
-                </RequireLogin>
-              }
-            />
-            <Route
-              path="/organizations/:id"
-              element={
-                <RequireLogin>
-                  <OrganizationPage />
-                </RequireLogin>
-              }
-            />
-            <Route
-              path="/organizations/new"
-              element={
-                <RequireLogin>
-                  <CreateOrganizationPage />
-                </RequireLogin>
-              }
-            />
-            <Route path="/logout" element={<Logout />} />
+            })}
           </Routes>
         </div>
       </MsalProvider>

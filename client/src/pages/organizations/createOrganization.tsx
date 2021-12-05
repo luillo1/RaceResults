@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
 import { useCreateOrganizationMutation } from "../../slices/runners/runners-api-slice";
 import BasePage from "../../utils/basePage";
+import routes from "../../utils/route";
 
 const CreateOrganizationPage = () => {
   const [
@@ -25,7 +26,9 @@ const CreateOrganizationPage = () => {
     setError(false);
     createOrganization({ name: name })
       .unwrap()
-      .then((createdOrg) => navigate("/organizations/" + createdOrg.id))
+      .then((createdOrg) =>
+        navigate(routes.organizations.createPath(createdOrg.id))
+      )
       .catch(() => setError(true));
   };
 

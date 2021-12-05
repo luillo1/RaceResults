@@ -4,6 +4,7 @@ import { Button, Divider, Header, List } from "semantic-ui-react";
 import { useFetchOrganizationsQuery } from "../../slices/runners/runners-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
+import routes from "../../utils/route";
 
 const OrganizationsPage = () => {
   const queryResponse = useFetchOrganizationsQuery();
@@ -32,7 +33,12 @@ const OrganizationsPage = () => {
             </List.Item>
           ))}
         </List>
-        <Button primary as={NavLink} to="/organizations/new" content="Create" />
+        <Button
+          primary
+          as={NavLink}
+          to={routes.createOrganization.path}
+          content="Create"
+        />
       </BasePage>
     </LoadingOrError>
   );
