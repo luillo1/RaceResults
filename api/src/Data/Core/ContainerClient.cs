@@ -60,7 +60,7 @@ namespace RaceResults.Data.Core
 
         /// <summary>
         ///     Queries the container for all instances of <typeparamref name="T"/>
-        ///     that satisfy the given <paramref name="filter"/>
+        ///     that are included in the <see cref="IQueryable{T}"/> returned by <paramref name="iteratorCreator"/>.
         /// </summary>
         /// <param name="iteratorCreator">
         ///     A method maps the base <see cref="IQueryable{T}"/> to the final <see cref="IQueryable{T}"/>
