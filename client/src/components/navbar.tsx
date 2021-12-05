@@ -9,7 +9,7 @@ import { Sticky, Menu, Container, Button } from "semantic-ui-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRunning } from "@fortawesome/free-solid-svg-icons";
 import { loginRequest } from "../authConfig";
-import { navbarRoutes } from "../utils/route";
+import { navbarRoutes } from "../utils/routes";
 
 interface NavbarProps {
   // Used to make the navbar sticky while scrolling the entire document

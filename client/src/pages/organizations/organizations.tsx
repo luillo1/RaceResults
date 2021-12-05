@@ -4,7 +4,7 @@ import { Button, Divider, Header, List } from "semantic-ui-react";
 import { useFetchOrganizationsQuery } from "../../slices/runners/runners-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
-import routes from "../../utils/route";
+import routes from "../../utils/routes";
 
 const OrganizationsPage = () => {
   const queryResponse = useFetchOrganizationsQuery();
