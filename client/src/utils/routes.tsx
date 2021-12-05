@@ -42,7 +42,6 @@ const createRouteWrapper = (
 
 /**
  * All of the routes in our application.
- * <Route path="/auth/loginSuccess" element={<LoginSuccess />} />
  */
 const routes = {
   notFound: createRouteWrapper("*", <NotFound />, false),
