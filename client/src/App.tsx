@@ -35,6 +35,7 @@ function App({ pca }: AppProps) {
               if (route.requiresLogin) {
                 return (
                   <Route
+                    key={index}
                     path={route.path}
                     element={<RequireLogin>{route.element}</RequireLogin>}
                   />
