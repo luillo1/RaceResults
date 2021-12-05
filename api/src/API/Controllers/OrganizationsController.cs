@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -29,16 +30,16 @@ namespace RaceResults.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrganizations()
         {
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            IEnumerable<Organization> result = await container.GetAllOrganizationsAsync();
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            IEnumerable<Organization> result = await container.GetAllModelsAsync();
             return Ok(result);
         }
 
         [HttpGet("{orgId}")]
         public async Task<IActionResult> GetOneOrganization(string orgId)
         {
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            Organization result = await container.GetOrganizationAsync(orgId);
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            Organization result = await container.GetModelAsync(orgId, new PartitionKey(orgId));
             return Ok(result);
         }
 
@@ -46,8 +47,8 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> CreateNewOrganization(Organization organization)
         {
             organization.Id = Guid.NewGuid();
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            await container.AddOrganizationAsync(organization);
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            await container.AddModelAsync(organization);
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = organization.Id }, organization);
         }
     }

@@ -1,47 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using RaceResults.Common.Models;
 
 namespace RaceResults.Data.Core
 {
-    public class OrganizationContainerClient : IOrganizationContainerClient
+    /// <summary>
+    ///     Client used to interact with the container for <see cref="Organization"/> models.
+    /// </summary>
+    public class OrganizationContainerClient
+        : ContainerClient<Organization>
     {
-        private readonly Container container;
+        /// <inheritdoc/>
+        protected override string ContainerName => ContainerConstants.OrganizationContainerName;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="OrganizationContainerClient"/> class.
+        /// </summary>
+        /// <param name="cosmosDbClient">
+        ///     The <see cref="ICosmosDbClient"/> used to get an instance of a <see cref="Container"/>.
+        /// </param>
         public OrganizationContainerClient(ICosmosDbClient cosmosDbClient)
+            : base(cosmosDbClient)
         {
-            this.container = cosmosDbClient.GetContainer(ContainerConstants.OrganizationContainerName);
-        }
-
-        public async Task<Organization> GetOrganizationAsync(string orgId)
-        {
-            PartitionKey partitionKey = new PartitionKey(orgId);
-            ItemResponse<Organization> response = await this.container.ReadItemAsync<Organization>(orgId, partitionKey);
-            return response.Resource;
-        }
-
-        public async Task<IEnumerable<Organization>> GetAllOrganizationsAsync()
-        {
-            FeedIterator<Organization> iterator = this.container.GetItemLinqQueryable<Organization>().ToFeedIterator();
-
-            List<Organization> results = new List<Organization>();
-            while (iterator.HasMoreResults)
-            {
-                var response = await iterator.ReadNextAsync();
-                results.AddRange(response.ToList());
-            }
-
-            return results;
-        }
-
-        public async Task AddOrganizationAsync(Organization organization)
-        {
-            organization.Id = Guid.NewGuid();
-            await this.container.CreateItemAsync<Organization>(organization);
         }
     }
 }
