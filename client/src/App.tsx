@@ -8,6 +8,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { Logout } from "./pages/logout";
 import { RequireLogin } from "./utils/RequireLogin";
 import Home from "./pages/home";
+import LoginSuccess from "./pages/loginSuccess";
 import NotFound from "./pages/notFound";
 
 interface AppProps {
@@ -35,6 +36,7 @@ function App({ pca }: AppProps) {
               }
             />
             <Route path="/logout" element={<Logout />} />
+            <Route path="/auth/loginSuccess" element={<LoginSuccess />} />
           </Routes>
         </div>
       </MsalProvider>
