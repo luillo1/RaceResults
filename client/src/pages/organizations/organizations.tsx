@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Divider, Header, List } from "semantic-ui-react";
+import { Button, Divider, Header, List } from "semantic-ui-react";
 import { useFetchOrganizationsQuery } from "../../slices/runners/runners-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
@@ -32,6 +32,7 @@ const OrganizationsPage = () => {
             </List.Item>
           ))}
         </List>
+        <Button primary as={NavLink} to="/organizations/new" content="Create" />
       </BasePage>
     </LoadingOrError>
   );
