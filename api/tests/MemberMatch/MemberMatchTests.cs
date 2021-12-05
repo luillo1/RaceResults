@@ -328,6 +328,11 @@ namespace TestMemberMatch
         {
             // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
             string root = @"D:\OneDrive\Shares\RaceResults";
+            if (!File.Exists(root))
+            {
+                Trace.WriteLine("Skipping 'TestBig1'");
+                return;
+            }
 
             var scorer = new Scorer(root + "/name_probability.tsv");
             var members = new Members(root + "/sample_members.tsv");
