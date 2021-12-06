@@ -4,79 +4,85 @@ import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate
 } from "@azure/msal-react";
-import { NavLink } from "react-router-dom";
-import { Sticky, Menu, Container, Button } from "semantic-ui-react";
+import { Sticky, Menu, Container, Grid, Icon } from "semantic-ui-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRunning } from "@fortawesome/free-solid-svg-icons";
-import { loginRequest } from "../authConfig";
-import { navbarRoutes } from "../utils/routes";
+import LogoutButton from "./logoutButton";
+import LoginButton from "./loginButton";
+import NavLinks from "./navbarlinks";
 
 interface NavbarProps {
   // Used to make the navbar sticky while scrolling the entire document
   appRef: React.MutableRefObject<null>;
+  sidebarIsVisible: boolean;
+  setSidebarIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function Navbar(props: NavbarProps) {
-  const { instance, accounts } = useMsal();
+  const { accounts } = useMsal();
 
-  const handleLogin = () => {
-    instance.loginRedirect(loginRequest);
-  };
+  // A menu item containing the app name + icon
+  const brandMenuItem = (
+    <Menu.Item>
+      <FontAwesomeIcon size="2x" icon={faRunning} color="white" />
+      <Menu.Header style={{ paddingLeft: 15 }}>RaceResults</Menu.Header>
+    </Menu.Item>
+  );
 
-  const handleLogout = () => {
-    instance.logoutRedirect();
-  };
+  const normalNavbarMenu = (
+    <Menu as="nav" inverted stackable attached>
+      <Container fluid>
+        {brandMenuItem}
+        <NavLinks />
+        <AuthenticatedTemplate>
+          <Menu.Item className="borderless" position="right">
+            {accounts[0] != null && (
+              <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
+            )}
+            <LogoutButton />
+          </Menu.Item>
+        </AuthenticatedTemplate>
+        <UnauthenticatedTemplate>
+          <Menu.Item className="borderless" position="right">
+            <LoginButton />
+          </Menu.Item>
+        </UnauthenticatedTemplate>
+      </Container>
+    </Menu>
+  );
+
+  const mobileNavbarMenu = (
+    <Menu as="nav" inverted attached borderless>
+      <Container fluid>
+        {brandMenuItem}
+        <Menu.Item position="right">
+          <Menu.Header>
+            <Icon
+              name="bars"
+              link
+              size="big"
+              inverted
+              onClick={() => props.setSidebarIsVisible(!props.sidebarIsVisible)}
+            />
+          </Menu.Header>
+        </Menu.Item>
+      </Container>
+    </Menu>
+  );
 
   return (
-    <Sticky context={props.appRef}>
-      <Menu as="nav" inverted stackable attached>
-        <Container fluid>
-          <Menu.Item>
-            <FontAwesomeIcon size="2x" icon={faRunning} color="white" />
-            <Menu.Header style={{ paddingLeft: 15 }}>RaceResults</Menu.Header>
-          </Menu.Item>
-          <AuthenticatedTemplate>
-            {navbarRoutes.map((nbroute, index) => {
-              return (
-                <Menu.Item
-                  key={index}
-                  as={NavLink}
-                  to={nbroute.route.path}
-                  name={nbroute.header}
-                />
-              );
-            })}
-            <Menu.Item className="borderless" position="right">
-              {accounts[0] != null && (
-                <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
-              )}
-              <Button
-                inverted
-                onClick={() => handleLogout()}
-                content="Log out"
-              />
-            </Menu.Item>
-          </AuthenticatedTemplate>
-          <UnauthenticatedTemplate>
-            {navbarRoutes
-              .filter((nbroute) => !nbroute.requiresLogin)
-              .map((navbarRoute, index) => {
-                return (
-                  <Menu.Item
-                    key={index}
-                    as={NavLink}
-                    to={navbarRoute.route.path}
-                    name={navbarRoute.header}
-                  />
-                );
-              })}
-            <Menu.Item className="borderless" position="right">
-              <Button inverted onClick={() => handleLogin()} content="Log in" />
-            </Menu.Item>
-          </UnauthenticatedTemplate>
-        </Container>
-      </Menu>
-    </Sticky>
+    <Grid>
+      <Grid.Row columns={1} only="computer tablet">
+        <Grid.Column>
+          <Sticky context={props.appRef}>{normalNavbarMenu}</Sticky>
+        </Grid.Column>
+      </Grid.Row>
+      <Grid.Row columns={1} only="mobile">
+        <Grid.Column>
+          <Sticky context={props.appRef}>{mobileNavbarMenu}</Sticky>
+        </Grid.Column>
+      </Grid.Row>
+    </Grid>
   );
 }
 
