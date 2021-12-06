@@ -2,11 +2,17 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { loginRequest } from "../../authConfig";
 import { msalInstance } from "../../utils/mcalInstance";
 
-interface Runner {
+interface Member {
+  id: string;
   organizationId: string;
   firstName: string;
   lastName: string;
   nicknames: string[];
+}
+
+interface Organization {
+  id: string;
+  name: string;
 }
 
 export const runnersApiSlice = createApi({
@@ -35,13 +41,30 @@ export const runnersApiSlice = createApi({
   }),
   endpoints(builder) {
     return {
-      fetchRunner: builder.query<Runner[], void>({
+      fetchOrganization: builder.query<Organization, string>({
+        query(id) {
+          return `/organizations/${id}`;
+        }
+      }),
+      fetchOrganizations: builder.query<Organization[], void>({
         query() {
-          return "/runners";
+          return "/organizations";
+        }
+      }),
+      createOrganization: builder.mutation<Organization, Partial<Organization>>({
+        query: (post) => ({
+          url: "/organizations",
+          method: "POST",
+          body: post
+        })
+      }),
+      fetchMembers: builder.query<Member[], string>({
+        query(orgId) {
+          return `/organizations/${orgId}/members`;
         }
       })
     };
   }
 });
 
-export const { useFetchRunnerQuery, useLazyFetchRunnerQuery } = runnersApiSlice;
+export const { useFetchMembersQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = runnersApiSlice;

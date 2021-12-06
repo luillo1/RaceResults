@@ -1,15 +1,11 @@
 import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
-import Runners from "./pages/runners";
 import { Routes, Route } from "react-router-dom";
 import { PublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider } from "@azure/msal-react";
-import { Logout } from "./pages/logout";
 import { RequireLogin } from "./utils/RequireLogin";
-import Home from "./pages/home";
-import LoginSuccess from "./pages/loginSuccess";
-import NotFound from "./pages/notFound";
+import routes from "./utils/routes";
 
 interface AppProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -19,24 +15,41 @@ interface AppProps {
 function App({ pca }: AppProps) {
   const appRef = useRef(null);
 
+  /**
+   * To add a new page/route, do the following:
+   *     1. Create a new page component under ./pages (typically)
+   *        this component is wrapped in a BasePage
+   *     2. Add a new entry to routes in ./utils/routes
+   *     3. If you want this page to appear in the navbar, add a new
+   *        entry to navbarRoutes in ./utils/routes
+   */
+
   return (
     <div ref={appRef}>
       <MsalProvider instance={pca}>
         <Navbar appRef={appRef} />
         <div>
           <Routes>
-            <Route path="*" element={<NotFound />} />
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/runners"
-              element={
-                <RequireLogin>
-                  <Runners />
-                </RequireLogin>
+            {Object.values(routes).map((route, index) => {
+              console.log(index);
+              if (route.requiresLogin) {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<RequireLogin>{route.element}</RequireLogin>}
+                  />
+                );
+              } else {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={route.element}
+                  />
+                );
               }
-            />
-            <Route path="/logout" element={<Logout />} />
-            <Route path="/auth/loginSuccess" element={<LoginSuccess />} />
+            })}
           </Routes>
         </div>
       </MsalProvider>
