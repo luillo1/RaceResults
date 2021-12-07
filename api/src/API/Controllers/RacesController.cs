@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
@@ -27,24 +26,24 @@ namespace RaceResults.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOne(string id)
         {
-            IRaceContainerClient container = containerProvider.RaceContainer;
-            Race result = await container.GetRaceAsync(id);
+            RaceContainerClient container = containerProvider.RaceContainer;
+            Race result = await container.GetOneAsync(id, id);
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IRaceContainerClient container = containerProvider.RaceContainer;
-            IEnumerable<Race> result = await container.GetAllRacesAsync();
+            RaceContainerClient container = containerProvider.RaceContainer;
+            IEnumerable<Race> result = await container.GetAllAsync();
             return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Race race)
         {
-            IRaceContainerClient container = containerProvider.RaceContainer;
-            await container.AddRaceAsync(race);
+            RaceContainerClient container = containerProvider.RaceContainer;
+            await container.AddOneAsync(race);
             return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
         }
     }

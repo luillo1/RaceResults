@@ -29,7 +29,7 @@ namespace RaceResults.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllMembers(string orgId)
         {
-            IMemberContainerClient container = containerProvider.MemberContainer;
+            MemberContainerClient container = containerProvider.MemberContainer;
             IEnumerable<Member> result = await container.GetAllMembersAsync(orgId);
             return Ok(result);
         }
@@ -37,8 +37,8 @@ namespace RaceResults.Api.Controllers
         [HttpGet("{memberId}")]
         public async Task<IActionResult> GetOneMember(string orgId, string memberId)
         {
-            IMemberContainerClient container = containerProvider.MemberContainer;
-            Member result = await container.GetMemberAsync(orgId, memberId);
+            MemberContainerClient container = containerProvider.MemberContainer;
+            Member result = await container.GetOneAsync(memberId, orgId);
             return Ok(result);
         }
 
@@ -51,8 +51,8 @@ namespace RaceResults.Api.Controllers
                 return BadRequest();
             }
 
-            IMemberContainerClient container = containerProvider.MemberContainer;
-            await container.AddMemberAsync(orgId, member);
+            MemberContainerClient container = containerProvider.MemberContainer;
+            await container.AddOneAsync(member);
             return CreatedAtAction(nameof(CreateNewMember), new { id = member.Id }, member);
         }
     }

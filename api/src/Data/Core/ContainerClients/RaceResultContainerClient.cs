@@ -2,58 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using RaceResults.Common.Models;
 
 namespace RaceResults.Data.Core
 {
-    public class RaceResultContainerClient : IRaceResultContainerClient
+    public class RaceResultContainerClient : ContainerClient<RaceResult>
     {
-        private readonly Container container;
-
         public RaceResultContainerClient(ICosmosDbClient cosmosDbClient)
+            : base(cosmosDbClient, ContainerConstants.RaceResultContainerName)
         {
-            this.container = cosmosDbClient.GetContainer(ContainerConstants.RaceResultContainerName);
         }
 
-        public async Task<RaceResult> GetRaceResultAsync(string memberId, string raceResultId)
+        public async Task<IEnumerable<RaceResult>> GetRaceResultsForMemberAsync(string memberId)
         {
-            PartitionKey partitionKey = new PartitionKey(memberId);
-            ItemResponse<RaceResult> response = await this.container.ReadItemAsync<RaceResult>(raceResultId, partitionKey);
-            return response.Resource;
+            return await GetRaceResultsForMembersAsync(new string[] { memberId });
         }
 
-        public async Task<IEnumerable<RaceResult>> GetAllRaceResultsAsync(string memberId)
+        public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(IEnumerable<string> memberIds)
         {
-            FeedIterator<RaceResult> iterator = this.container.GetItemLinqQueryable<RaceResult>()
-                .Where(result => result.MemberId == Guid.Parse(memberId)).ToFeedIterator();
-
-            List<RaceResult> results = new List<RaceResult>();
-            while (iterator.HasMoreResults)
-            {
-                var response = await iterator.ReadNextAsync();
-                results.AddRange(response.ToList());
-            }
-
-            return results;
-        }
-
-        public async Task<IEnumerable<RaceResult>> GetAllRaceResultsAsync(IEnumerable<string> memberIds)
-        {
-            List<RaceResult> results = new List<RaceResult>();
-            foreach (string memberId in memberIds)
-            {
-                results.AddRange(await GetAllRaceResultsAsync(memberId));
-            }
-
-            return results;
-        }
-
-        public async Task AddRaceResultAsync(RaceResult raceResult)
-        {
-            raceResult.Id = Guid.NewGuid();
-            await this.container.CreateItemAsync<RaceResult>(raceResult);
+            var memberGuids = memberIds.Select(id => Guid.Parse(id)).ToHashSet();
+            return await this.GetManyAsync(it => it.Where(raceResult => memberGuids.Contains(raceResult.MemberId)));
         }
     }
 }

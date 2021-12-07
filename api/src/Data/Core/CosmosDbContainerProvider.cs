@@ -1,18 +1,14 @@
-using RaceResults.Common.Models;
-
 namespace RaceResults.Data.Core
 {
     public class CosmosDbContainerProvider : ICosmosDbContainerProvider
     {
-        public IRaceResultContainerClient RaceResultContainer { get; }
+        public RaceResultContainerClient RaceResultContainer { get; }
 
-        public IRaceContainerClient RaceContainer { get; }
+        public RaceContainerClient RaceContainer { get; }
 
-        public IMemberContainerClient MemberContainer { get; }
+        public MemberContainerClient MemberContainer { get; }
 
-        public IOrganizationContainerClient OrganizationContainer { get; }
-
-        public ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
+        public OrganizationContainerClient OrganizationContainer { get; }
 
         public CosmosDbContainerProvider(ICosmosDbClient cosmosDbClient)
         {
@@ -23,10 +19,6 @@ namespace RaceResults.Data.Core
             this.MemberContainer = new MemberContainerClient(cosmosDbClient);
 
             this.OrganizationContainer = new OrganizationContainerClient(cosmosDbClient);
-
-            this.MemberMatchRecordContainer = new CosmosDbContainerClient<MemberMatchRecord>(
-                    cosmosDbClient,
-                    ContainerConstants.MemberMatchRecordContainerName);
         }
     }
 }

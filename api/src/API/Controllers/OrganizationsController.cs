@@ -29,16 +29,16 @@ namespace RaceResults.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllOrganizations()
         {
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            IEnumerable<Organization> result = await container.GetAllOrganizationsAsync();
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            IEnumerable<Organization> result = await container.GetAllAsync();
             return Ok(result);
         }
 
         [HttpGet("{orgId}")]
         public async Task<IActionResult> GetOneOrganization(string orgId)
         {
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            Organization result = await container.GetOrganizationAsync(orgId);
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            Organization result = await container.GetOneAsync(orgId, orgId);
             return Ok(result);
         }
 
@@ -46,8 +46,8 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> CreateNewOrganization(Organization organization)
         {
             organization.Id = Guid.NewGuid();
-            IOrganizationContainerClient container = containerProvider.OrganizationContainer;
-            await container.AddOrganizationAsync(organization);
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            await container.AddOneAsync(organization);
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = organization.Id }, organization);
         }
     }

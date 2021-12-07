@@ -30,28 +30,28 @@ namespace RaceResults.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllRaceResults(string orgId, string memberId)
         {
-            IRaceResultContainerClient container = containerProvider.RaceResultContainer;
-            IEnumerable<RaceResult> result = await container.GetAllRaceResultsAsync(memberId);
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> result = await container.GetRaceResultsForMemberAsync(memberId);
             return Ok(result);
         }
 
         [HttpGet("/organizations/{orgId}/raceresults")]
         public async Task<IActionResult> GetAllRaceResults(string orgId)
         {
-            IMemberContainerClient memberContainer = containerProvider.MemberContainer;
+            MemberContainerClient memberContainer = containerProvider.MemberContainer;
             IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
             IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
 
-            IRaceResultContainerClient container = containerProvider.RaceResultContainer;
-            IEnumerable<RaceResult> result = await container.GetAllRaceResultsAsync(memberIds);
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> result = await container.GetRaceResultsForMembersAsync(memberIds);
             return Ok(result);
         }
 
         [HttpGet("{resultId}")]
         public async Task<IActionResult> GetOneRaceResult(string orgId, string memberId, string resultId)
         {
-            IRaceResultContainerClient container = containerProvider.RaceResultContainer;
-            RaceResult result = await container.GetRaceResultAsync(memberId, resultId);
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            RaceResult result = await container.GetOneAsync(resultId, memberId);
             return Ok(result);
         }
 
@@ -60,15 +60,15 @@ namespace RaceResults.Api.Controllers
         {
             raceResult.Id = Guid.NewGuid();
 
-            //if (raceResult.MemberId != Guid.Parse(memberId))
-            //{
-            //    return BadRequest();
-            //}
+            // if (raceResult.MemberId != Guid.Parse(memberId))
+            // {
+            //     return BadRequest();
+            // }
 
             // TODO: Validate that member exists under organization
             // TODO: Validate that race exists
-            IRaceResultContainerClient container = containerProvider.RaceResultContainer;
-            await container.AddRaceResultAsync(raceResult);
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            await container.AddOneAsync(raceResult);
             return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
         }
     }
