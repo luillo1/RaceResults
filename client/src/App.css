@@ -40,3 +40,14 @@
 button {
   font-size: calc(10px + 2vmin);
 }
+
+.flex-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  height: 100%;
+}
+
+.bottom-aligned {
+  margin: 0px;
+  margin-top: auto;
+}
