@@ -36,13 +36,13 @@ function App() {
         <Sidebar
           className="flex-container"
           as={Menu}
-          animation="push"
+          animation="overlay"
           inverted
           vertical
           onHide={() => setSidebarIsVisible(false)}
           visible={sidebarIsVisible}
         >
-          <NavLinks />
+          <NavLinks onClick={() => setSidebarIsVisible(false)} />
           <div className="bottom-aligned">
             <AuthenticatedTemplate>
               {accounts[0] != null && (
@@ -62,12 +62,12 @@ function App() {
             </UnauthenticatedTemplate>
           </div>
         </Sidebar>
-        <Navbar
-          appRef={appRef}
-          sidebarIsVisible={sidebarIsVisible}
-          setSidebarIsVisible={setSidebarIsVisible}
-        />
-        <div>
+        <Sidebar.Pusher>
+          <Navbar
+            appRef={appRef}
+            sidebarIsVisible={sidebarIsVisible}
+            setSidebarIsVisible={setSidebarIsVisible}
+          />
           <Routes>
             {Object.values(routes).map((route, index) => {
               console.log(index);
@@ -90,7 +90,7 @@ function App() {
               }
             })}
           </Routes>
-        </div>
+        </Sidebar.Pusher>
       </Sidebar.Pushable>
     </div>
   );

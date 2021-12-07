@@ -4,10 +4,17 @@ import {
   UnauthenticatedTemplate
 } from "@azure/msal-react";
 import { NavLink } from "react-router-dom";
-import { Menu } from "semantic-ui-react";
+import { Menu, MenuItemProps } from "semantic-ui-react";
 import { navbarRoutes } from "../utils/routes";
 
-function NavLinks() {
+interface NavLinkProps {
+  onClick?: (
+    event: React.MouseEvent<HTMLAnchorElement>,
+    data: MenuItemProps
+  ) => void;
+}
+
+function NavLinks(props: NavLinkProps) {
   return (
     <>
       <AuthenticatedTemplate>
@@ -18,6 +25,7 @@ function NavLinks() {
               as={NavLink}
               to={nbroute.route.path}
               name={nbroute.header}
+              onClick={props.onClick}
             />
           );
         })}
