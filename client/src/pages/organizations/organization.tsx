@@ -4,7 +4,7 @@ import { Divider, Header, Table } from "semantic-ui-react";
 import {
   useFetchMembersQuery,
   useFetchOrganizationQuery
-} from "../../slices/runners/runners-api-slice";
+} from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
 import NotFound from "../notFound";

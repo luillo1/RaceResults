@@ -15,8 +15,8 @@ interface Organization {
   name: string;
 }
 
-export const runnersApiSlice = createApi({
-  reducerPath: "runnersApi",
+export const raceResultsApiSlice = createApi({
+  reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: async(headers) => {
@@ -39,6 +39,7 @@ export const runnersApiSlice = createApi({
       return headers;
     }
   }),
+  tagTypes: ["Organization"],
   endpoints(builder) {
     return {
       fetchOrganization: builder.query<Organization, string>({
@@ -49,14 +50,16 @@ export const runnersApiSlice = createApi({
       fetchOrganizations: builder.query<Organization[], void>({
         query() {
           return "/organizations";
-        }
+        },
+        providesTags: ["Organization"]
       }),
       createOrganization: builder.mutation<Organization, Partial<Organization>>({
         query: (post) => ({
           url: "/organizations",
           method: "POST",
           body: post
-        })
+        }),
+        invalidatesTags: ["Organization"]
       }),
       fetchMembers: builder.query<Member[], string>({
         query(orgId) {
@@ -67,4 +70,4 @@ export const runnersApiSlice = createApi({
   }
 });
 
-export const { useFetchMembersQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = runnersApiSlice;
+export const { useFetchMembersQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = raceResultsApiSlice;

@@ -1,7 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Button, Divider, Header, List } from "semantic-ui-react";
-import { useFetchOrganizationsQuery } from "../../slices/runners/runners-api-slice";
+import { useFetchOrganizationsQuery } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
 import routes from "../../utils/routes";
