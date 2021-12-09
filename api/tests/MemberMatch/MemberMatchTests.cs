@@ -6,7 +6,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.MemberMatch;
 
-namespace TestMemberMatch
+namespace RaceResults.MemberMatchTests
 {
     [TestClass]
     public class MemberMatchTests
@@ -42,10 +42,13 @@ namespace TestMemberMatch
             var probability1 = Scorer.ScoreToProbability(score1);
             Assert.AreEqual(probability1, 0.000599, delta: 0.0001);
 
+            /*
             // We have a member named Alice and we see
             // "Alice" in a line of some results. 32.75 of 100,000
             // Americans have that name. What is the score and
             // probability that this line refers to our member?
+            */
+
             var score2 = Scorer.DefaultPriorScore + scorer.Delta(name: "ALICE", isContained: true);
             Assert.AreEqual(score2, -3.9997, delta: .001);
             var probability2 = Scorer.ScoreToProbability(score2);
@@ -55,11 +58,13 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod2()
         {
+            /*
             // We have a member named Alice Smith and we see
             // "Alice" and "Smith" in a line of some results.
             // 32.75 of 100,000 Americans have the name Alice
             // 823.92 of 100,000 Americans have the name Smith
             // What is the score and probability that this line refers to our member?
+            */
 
             var scorer = this.TestScorer();
             var score1 = Scorer.DefaultPriorScore + scorer.Delta(name: "ALICE", isContained: true);
@@ -72,11 +77,13 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod3()
         {
+            /*
             // We have a member named Alice Smith and we see
             // "Alice" but not "Smith" in a line of some results.
             // 32.75 of 100,000 Americans have the name Alice
             // 823.92 of 100,000 Americans have the name Smith
             // What is the score and probability that this line refers to our member?
+            */
 
             var scorer = this.TestScorer();
             var score1 = Scorer.DefaultPriorScore + scorer.Delta(name: "ALICE", isContained: true);
@@ -89,6 +96,7 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod4()
         {
+            /*
             // We have a member named Alice and we see
             // "Alison" in a line of some results.
             // "Alison" and "Allison" are nicknames of "Alice".
@@ -96,6 +104,7 @@ namespace TestMemberMatch
             // 154.27 of 100,000 Americans have the name Alison
             // 63.54  of 100,000 Americans have the name Allison
             // What is the score and probability that this line refers to our member?
+            */
 
             var scorer = this.TestScorer();
             var score0 = scorer.Delta(name: "ALICE", isContained: false, probabilityAppearsInLineFromReference: .5);
@@ -118,10 +127,12 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod5()
         {
+            /*
             // We have a member named Alice from Bellevue.
             // "Alice" in a line of some results.
             // What is the score and
             // probability that this line refers to our member?
+            */
 
             var scorer = this.TestScorer();
             var score = Scorer.DefaultPriorScore;
@@ -149,9 +160,11 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod6()
         {
+            /*
             // We found a line containing "Alison" and we wonder if it refers to our member
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does not contain "Smith", but it does contain "Bellevue" her town.
+            */
 
             var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
@@ -188,10 +201,12 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod7()
         {
+            /*
             // We found a line containing "Alice" and we wonder if it refers to our member
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does contain "Smith", but it does not contain "Bellevue" her town
             // even though there are city names in the results.
+            */
 
             var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
@@ -228,10 +243,12 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod8()
         {
+            /*
             // We found a line containing "Alice" and we wonder if it refers to our member
             // Alice Smith, for whom "Alison" and "Allison" are nicknames.
             // The line does contain "Smith". None of the results contain city info, so we skip
             // that.
+            */
 
             var scorer = this.TestScorer();
             string[] firstNameList = new[] { "ALICE", "ALISON", "ALLISON" };
@@ -261,11 +278,13 @@ namespace TestMemberMatch
         [TestMethod]
         public void TestMethod9()
         {
+            /*
             // Suppose we find a race results line containing the text "Alice"
             // and we wonder if it refers to our member Alice Smith,
             // for whom "Alison" and "Allison" are nicknames.
             // The line also contains "Smith" and "Bellevue", her town.
             // We can also see that 300 of the 3000 result lines mention "Bellevue".
+            */
 
             var scorer = this.TestScorer();
 
@@ -323,8 +342,10 @@ namespace TestMemberMatch
             Assert.AreEqual(probability, 0.8693, delta: 0.0001);
         }
 
-        [TestMethod]
-        public void TestBig1()
+        [DataRow(true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt")]
+        [DataRow(false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt")]
+        [DataTestMethod]
+        public void TestBig1(bool withCity, string filename, double minimumScore, string expectedFile)
         {
             // Download from https://1drv.ms/u/s!AkoPP4cC5J64xMgga4595XA390eN5Q?e=neugfs
             string root = @"D:\OneDrive\Shares\RaceResults";
@@ -337,47 +358,41 @@ namespace TestMemberMatch
             var scorer = new Scorer(root + "/name_probability.tsv");
             var members = new Members(root + "/sample_members.tsv");
 
-            foreach (var (withCity, filename, minimumScore, expectedFile) in new[]
-            {
-                                (true, "/sample_results_withcity.txt", -9.0, "/expected_withcity.txt"),
-                                (false, "/sample_results_nocity.txt", -3.0, "/expected_nocity.txt"),
-            })
-            {
-                StringBuilder outputText = null;
+            StringBuilder outputText = null;
 
-                // TODO for timing change to 25
-                for (int i = 0; i < 1; ++i)
+            // TODO for timing change to 25
+            for (int i = 0; i < 1; ++i)
+            {
+                var cityToFrequency = members.CityToFrequency(withCity, root + filename);
+
+                //!!!cmk
+                var query =
+                    from line in File.ReadLines(root + filename).Skip(1)
+                    let memberAndScoreList = MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
+                    where memberAndScoreList.Count > 0
+                    select (line, memberAndScoreList);
+
+                outputText = new StringBuilder();
+                foreach (var (line, memberAndScoreList) in query)
                 {
-                    var cityToFrequency = members.CityToFrequency(withCity, root + filename);
-
-                    var query =
-                        from line in File.ReadLines(root + filename).Skip(1)
-                        let memberAndScoreList = MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
-                        where memberAndScoreList.Count > 0
-                        select (line, memberAndScoreList);
-
-                    outputText = new StringBuilder();
-                    foreach (var (line, memberAndScoreList) in query)
+                    outputText.AppendLine(line);
+                    foreach (var (member, score) in memberAndScoreList)
                     {
-                        outputText.AppendLine(line);
-                        foreach (var (member, score) in memberAndScoreList)
-                        {
-                            outputText.AppendLine($"\t{score:0.00}\t{member}");
-                        }
+                        outputText.AppendLine($"\t{score:0.00}\t{member}");
                     }
                 }
+            }
 
-                string expectedPath = root + expectedFile;
-                if (File.Exists(expectedPath))
-                {
-                    string expected = File.ReadAllText(expectedPath);
-                    Trace.Assert(expected == outputText.ToString(), "Output text is not as expected.");
-                }
-                else
-                {
-                    File.WriteAllText(expectedPath + ".temp", outputText.ToString());
-                    Trace.Assert(false, "Can't find expected output.");
-                }
+            string expectedPath = root + expectedFile;
+            if (File.Exists(expectedPath))
+            {
+                string expected = File.ReadAllText(expectedPath);
+                Trace.Assert(expected == outputText.ToString(), "Output text is not as expected.");
+            }
+            else
+            {
+                File.WriteAllText(expectedPath + ".temp", outputText.ToString());
+                Trace.Assert(false, "Can't find expected output.");
             }
         }
 
@@ -394,6 +409,7 @@ namespace TestMemberMatch
 
             var candidateMembers = members.CandidateMembers(tokenizedLine);
 
+            //!!!cmk
             var memberAndScoreList = (
                 from member in candidateMembers
                 let score = ScoreMember(scorer, cityToFrequency, member, tokenizedLine)
@@ -413,6 +429,7 @@ namespace TestMemberMatch
         private static (string, HashSet<string>) TokenizedLine(string line)
         {
             //!!!TODO split on all whitespace, too.
+
             string[] separatingStrings = { ".", ",", " ", "\t" };
 
             string upper_line = line.ToUpperInvariant();

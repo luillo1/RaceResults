@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceResults.MemberMatch
 {
@@ -23,13 +21,10 @@ namespace RaceResults.MemberMatch
                 var fields = line.Split('\t');
                 Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
 
-                // TODO: don't use _ in name. Move this into class. Move class into its own file.
-                var member = new Member
-                {
-                    FirstList = Member.ProcessName(fields[0]).Concat(Member.ProcessName(fields[2])).ToList(),
-                    LastList = Member.ProcessName(fields[1]),
-                    City = fields[3].ToUpperInvariant(),
-                };
+                var member = new Member(
+                    firstList: Member.ProcessName(fields[0]).Concat(Member.ProcessName(fields[2])).ToList(),
+                    lastList: Member.ProcessName(fields[1]),
+                    city: fields[3].ToUpperInvariant());
                 Debug.WriteLine(line);
                 Debug.WriteLine($" {member}");
 
@@ -46,6 +41,7 @@ namespace RaceResults.MemberMatch
 
         public HashSet<Member> CandidateMembers((string, HashSet<string>) tokenizedLine)
         {
+            //!!!cmk
             var candidateMembers = (
                 from token in tokenizedLine.Item2
                 let memberSet = this.nameToMemberSet.GetValueOrDefault(token)
@@ -65,7 +61,8 @@ namespace RaceResults.MemberMatch
             {
                 return null;
             }
-
+            
+            //!!!cmk
             var resultList = (
                 from line in File.ReadLines(filePath).Skip(1)
                 select line.ToUpperInvariant())
@@ -73,6 +70,7 @@ namespace RaceResults.MemberMatch
 
             int total = resultList.Count;
 
+            //!!!cmk
             var cityToFrequency = (
                 from city in this.citySet
                 let count = (

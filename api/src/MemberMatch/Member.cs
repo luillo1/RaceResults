@@ -1,30 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RaceResults.MemberMatch
 {
     public class Member
     {
-        public List<string> FirstList;
-        public List<string> LastList;
-        public string City;
+        public Member(List<string> firstList, List<string> lastList, string city)
+        {
+            FirstList = firstList ?? throw new ArgumentNullException(nameof(firstList));
+            LastList = lastList ?? throw new ArgumentNullException(nameof(lastList));
+            City = city ?? throw new ArgumentNullException(nameof(city));
+        }
 
+        // TODO Need code for when City is unknown
+        public List<string> FirstList { get; }
+
+        public List<string> LastList { get; }
+
+        public string City { get; }
+
+        /// <summary>
+        /// This takes a string (for example, one field from a *.tsv file)
+        /// and turns it into a list of canonical names. For example, a nickname
+        /// field of "Billy/Bill/Will" would turn into the list
+        /// "BILLY","BILL","WILL".
+        /// </summary>
+        /// <param name="field">
+        /// a string (for example, one field from a *.tsv file).
+        /// </param>
+        /// <returns>List of canonical names.</returns>
+        /// <remarks>
+        ///    Rules for names:
+        ///        * assume no accent marks
+        ///         * make any middle name part of the first or last name via spaces
+        ///    Processing:
+        ///        * trim spaces from ends
+        ///        * capitalize everything
+        ///        * remove "." and "'"
+        ///        * ignore any one character names
+        ///        * split on hyphens, slashes, and spaces
+        ///        * remove empty strings.
+        /// </remarks>
         public static List<string> ProcessName(string field)
         {
-            /* Rules for names:
-                Assume no accent marks !!!TODO
-                trim spaces from ends !!!TODO
-                capitalize everything
-                make any middle name part of the first or last name via spaces
-                Remove "." and "'"
-                ignore any one character names
-                Split on hyphens, slashes, and spaces and treat as nicknames
-                treat the nickname column as a first name nickname
-                remove empty strings
-            */
             field = field.ToUpperInvariant().Trim();
 
             // TODO what about other single-quote like characters such as back quote
