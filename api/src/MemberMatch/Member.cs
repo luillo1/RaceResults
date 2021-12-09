@@ -22,37 +22,42 @@ namespace RaceResults.MemberMatch
 
         /// <summary>
         /// This takes a string (for example, one field from a *.tsv file)
-        /// and turns it into a list of canonical names. For example, a nickname
-        /// field of "Billy/Bill/Will" would turn into the list
+        /// and turns it into a list of names in standard (or canonical) form.
+        /// For example, a nickname field of "Billy/Bill/Will" would turn into the list
         /// "BILLY","BILL","WILL".
+        /// A fields of "O'Neil" would turn into the one-item list: "ONEIL".
         /// </summary>
         /// <param name="field">
         /// a string (for example, one field from a *.tsv file).
         /// </param>
         /// <returns>List of canonical names.</returns>
         /// <remarks>
-        ///    Rules for names:
+        ///    Rules for input field:
         ///        * assume no accent marks
-        ///         * make any middle name part of the first or last name via spaces
+        ///        * Tip: make any middle name part of the first or last name via spaces
         ///    Processing:
         ///        * capitalize everything
         ///        * trim spaces from ends
         ///        * remove "." and "'"
         ///        * split on hyphens, slashes, and spaces
-        ///        * remove empty strings.
-        ///        * ignore any one character names
+        ///        * remove empty strings
+        ///        * ignore any one character names.
         /// </remarks>
-        public static List<string> ProcessName(string field)
+        public static List<string> CanonicalizeField(string field)
         {
-            var nameList =
-                field.ToUpperInvariant().Trim().
+            var nameList = field
+                .ToUpperInvariant()
+                .Trim()
 
                 // TODO what about other single-quote like characters such as back quote
-                Replace(".", string.Empty).Replace("'", string.Empty).
+                .Replace(".", string.Empty)
+                .Replace("'", string.Empty)
 
                 // TODO and all whitespace?
-                Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries).
-                Where(name => name.Length > 1).ToList();
+                .Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries)
+                .Where(name => name.Length > 1)
+                .ToList();
+
             return nameList;
         }
 

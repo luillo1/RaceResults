@@ -22,8 +22,8 @@ namespace RaceResults.MemberMatch
                 Trace.Assert(fields.Length == 4, "Expect four fields in the 'sample_member.tsv' file");
 
                 var member = new Member(
-                    firstList: Member.ProcessName(fields[0]).Concat(Member.ProcessName(fields[2])).ToList(),
-                    lastList: Member.ProcessName(fields[1]),
+                    firstList: Member.CanonicalizeField(fields[0]).Concat(Member.CanonicalizeField(fields[2])).ToList(),
+                    lastList: Member.CanonicalizeField(fields[1]),
                     city: fields[3].ToUpperInvariant());
                 Debug.WriteLine(line);
                 Debug.WriteLine($" {member}");
@@ -42,10 +42,10 @@ namespace RaceResults.MemberMatch
         public HashSet<Member> CandidateMembers(HashSet<string> tokenSet)
         {
             var candidateMembers = tokenSet
-                    .Select(token => nameToMemberSet.GetValueOrDefault(token))
-                    .Where(memberSet => memberSet != null)
-                    .SelectMany(memberSet => memberSet).
-                ToHashSet();
+                .Select(token => nameToMemberSet.GetValueOrDefault(token))
+                .Where(memberSet => memberSet != null)
+                .SelectMany(memberSet => memberSet)
+                .ToHashSet();
 
             Debug.WriteLine($"-> {string.Join(", ", candidateMembers)}");
 
@@ -59,7 +59,8 @@ namespace RaceResults.MemberMatch
                 return null;
             }
 
-            var resultList = File.ReadLines(filePath).Skip(1)
+            var resultList = File.ReadLines(filePath)
+                .Skip(1)
                 .Select(line => line.ToUpperInvariant())
                 .ToList();
 

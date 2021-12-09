@@ -367,14 +367,10 @@ namespace RaceResults.MemberMatchTests
 
                 var query = File.ReadLines(root + filename)
                     .Skip(1)
-                    .Select(line => new
-                    {
-                        line,
-                        memberAndScoreList =
-                            MemberAndScoreList(scorer, members, cityToProbability, line, minimumScore),
-                    })
-                    .Where(@t => @t.memberAndScoreList.Count > 0)
-                    .Select(@t => (@t.line, @t.memberAndScoreList));
+                    .Select(line =>
+                        (line,
+                         memberAndScoreList: MemberAndScoreList(scorer, members, cityToProbability, line, minimumScore)))
+                    .Where(pair => pair.memberAndScoreList.Count > 0);
 
                 outputText = new StringBuilder();
                 foreach (var (line, memberAndScoreList) in query)
@@ -414,10 +410,10 @@ namespace RaceResults.MemberMatchTests
             var candidateMembers = members.CandidateMembers(tokenizedLine.Item2);
 
             var memberAndScoreList = candidateMembers
-                .Select(member => new {member, score = ScoreMember(scorer, cityToProbability, member, tokenizedLine)})
-                .Where(@t => @t.score > minimumScore)
-                .OrderByDescending(@t => @t.score)
-                .Select(@t => (@t.member, @t.score)).ToList();
+                .Select(member => (member, score: ScoreMember(scorer, cityToProbability, member, tokenizedLine)))
+                .Where(memberAndScore => memberAndScore.score > minimumScore)
+                .OrderByDescending(memberAndScore => memberAndScore.score)
+                .ToList();
 
             foreach (var (member, score) in memberAndScoreList)
             {
@@ -430,23 +426,22 @@ namespace RaceResults.MemberMatchTests
 
         private static (string, HashSet<string>) TokenizedLine(string line)
         {
-            //!!!TODO split on all whitespace, too.
-
+            // !!!TODO split on all whitespace, too.
             string[] separatingStrings = { ".", ",", " ", "\t" };
 
-            string upper_line = line.ToUpperInvariant();
+            string upperLine = line.ToUpperInvariant();
 
-            var tokenSet = (from token in upper_line.Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
-                            from token2 in Member.ProcessName(token)
-                            select token2)
-                            .ToHashSet();
+            var tokenSet = upperLine
+                .Split(separatingStrings, System.StringSplitOptions.RemoveEmptyEntries)
+                .SelectMany(token => Member.CanonicalizeField(token))
+                .ToHashSet();
 
             foreach (var token in tokenSet)
             {
                 Debug.WriteLine($"  > '{token}'");
             }
 
-            return (upper_line, tokenSet);
+            return (upperLine, tokenSet);
         }
 
         private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToProbability, Member member, (string, HashSet<string>) tokenizedLine)
@@ -454,14 +449,13 @@ namespace RaceResults.MemberMatchTests
             var (upper_line, tokenSet) = tokenizedLine;
 
             var firstNameList = member.FirstList;
-            var firstNameIsContainedList = (
-                from first in member.FirstList
-                select tokenSet.Contains(first))
+            var firstNameIsContainedList = firstNameList
+                .Select(first => tokenSet.Contains(first))
                 .ToArray();
+
             var lastNameList = member.LastList;
-            var lastNameIsContainedList = (
-                from last in member.LastList
-                select tokenSet.Contains(last))
+            var lastNameIsContainedList = lastNameList
+                .Select(last => tokenSet.Contains(last))
                 .ToArray();
 
             var score = Scorer.DefaultPriorScore;
