@@ -35,27 +35,25 @@ namespace RaceResults.MemberMatch
         ///        * assume no accent marks
         ///         * make any middle name part of the first or last name via spaces
         ///    Processing:
-        ///        * trim spaces from ends
         ///        * capitalize everything
+        ///        * trim spaces from ends
         ///        * remove "." and "'"
-        ///        * ignore any one character names
         ///        * split on hyphens, slashes, and spaces
         ///        * remove empty strings.
+        ///        * ignore any one character names
         /// </remarks>
         public static List<string> ProcessName(string field)
         {
-            field = field.ToUpperInvariant().Trim();
+            var nameList =
+                field.ToUpperInvariant().Trim().
 
-            // TODO what about other single-quote like characters such as back quote
-            field = field.Replace(".", string.Empty).Replace("'", string.Empty);
+                // TODO what about other single-quote like characters such as back quote
+                Replace(".", string.Empty).Replace("'", string.Empty).
 
-            // TODO and all whitespace?
-            string[] names = field.Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries);
-            var names2 =
-                (from name in names
-                 where name.Length > 1
-                 select name).ToList();
-            return names2;
+                // TODO and all whitespace?
+                Split(new[] { '-', ' ', '/' }, System.StringSplitOptions.RemoveEmptyEntries).
+                Where(name => name.Length > 1).ToList();
+            return nameList;
         }
 
         public override string ToString()

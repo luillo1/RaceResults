@@ -39,15 +39,12 @@ namespace RaceResults.MemberMatch
             }
         }
 
-        public HashSet<Member> CandidateMembers((string, HashSet<string>) tokenizedLine)
+        public HashSet<Member> CandidateMembers(HashSet<string> tokenSet)
         {
-            //!!!cmk
-            var candidateMembers = (
-                from token in tokenizedLine.Item2
-                let memberSet = this.nameToMemberSet.GetValueOrDefault(token)
-                where memberSet != null
-                from member in memberSet
-                select member).
+            var candidateMembers = tokenSet
+                    .Select(token => nameToMemberSet.GetValueOrDefault(token))
+                    .Where(memberSet => memberSet != null)
+                    .SelectMany(memberSet => memberSet).
                 ToHashSet();
 
             Debug.WriteLine($"-> {string.Join(", ", candidateMembers)}");
@@ -55,33 +52,35 @@ namespace RaceResults.MemberMatch
             return candidateMembers;
         }
 
-        public Dictionary<string, double> CityToFrequency(bool withCity, string filePath)
+        public Dictionary<string, double> CityToProbability(bool withCity, string filePath)
         {
             if (!withCity)
             {
                 return null;
             }
-            
-            //!!!cmk
-            var resultList = (
-                from line in File.ReadLines(filePath).Skip(1)
-                select line.ToUpperInvariant())
+
+            var resultList = File.ReadLines(filePath).Skip(1)
+                .Select(line => line.ToUpperInvariant())
                 .ToList();
 
             int total = resultList.Count;
 
-            //!!!cmk
-            var cityToFrequency = (
-                from city in this.citySet
-                let count = (
-                    from result in resultList
-                    where result.Contains(city) // TODO OK that substrings will match?
-                    select 1)
-                    .Sum()
-                select (city, (count + 1.0) / (total + 2.0)))
-                .ToDictionary(pair => pair.city, pair => pair.Item2);
+            // TODO OK that substrings of city will match?
 
-            return cityToFrequency;
+            // We add use the "Select" to ensure that the two inputs of ToDictionary will get the city values
+            // in the same order. (If HashSet guaranteed deterministic enumeration, this would not be needed).
+            var cityToProbability = citySet
+                .Select(city => city)
+                .ToDictionary(
+                    city => city,
+                    city =>
+                    {
+                        int count = resultList.Count(result => result.Contains(city));
+                        double probability = (count + 1.0) / (total + 2.0);
+                        return probability;
+                    });
+
+            return cityToProbability;
         }
 
         private void AddMemberToIndex(Member member)

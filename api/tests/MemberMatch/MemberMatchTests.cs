@@ -363,14 +363,18 @@ namespace RaceResults.MemberMatchTests
             // TODO for timing change to 25
             for (int i = 0; i < 1; ++i)
             {
-                var cityToFrequency = members.CityToFrequency(withCity, root + filename);
+                var cityToProbability = members.CityToProbability(withCity, root + filename);
 
-                //!!!cmk
-                var query =
-                    from line in File.ReadLines(root + filename).Skip(1)
-                    let memberAndScoreList = MemberAndScoreList(scorer, members, cityToFrequency, line, minimumScore)
-                    where memberAndScoreList.Count > 0
-                    select (line, memberAndScoreList);
+                var query = File.ReadLines(root + filename)
+                    .Skip(1)
+                    .Select(line => new
+                    {
+                        line,
+                        memberAndScoreList =
+                            MemberAndScoreList(scorer, members, cityToProbability, line, minimumScore),
+                    })
+                    .Where(@t => @t.memberAndScoreList.Count > 0)
+                    .Select(@t => (@t.line, @t.memberAndScoreList));
 
                 outputText = new StringBuilder();
                 foreach (var (line, memberAndScoreList) in query)
@@ -399,7 +403,7 @@ namespace RaceResults.MemberMatchTests
         private static List<(Member member, double score)> MemberAndScoreList(
             Scorer scorer,
             Members members,
-            Dictionary<string, double> cityToFrequency,
+            Dictionary<string, double> cityToProbability,
             string line,
             double minimumScore)
         {
@@ -407,15 +411,13 @@ namespace RaceResults.MemberMatchTests
 
             var tokenizedLine = TokenizedLine(line);
 
-            var candidateMembers = members.CandidateMembers(tokenizedLine);
+            var candidateMembers = members.CandidateMembers(tokenizedLine.Item2);
 
-            //!!!cmk
-            var memberAndScoreList = (
-                from member in candidateMembers
-                let score = ScoreMember(scorer, cityToFrequency, member, tokenizedLine)
-                where score > minimumScore
-                orderby score descending
-                select (member, score)).ToList();
+            var memberAndScoreList = candidateMembers
+                .Select(member => new {member, score = ScoreMember(scorer, cityToProbability, member, tokenizedLine)})
+                .Where(@t => @t.score > minimumScore)
+                .OrderByDescending(@t => @t.score)
+                .Select(@t => (@t.member, @t.score)).ToList();
 
             foreach (var (member, score) in memberAndScoreList)
             {
@@ -447,7 +449,7 @@ namespace RaceResults.MemberMatchTests
             return (upper_line, tokenSet);
         }
 
-        private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToFrequency, Member member, (string, HashSet<string>) tokenizedLine)
+        private static double ScoreMember(Scorer scorer, Dictionary<string, double> cityToProbability, Member member, (string, HashSet<string>) tokenizedLine)
         {
             var (upper_line, tokenSet) = tokenizedLine;
 
@@ -469,9 +471,9 @@ namespace RaceResults.MemberMatchTests
             score += scorer.Delta(
                                  nameList: lastNameList,
                                  isContainedList: lastNameIsContainedList);
-            if (cityToFrequency != null)
+            if (cityToProbability != null)
             {
-                double cityFrequency = cityToFrequency[member.City];
+                double cityFrequency = cityToProbability[member.City];
                 bool cityIsContained = upper_line.Contains(member.City); // TODO: This test function appears in two places and could get out of sync
                 score += Scorer.Delta(probabilityAppearsInLineByCoincidence: cityFrequency, isContained: cityIsContained);
             }
