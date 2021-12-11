@@ -1,16 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { runnersApiSlice } from "../slices/runners/runners-api-slice";
+import { raceResultsApiSlice } from "../slices/runners/raceresults-api-slice";
 
 export const store = configureStore({
   reducer: {
-    [runnersApiSlice.reducerPath]: runnersApiSlice.reducer
+    [raceResultsApiSlice.reducerPath]: raceResultsApiSlice.reducer
   },
   middleware: (getDefaultMiddleware) => {
     /*
     * This is where we can add a bunch of API-specific middleware
     */
     return getDefaultMiddleware()
-      .concat(runnersApiSlice.middleware);
+      .concat(raceResultsApiSlice.middleware);
   }
 });
 

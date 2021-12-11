@@ -70,7 +70,6 @@ function App() {
           />
           <Routes>
             {Object.values(routes).map((route, index) => {
-              console.log(index);
               if (route.requiresLogin) {
                 return (
                   <Route
