@@ -39,9 +39,6 @@ namespace RaceResults.Api
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseHttpsRedirection();
-            app.UseRouting();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -49,10 +46,12 @@ namespace RaceResults.Api
             else
             {
                 app.UseHsts();
-                app.UseAuthentication();
-                app.UseAuthorization();
             }
 
+            app.UseHttpsRedirection();
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
