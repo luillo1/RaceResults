@@ -3,17 +3,23 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class RaceResult
+    public class RaceResult : IModel
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; set; }
+
+        public Guid MemberId { get; set; }
 
         [Required]
-        public Runner Runner { get; set; }
-
-        [Required]
-        public Race Race { get; set; }
+        public Guid RaceId { get; set; }
 
         [Required]
         public TimeSpan Time { get; set; }
+
+        public string DataSource { get; set; }
+
+        public string GetPartitionKey()
+        {
+            return MemberId.ToString();
+        }
     }
 }

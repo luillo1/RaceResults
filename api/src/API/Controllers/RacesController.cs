@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
@@ -9,10 +8,10 @@ using RaceResults.Data.Core;
 namespace RaceResults.Api.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("races")]
     public class RacesController : ControllerBase
     {
-        private readonly ICosmosDbContainerClient<Race> containerClient;
+        private readonly ICosmosDbContainerProvider containerProvider;
 
         private readonly ILogger<RacesController> logger;
 
@@ -20,28 +19,31 @@ namespace RaceResults.Api.Controllers
                 ICosmosDbContainerProvider cosmosDbContainerProvider,
                 ILogger<RacesController> logger)
         {
-            this.containerClient = cosmosDbContainerProvider.RaceContainer;
+            this.containerProvider = cosmosDbContainerProvider;
             this.logger = logger;
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOne(string id)
         {
-            Race result = await this.containerClient.GetItemAsync(id);
+            RaceContainerClient container = containerProvider.RaceContainer;
+            Race result = await container.GetOneAsync(id, id);
             return Ok(result);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            IEnumerable<Race> result = await this.containerClient.GetItemsAsync();
+            RaceContainerClient container = containerProvider.RaceContainer;
+            IEnumerable<Race> result = await container.GetAllAsync();
             return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create(Race race)
         {
-            await this.containerClient.AddItemAsync(race);
+            RaceContainerClient container = containerProvider.RaceContainer;
+            await container.AddOneAsync(race);
             return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
         }
     }

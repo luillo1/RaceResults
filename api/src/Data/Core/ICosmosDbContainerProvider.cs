@@ -1,17 +1,15 @@
-using RaceResults.Common.Models;
-
 namespace RaceResults.Data.Core
 {
     public interface ICosmosDbContainerProvider
     {
-        ICosmosDbContainerClient<RaceResult> RaceResultContainer { get; }
+        RaceResultContainerClient RaceResultContainer { get; }
 
-        ICosmosDbContainerClient<Race> RaceContainer { get; }
+        RaceContainerClient RaceContainer { get; }
 
-        ICosmosDbContainerClient<Runner> RunnerContainer { get; }
+        MemberContainerClient MemberContainer { get; }
 
-        ICosmosDbContainerClient<Organization> OrganizationContainer { get; }
+        OrganizationContainerClient OrganizationContainer { get; }
 
-        ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
+        // ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
     }
 }

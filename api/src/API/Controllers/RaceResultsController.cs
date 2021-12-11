@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,10 +12,10 @@ namespace RaceResults.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("organizations/{orgId}/members/{memberId}/raceresults")]
     public class RaceResultsController : ControllerBase
     {
-        private readonly ICosmosDbContainerClient<RaceResult> containerClient;
+        private readonly ICosmosDbContainerProvider containerProvider;
 
         private readonly ILogger<RaceResultsController> logger;
 
@@ -21,28 +23,52 @@ namespace RaceResults.Api.Controllers
                 ICosmosDbContainerProvider cosmosDbContainerProvider,
                 ILogger<RaceResultsController> logger)
         {
-            this.containerClient = cosmosDbContainerProvider.RaceResultContainer;
+            this.containerProvider = cosmosDbContainerProvider;
             this.logger = logger;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(string id)
+        [HttpGet]
+        public async Task<IActionResult> GetAllRaceResults(string orgId, string memberId)
         {
-            RaceResult result = await this.containerClient.GetItemAsync(id);
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> result = await container.GetRaceResultsForMemberAsync(memberId);
             return Ok(result);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("/organizations/{orgId}/raceresults")]
+        public async Task<IActionResult> GetAllRaceResults(string orgId)
         {
-            IEnumerable<RaceResult> result = await this.containerClient.GetItemsAsync();
+            MemberContainerClient memberContainer = containerProvider.MemberContainer;
+            IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
+            IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
+
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> result = await container.GetRaceResultsForMembersAsync(memberIds);
+            return Ok(result);
+        }
+
+        [HttpGet("{resultId}")]
+        public async Task<IActionResult> GetOneRaceResult(string orgId, string memberId, string resultId)
+        {
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            RaceResult result = await container.GetOneAsync(resultId, memberId);
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(RaceResult raceResult)
+        public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {
-            await this.containerClient.AddItemAsync(raceResult);
+            raceResult.Id = Guid.NewGuid();
+
+            // if (raceResult.MemberId != Guid.Parse(memberId))
+            // {
+            //     return BadRequest();
+            // }
+
+            // TODO: Validate that member exists under organization
+            // TODO: Validate that race exists
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            await container.AddOneAsync(raceResult);
             return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
         }
     }

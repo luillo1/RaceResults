@@ -3,11 +3,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class Organization
+    public class Organization : IModel
     {
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+
+        public string GetPartitionKey()
+        {
+            return Id.ToString();
+        }
     }
 }

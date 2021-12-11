@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,10 @@ namespace RaceResults.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("organizations")]
     public class OrganizationsController : ControllerBase
     {
-        private readonly ICosmosDbContainerClient<Organization> containerClient;
+        private readonly ICosmosDbContainerProvider containerProvider;
 
         private readonly ILogger<OrganizationsController> logger;
 
@@ -21,29 +22,33 @@ namespace RaceResults.Api.Controllers
                 ICosmosDbContainerProvider cosmosDbContainerProvider,
                 ILogger<OrganizationsController> logger)
         {
-            this.containerClient = cosmosDbContainerProvider.OrganizationContainer;
+            this.containerProvider = cosmosDbContainerProvider;
             this.logger = logger;
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(string id)
+        [HttpGet]
+        public async Task<IActionResult> GetAllOrganizations()
         {
-            Organization result = await this.containerClient.GetItemAsync(id);
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            IEnumerable<Organization> result = await container.GetAllAsync();
             return Ok(result);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        [HttpGet("{orgId}")]
+        public async Task<IActionResult> GetOneOrganization(string orgId)
         {
-            IEnumerable<Organization> result = await this.containerClient.GetItemsAsync();
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            Organization result = await container.GetOneAsync(orgId, orgId);
             return Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Organization organization)
+        public async Task<IActionResult> CreateNewOrganization(Organization organization)
         {
-            await this.containerClient.AddItemAsync(organization);
-            return CreatedAtAction(nameof(Create), new { id = organization.Id }, organization);
+            organization.Id = Guid.NewGuid();
+            OrganizationContainerClient container = containerProvider.OrganizationContainer;
+            await container.AddOneAsync(organization);
+            return CreatedAtAction(nameof(CreateNewOrganization), new { id = organization.Id }, organization);
         }
     }
 }
