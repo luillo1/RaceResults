@@ -125,7 +125,7 @@ namespace RaceResults.MemberMatch
                                    bool isContained,
                                    double probabilityAppearsInLineFromReference = double.NaN)
         {
-            if (probabilityAppearsInLineFromReference != probabilityAppearsInLineFromReference)
+            if (Double.IsNaN(probabilityAppearsInLineFromReference))
             {
                 probabilityAppearsInLineFromReference = defaultProbabilityAppearsInLineFromReference;
             }

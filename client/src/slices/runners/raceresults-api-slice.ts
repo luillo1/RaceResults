@@ -2,15 +2,21 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { loginRequest } from "../../authConfig";
 import { msalInstance } from "../../utils/mcalInstance";
 
-interface Runner {
+interface Member {
+  id: string;
   organizationId: string;
   firstName: string;
   lastName: string;
   nicknames: string[];
 }
 
-export const runnersApiSlice = createApi({
-  reducerPath: "runnersApi",
+interface Organization {
+  id: string;
+  name: string;
+}
+
+export const raceResultsApiSlice = createApi({
+  reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: async(headers) => {
@@ -33,15 +39,35 @@ export const runnersApiSlice = createApi({
       return headers;
     }
   }),
+  tagTypes: ["Organization"],
   endpoints(builder) {
     return {
-      fetchRunner: builder.query<Runner[], void>({
+      fetchOrganization: builder.query<Organization, string>({
+        query(id) {
+          return `/organizations/${id}`;
+        }
+      }),
+      fetchOrganizations: builder.query<Organization[], void>({
         query() {
-          return "/runners";
+          return "/organizations";
+        },
+        providesTags: ["Organization"]
+      }),
+      createOrganization: builder.mutation<Organization, Partial<Organization>>({
+        query: (post) => ({
+          url: "/organizations",
+          method: "POST",
+          body: post
+        }),
+        invalidatesTags: ["Organization"]
+      }),
+      fetchMembers: builder.query<Member[], string>({
+        query(orgId) {
+          return `/organizations/${orgId}/members`;
         }
       })
     };
   }
 });
 
-export const { useFetchRunnerQuery, useLazyFetchRunnerQuery } = runnersApiSlice;
+export const { useFetchMembersQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = raceResultsApiSlice;

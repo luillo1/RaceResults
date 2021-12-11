@@ -1,41 +1,96 @@
 import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
-import Runners from "./pages/runners";
 import { Routes, Route } from "react-router-dom";
-import { PublicClientApplication } from "@azure/msal-browser";
-import { MsalProvider } from "@azure/msal-react";
-import { Logout } from "./pages/logout";
+import {
+  AuthenticatedTemplate,
+  UnauthenticatedTemplate,
+  useMsal
+} from "@azure/msal-react";
 import { RequireLogin } from "./utils/RequireLogin";
-import Home from "./pages/home";
+import routes from "./utils/routes";
+import { Menu, Sidebar } from "semantic-ui-react";
+import LogoutButton from "./components/logoutButton";
+import LoginButton from "./components/loginButton";
+import NavLinks from "./components/navbarlinks";
 
-interface AppProps {
-  // Used to make the navbar sticky while scrolling the entire document
-  pca: PublicClientApplication;
-}
-
-function App({ pca }: AppProps) {
+function App() {
   const appRef = useRef(null);
 
+  /**
+   * To add a new page/route, do the following:
+   *     1. Create a new page component under ./pages (typically)
+   *        this component is wrapped in a BasePage
+   *     2. Add a new entry to routes in ./utils/routes
+   *     3. If you want this page to appear in the navbar, add a new
+   *        entry to navbarRoutes in ./utils/routes
+   */
+
+  const [sidebarIsVisible, setSidebarIsVisible] = React.useState(false);
+
+  const { accounts } = useMsal();
+
   return (
-    <div ref={appRef}>
-      <MsalProvider instance={pca}>
-        <Navbar appRef={appRef} />
-        <div>
+    <div ref={appRef} className="full-height">
+      <Sidebar.Pushable>
+        <Sidebar
+          className="flex-container"
+          as={Menu}
+          animation="overlay"
+          inverted
+          vertical
+          onHide={() => setSidebarIsVisible(false)}
+          visible={sidebarIsVisible}
+        >
+          <NavLinks onClick={() => setSidebarIsVisible(false)} />
+          <div className="bottom-aligned">
+            <AuthenticatedTemplate>
+              {accounts[0] != null && (
+                <Menu.Item>
+                  <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
+                </Menu.Item>
+              )}
+
+              <Menu.Item className="borderless">
+                <LogoutButton />
+              </Menu.Item>
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+              <Menu.Item className="borderless">
+                <LoginButton />
+              </Menu.Item>
+            </UnauthenticatedTemplate>
+          </div>
+        </Sidebar>
+        <Sidebar.Pusher>
+          <Navbar
+            appRef={appRef}
+            sidebarIsVisible={sidebarIsVisible}
+            setSidebarIsVisible={setSidebarIsVisible}
+          />
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route
-              path="/runners"
-              element={
-                <RequireLogin>
-                  <Runners />
-                </RequireLogin>
+            {Object.values(routes).map((route, index) => {
+              if (route.requiresLogin) {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={<RequireLogin>{route.element}</RequireLogin>}
+                  />
+                );
+              } else {
+                return (
+                  <Route
+                    key={index}
+                    path={route.path}
+                    element={route.element}
+                  />
+                );
               }
-            />
-            <Route path="/logout" element={<Logout />} />
+            })}
           </Routes>
-        </div>
-      </MsalProvider>
+        </Sidebar.Pusher>
+      </Sidebar.Pushable>
     </div>
   );
 }
