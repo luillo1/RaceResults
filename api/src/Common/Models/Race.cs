@@ -3,17 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public enum Distance
+    public class Race : IModel
     {
-        FiveK,
-        TenK,
-        HalfMarathon,
-        Marathon,
-    }
-
-    public class Race
-    {
-        public Guid Id { get; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         [Required]
         public string Name { get; set; }
@@ -25,6 +17,11 @@ namespace RaceResults.Common.Models
         public string Location { get; set; }
 
         [Required]
-        public Distance Distance { get; set; }
+        public string Distance { get; set; }
+
+        public string GetPartitionKey()
+        {
+            return Id.ToString();
+        }
     }
 }

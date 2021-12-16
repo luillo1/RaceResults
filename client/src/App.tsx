@@ -2,17 +2,19 @@ import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
 import { Routes, Route } from "react-router-dom";
-import { PublicClientApplication } from "@azure/msal-browser";
-import { MsalProvider } from "@azure/msal-react";
+import {
+  AuthenticatedTemplate,
+  UnauthenticatedTemplate,
+  useMsal
+} from "@azure/msal-react";
 import { RequireLogin } from "./utils/RequireLogin";
 import routes from "./utils/routes";
+import { Menu, Sidebar } from "semantic-ui-react";
+import LogoutButton from "./components/logoutButton";
+import LoginButton from "./components/loginButton";
+import NavLinks from "./components/navbarlinks";
 
-interface AppProps {
-  // Used to make the navbar sticky while scrolling the entire document
-  pca: PublicClientApplication;
-}
-
-function App({ pca }: AppProps) {
+function App() {
   const appRef = useRef(null);
 
   /**
@@ -24,14 +26,50 @@ function App({ pca }: AppProps) {
    *        entry to navbarRoutes in ./utils/routes
    */
 
+  const [sidebarIsVisible, setSidebarIsVisible] = React.useState(false);
+
+  const { accounts } = useMsal();
+
   return (
-    <div ref={appRef}>
-      <MsalProvider instance={pca}>
-        <Navbar appRef={appRef} />
-        <div>
+    <div ref={appRef} className="full-height">
+      <Sidebar.Pushable>
+        <Sidebar
+          className="flex-container"
+          as={Menu}
+          animation="overlay"
+          inverted
+          vertical
+          onHide={() => setSidebarIsVisible(false)}
+          visible={sidebarIsVisible}
+        >
+          <NavLinks onClick={() => setSidebarIsVisible(false)} />
+          <div className="bottom-aligned">
+            <AuthenticatedTemplate>
+              {accounts[0] != null && (
+                <Menu.Item>
+                  <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
+                </Menu.Item>
+              )}
+
+              <Menu.Item className="borderless">
+                <LogoutButton />
+              </Menu.Item>
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+              <Menu.Item className="borderless">
+                <LoginButton />
+              </Menu.Item>
+            </UnauthenticatedTemplate>
+          </div>
+        </Sidebar>
+        <Sidebar.Pusher>
+          <Navbar
+            appRef={appRef}
+            sidebarIsVisible={sidebarIsVisible}
+            setSidebarIsVisible={setSidebarIsVisible}
+          />
           <Routes>
             {Object.values(routes).map((route, index) => {
-              console.log(index);
               if (route.requiresLogin) {
                 return (
                   <Route
@@ -51,8 +89,8 @@ function App({ pca }: AppProps) {
               }
             })}
           </Routes>
-        </div>
-      </MsalProvider>
+        </Sidebar.Pusher>
+      </Sidebar.Pushable>
     </div>
   );
 }

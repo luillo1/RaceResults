@@ -1,50 +1,24 @@
-using RaceResults.Common.Models;
-
 namespace RaceResults.Data.Core
 {
     public class CosmosDbContainerProvider : ICosmosDbContainerProvider
     {
-        private const string RaceResultContainerName = "RaceResultContainer";
+        public RaceResultContainerClient RaceResultContainer { get; }
 
-        private const string RaceContainerName = "RaceContainer";
+        public RaceContainerClient RaceContainer { get; }
 
-        private const string RunnerContainerName = "RunnerContainer";
+        public MemberContainerClient MemberContainer { get; }
 
-        private const string OrganizationContainerName = "OrganizationContainer";
-
-        private const string MemberMatchRecordContainerName = "MemberMatchRecordContainer";
-
-        public ICosmosDbContainerClient<RaceResult> RaceResultContainer { get; }
-
-        public ICosmosDbContainerClient<Race> RaceContainer { get; }
-
-        public ICosmosDbContainerClient<Runner> RunnerContainer { get; }
-
-        public ICosmosDbContainerClient<Organization> OrganizationContainer { get; }
-
-        public ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
+        public OrganizationContainerClient OrganizationContainer { get; }
 
         public CosmosDbContainerProvider(ICosmosDbClient cosmosDbClient)
         {
-            this.RaceResultContainer = new CosmosDbContainerClient<RaceResult>(
-                    cosmosDbClient,
-                    CosmosDbContainerProvider.RaceResultContainerName);
+            this.RaceResultContainer = new RaceResultContainerClient(cosmosDbClient);
 
-            this.RaceContainer = new CosmosDbContainerClient<Race>(
-                    cosmosDbClient,
-                    CosmosDbContainerProvider.RaceContainerName);
+            this.RaceContainer = new RaceContainerClient(cosmosDbClient);
 
-            this.RunnerContainer = new CosmosDbContainerClient<Runner>(
-                    cosmosDbClient,
-                    CosmosDbContainerProvider.RunnerContainerName);
+            this.MemberContainer = new MemberContainerClient(cosmosDbClient);
 
-            this.OrganizationContainer = new CosmosDbContainerClient<Organization>(
-                    cosmosDbClient,
-                    CosmosDbContainerProvider.OrganizationContainerName);
-
-            this.MemberMatchRecordContainer = new CosmosDbContainerClient<MemberMatchRecord>(
-                    cosmosDbClient,
-                    CosmosDbContainerProvider.MemberMatchRecordContainerName);
+            this.OrganizationContainer = new OrganizationContainerClient(cosmosDbClient);
         }
     }
 }
