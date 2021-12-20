@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { StrictButtonGroupProps, StrictRatingProps } from "semantic-ui-react";
 import { loginRequest } from "../../authConfig";
 import { msalInstance } from "../../utils/mcalInstance";
 
@@ -15,11 +16,19 @@ interface Organization {
   name: string;
 }
 
+interface RaceResponse {
+  id: string;
+  name: string;
+  date: string;
+  distance: string;
+  location: string;
+}
+
 export const raceResultsApiSlice = createApi({
   reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
-    prepareHeaders: async(headers) => {
+    prepareHeaders: async (headers) => {
       //
       // See if we're logged in. If we are, attach the bearer
       // token to this request.
@@ -29,7 +38,7 @@ export const raceResultsApiSlice = createApi({
       if (activeAccount || accounts.length > 0) {
         const request = {
           ...loginRequest,
-          account: activeAccount || accounts[0]
+          account: activeAccount || accounts[0],
         };
 
         const response = await msalInstance.acquireTokenSilent(request);
@@ -37,7 +46,7 @@ export const raceResultsApiSlice = createApi({
       }
 
       return headers;
-    }
+    },
   }),
   tagTypes: ["Organization"],
   endpoints(builder) {
@@ -45,29 +54,55 @@ export const raceResultsApiSlice = createApi({
       fetchOrganization: builder.query<Organization, string>({
         query(id) {
           return `/organizations/${id}`;
-        }
+        },
       }),
       fetchOrganizations: builder.query<Organization[], void>({
         query() {
           return "/organizations";
         },
-        providesTags: ["Organization"]
+        providesTags: ["Organization"],
       }),
-      createOrganization: builder.mutation<Organization, Partial<Organization>>({
-        query: (post) => ({
-          url: "/organizations",
-          method: "POST",
-          body: post
-        }),
-        invalidatesTags: ["Organization"]
-      }),
+      createOrganization: builder.mutation<Organization, Partial<Organization>>(
+        {
+          query: (post) => ({
+            url: "/organizations",
+            method: "POST",
+            body: post,
+          }),
+          invalidatesTags: ["Organization"],
+        }
+      ),
       fetchMembers: builder.query<Member[], string>({
         query(orgId) {
           return `/organizations/${orgId}/members`;
+        },
+      }),
+      fetchRaces: builder.query<RaceResponse[], void>({
+        query() {
+          // TODO: this needs to be org-specific
+          return `/races`
         }
+      }),
+      createRace: builder.mutation<RaceResponse, Partial<RaceResponse>>({
+        query: (race) => ({
+          url: "/races",
+          method: "POST",
+          body: race
+        }),
       })
     };
-  }
+  },
 });
 
-export const { useFetchMembersQuery, useFetchOrganizationQuery, useFetchOrganizationsQuery, useCreateOrganizationMutation } = raceResultsApiSlice;
+export const {
+  useFetchMembersQuery,
+  useFetchOrganizationQuery,
+  useFetchOrganizationsQuery,
+  useCreateOrganizationMutation,
+  useFetchRacesQuery,
+  useCreateRaceMutation,
+} = raceResultsApiSlice;
+
+export type {
+  RaceResponse
+}
