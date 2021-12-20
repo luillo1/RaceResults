@@ -9,6 +9,7 @@ import { Race } from "../common";
 interface CreateRaceModalProps {
   // If this modal is currently being displayed
   open: boolean;
+
   // Method to call when the modal should be closed
   handleClose: () => void;
 
