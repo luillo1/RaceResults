@@ -42,6 +42,16 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpGet("ids/{orgAssignedMemberId}")]
+        public async Task<IActionResult> ConvertMemberId(string orgId, string orgAssignedMemberId)
+        {
+            MemberContainerClient container = containerProvider.MemberContainer;
+            Member result = await container.GetOneMemberAsync(orgAssignedMemberId, orgId);
+
+            return Ok(result.Id);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {

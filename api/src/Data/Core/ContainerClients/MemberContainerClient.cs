@@ -18,5 +18,15 @@ namespace RaceResults.Data.Core
             var orgGuid = Guid.Parse(orgId);
             return await this.GetManyAsync(it => it.Where(member => member.OrganizationId == orgGuid));
         }
+
+        public async Task<Member> GetOneMemberAsync(string orgAssignedMemberId, string orgId)
+        {
+            var orgGuid = Guid.Parse(orgId);
+            IEnumerable<Member> result = await this.GetManyAsync(it => it.Where(member =>
+                        member.OrganizationId == orgGuid &&
+                        member.OrgAssignedMemberId == orgAssignedMemberId));
+
+            return result.Single();
+        }
     }
 }
