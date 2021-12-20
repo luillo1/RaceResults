@@ -59,6 +59,7 @@ namespace RaceResults.Api.Controllers
             }
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {
