@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Common.Exceptions;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
@@ -42,6 +43,23 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
+        [HttpGet("ids/{orgAssignedMemberId}")]
+        public async Task<IActionResult> ConvertMemberId(string orgId, string orgAssignedMemberId)
+        {
+            MemberContainerClient container = containerProvider.MemberContainer;
+            try
+            {
+                Member result = await container.GetOneMemberAsync(orgAssignedMemberId, orgId);
+                return Ok(result.Id);
+            }
+            catch (MemberIdNotFoundException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {
