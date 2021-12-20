@@ -13,7 +13,7 @@ namespace RaceResults.Common.Models
         [Required]
         public DateTime Date { get; set; }
 
-        public string EventId { get; set; }
+        public Guid EventId { get; set; }
 
         [Required]
         public string Location { get; set; }

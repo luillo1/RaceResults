@@ -1,10 +1,10 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect } from "react";
 import { Button, Form, Modal } from "semantic-ui-react";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { SemanticTextInputField } from "./SemanticFields/SemanticTextInputField";
 import { SemanticDatePickerInputField } from "./SemanticFields/SemanticDatePickerInputField";
-import { IRace } from "../common";
+import { Race } from "../common";
 
 interface CreateRaceModalProps {
   // If this modal is currently being displayed
@@ -13,10 +13,10 @@ interface CreateRaceModalProps {
   handleClose: () => void;
 
   // Method to call when the modal is submitting its form
-  onSubmit: (race: Partial<IRace>) => void;
+  onSubmit: (race: Partial<Race>) => void;
 
-  // The initial IRace to populate the form with
-  initialRace: Partial<IRace>;
+  // The initial Race to populate the form with
+  initialRace: Partial<Race>;
 
   // If this form is for creating a new distance for an existing race event
   distanceOnly: boolean;
@@ -26,15 +26,13 @@ interface CreateRaceModalProps {
 }
 
 const CreateRaceModal = (props: CreateRaceModalProps) => {
-  const [, forceUpdate] = useReducer((x) => x + 1, 0);
-
   return (
     <Formik
       initialValues={{
         name: props.initialRace.name,
         date: props.initialRace.date,
         location: props.initialRace.location,
-        distance: props.initialRace.distance,
+        distance: props.initialRace.distance
       }}
       validationSchema={Yup.object({
         name: Yup.string()
@@ -44,14 +42,15 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
           .nullable()
           .required("This field is required."),
         location: Yup.string().required("This field is required."),
-        distance: Yup.string().required("This field is required."),
+        distance: Yup.string().required("This field is required.")
       })}
       onSubmit={(values) => {
-        var createdRace: Partial<IRace> = {
+        const createdRace: Partial<Race> = {
           name: values.name as string,
           distance: values.distance as string,
           date: values.date as Date,
           location: values.location as string,
+          eventId: props.initialRace.eventId
         };
 
         props.onSubmit(createdRace);

@@ -5,7 +5,8 @@
     "dev": "vite --host",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+	"lint-fix": "eslint --fix"
   },
   "dependencies": {
     "@azure/msal-browser": "^2.19.0",

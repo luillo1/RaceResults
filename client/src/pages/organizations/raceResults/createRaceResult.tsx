@@ -1,29 +1,32 @@
-import React, { ChangeEvent, useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import React, { useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
 import {
   Divider,
   DropdownProps,
   Form,
   Header,
-  Message,
+  Message
 } from "semantic-ui-react";
 import * as Yup from "yup";
 import {
+  useCreateMemberMutation,
   useCreateRaceMutation,
-  useFetchRacesQuery,
+  useCreateRaceResultMutation,
+  useFetchMemberIdQuery,
+  useFetchRacesQuery
 } from "../../../slices/runners/raceresults-api-slice";
 import BasePage from "../../../utils/basePage";
 import routes from "../../../utils/routes";
-import SemanticDatepicker from "react-semantic-ui-datepickers";
 import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
 import CreateRaceModal from "../../../components/createRaceModal";
 import { Formik } from "formik";
 import { SemanticTextInputField } from "../../../components/SemanticFields/SemanticTextInputField";
 import { LoadingOrError } from "../../../utils/loadingOrError";
-import { IRace } from "../../../common";
+import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
+import { SemanticDatePickerInputField } from "../../../components/SemanticFields/SemanticDatePickerInputField";
 
 /**
  * Groups the given race models by their eventId.
@@ -31,37 +34,31 @@ import { SemanticTextAreaField } from "../../../components/SemanticFields/Semant
  * @returns an 2-dimensional array where each entry is a list of race models who all
  * share the same eventId.
  */
-function groupByEventId(races: IRace[]): IRace[][] {
+function groupByEventId(races: Race[]): Race[][] {
   if (races.length === 0) {
     return [];
   }
 
-  //
-  // TODO: for now, group by name since we don't have eventId available
-  //
-
-  const racesByEventId: Map<string, IRace[]> = new Map<string, IRace[]>();
+  const racesByEventId: Map<string, Race[]> = new Map<string, Race[]>();
 
   races.forEach((item) => {
-    if (!item.name) {
+    if (
+      item.eventId === null ||
+      item.eventId === undefined ||
+      item.eventId === "" ||
+      item.eventId === "00000000-0000-0000-0000-000000000000"
+    ) {
       return;
     }
 
-    if (!racesByEventId.has(item.name)) {
-      racesByEventId.set(item.name, []);
+    if (!racesByEventId.has(item.eventId)) {
+      racesByEventId.set(item.eventId, []);
     }
 
-    racesByEventId.get(item.name)?.push(item);
+    racesByEventId.get(item.eventId)?.push(item);
   });
 
   return [...racesByEventId.values()];
-}
-
-interface stateTypes {
-  error: boolean;
-  addRaceModalOpen: boolean;
-  addDistanceModalOpen: boolean;
-  raceEvents: Partial<IRace>[][];
 }
 
 interface FormValues {
@@ -74,47 +71,102 @@ interface FormValues {
 }
 
 const CreateRaceResultPage = () => {
-  const [state, setState]: [stateTypes, any] = useState({
-    error: false,
-    addRaceModalOpen: false,
-    addDistanceModalOpen: false,
-    raceEvents: [],
-  });
+  // State to track if there is an error creating submission
+  const [error, setError] = useState(false);
 
-  //
-  // Fetch all current races to display on the form
-  // and update the state with them. We need to convert
-  // the ISO strings to Date objects.
-  //
-  const racesResponse = useFetchRacesQuery();
+  // State to track if the submission was created successfully
+  const [success, setSuccess] = useState(false);
 
-  useEffect(() => {
-    if (racesResponse.data !== undefined) {
-      const races = racesResponse.data.map((resp) => {
-        return { ...resp, date: new Date(Date.parse(resp.date)) };
-      });
-      setState({ ...state, raceEvents: groupByEventId(races) });
-    }
-  }, [racesResponse.data]);
+  // State to track if the "add race" modal is currently open
+  const [addRaceModalOpen, setAddRaceModalOpen] = useState(false);
 
-  const [createRace] = useCreateRaceMutation();
+  // State to track if the "add distance" modal is currently open
+  const [addDistanceModalOpen, setAddDistanceModalOpen] = useState(false);
 
-  //
-  //  Get search params for the given memberId, firstName, and lastName
-  //
+  // State to track all the races being displayed on the form.
+  // This initially comes from the backend server, but gets updated as
+  // the user adds new races/distances.
+  const [raceEvents, setRaceEvents] = useState<Partial<Race>[][]>([]);
+
+  // Get the organizaiton ID from the URL.
+  const { id } = useParams();
+
+  // Get search params for the given org member ID, firstName, and lastName.
+  // We require being given an org member ID, but first & last names are optional.
   const [searchParams] = useSearchParams();
 
   const orgAssignedMemberId = searchParams.get("memberId");
   const firstName = searchParams.get("firstName");
   const lastName = searchParams.get("lastName");
 
-  const setAddRaceModalOpen = (isOpen: boolean) => {
-    setState({ ...state, addRaceModalOpen: isOpen });
-  };
+  if (id === undefined || orgAssignedMemberId === null) {
+    const navigate = useNavigate();
+    navigate(routes.notFound.createPath());
+    return <></>;
+  }
 
-  const setAddDistanceModalOpen = (isOpen: boolean) => {
-    setState({ ...state, addDistanceModalOpen: isOpen });
-  };
+  //
+  // Fetch all current races to display on the form
+  // and update the state with them. This use method will
+  // result in fetching races from the backend
+  //    1. when we initially load the page
+  //    2. whenever the "Race" tag is invalidated. This happens
+  //       when we POST a new race in the form submission
+  //       handler, meaning we automatically refresh the
+  //       races after a successful submission.
+  //
+  const racesResponse = useFetchRacesQuery();
+
+  useMemo(() => {
+    if (racesResponse.isSuccess && racesResponse.data !== undefined) {
+      // We need to first convert the ISO strings to Date objects.
+      const races = racesResponse.data.map((resp) => {
+        return { ...resp, date: new Date(Date.parse(resp.date)) };
+      });
+
+      // Replace all race events with what just came from the backend
+      setRaceEvents(groupByEventId(races));
+    }
+  }, [racesResponse.data]);
+
+  const [createRace] = useCreateRaceMutation();
+
+  const memberIdResponse = useFetchMemberIdQuery({
+    orgId: id,
+    orgAssignedMemberId: orgAssignedMemberId
+  });
+
+  const [createMember] = useCreateMemberMutation();
+
+  const [createRaceResult] = useCreateRaceResultMutation();
+
+  if (success && !error) {
+    return (
+      <BasePage>
+        <Header as="h2" content="Submit Race Result" />
+        <Divider />
+        <Message positive>
+          <Message.Header>Time submitted</Message.Header>
+          <p>
+            Your result will be published in the next newsletter. Thank you!
+          </p>
+          <p>
+            <a
+              style={{ cursor: "pointer" }}
+              role="button"
+              onClick={() => {
+                setError(false);
+                setSuccess(false);
+              }}
+            >
+              Click here
+            </a>{" "}
+            to submit another time.
+          </p>
+        </Message>
+      </BasePage>
+    );
+  }
 
   const initialFormValues: FormValues = {
     firstName: firstName ?? "",
@@ -122,12 +174,12 @@ const CreateRaceResultPage = () => {
     selectedEventIndex: undefined,
     selectedRaceIndex: undefined,
     comments: "",
-    time: "",
+    time: ""
   };
 
   return (
     <LoadingOrError
-      isLoading={racesResponse.isLoading}
+      isLoading={racesResponse.isLoading || memberIdResponse.isLoading}
       hasError={racesResponse.isError}
     >
       <BasePage>
@@ -151,120 +203,188 @@ const CreateRaceResultPage = () => {
             time: Yup.string()
               .required("This field is required.")
               .matches(
-                RegExp("^(\\d?\\d:)?\\d\\d:\\d\\d(\\.\\d*)?$"),
+                /^(\d?\d:)?\d\d:\d\d(\.\d*)?$/,
                 "Time must be in either hh:mm:ss or mm:ss format."
+              )
+              .matches(
+                /^(\d?\d:)?\d\d:\d\d(\.\d{0,4})?$/,
+                "Seconds cannot contain more than 4 decimal places."
               ),
-            comments: Yup.string().notRequired(),
+            comments: Yup.string().notRequired()
           })}
-          onSubmit={async (values, helpers) => {
-            helpers.setSubmitting(true);
+          onSubmit={async(values, helpers) => {
+            setError(false);
+            setSuccess(false);
 
             if (
               values.selectedEventIndex === undefined ||
               values.selectedRaceIndex === undefined
             ) {
-              setState({ ...state, error: true });
+              setError(true);
               return;
             }
 
-            const race =
-              state.raceEvents[values.selectedEventIndex][
-                values.selectedRaceIndex
-              ];
+            let error = false;
 
-            if (race.id === null) {
+            const race =
+              raceEvents[values.selectedEventIndex][values.selectedRaceIndex];
+
+            let raceIdToSubmit = "";
+            if (race.id === undefined) {
               // This is a new race we have to first create
               await createRace({
                 name: race.name,
                 date: race.date?.toISOString(),
                 distance: race.distance,
                 location: race.location,
-              });
+                eventId: race.eventId
+              })
+                .unwrap()
+                .then((createdRace) => {
+                  raceIdToSubmit = createdRace.id;
+                })
+                .catch(() => {
+                  error = true;
+                });
+            } else {
+              raceIdToSubmit = race.id;
             }
 
-            helpers.setSubmitting(false);
+            if (error) {
+              return;
+            }
+
+            let memberIdToSubmit = "";
+            if (memberIdResponse.isError) {
+              // We need to make new member
+              await createMember({
+                orgId: id,
+                member: {
+                  firstName: values.firstName,
+                  lastName: values.lastName,
+                  organizationId: id,
+                  orgAssignedMemberId: orgAssignedMemberId
+                }
+              })
+                .unwrap()
+                .then((createdMember) => {
+                  memberIdToSubmit = createdMember.id;
+                })
+                .catch(() => {
+                  error = true;
+                });
+            } else {
+              memberIdToSubmit = memberIdResponse.data as string;
+            }
+
+            if (error) {
+              setError(true);
+              return;
+            }
+
+            // Fix the time so we have hours if none were specified
+            let timeToSubmit = values.time;
+            if (timeToSubmit.split(":").length === 2) {
+              timeToSubmit = "00:" + timeToSubmit;
+            }
+
+            await createRaceResult({
+              orgId: id,
+              memberId: memberIdToSubmit,
+              raceResult: {
+                memberId: memberIdToSubmit,
+                raceId: raceIdToSubmit,
+                time: timeToSubmit,
+                comments: values.comments || "",
+                dataSource: "user-submission"
+              }
+            })
+              .unwrap()
+              .then((createdRaceResult) => {
+                console.log(createdRaceResult);
+              })
+              .catch(() => {
+                error = true;
+                setError(true);
+              });
+
+            if (error) {
+              return;
+            }
+
+            helpers.resetForm();
+            setSuccess(true);
           }}
         >
-          {({
-            values,
-            touched,
-            errors,
-            isSubmitting,
-            setSubmitting,
-            setFieldValue,
-            handleSubmit,
-          }) => {
+          {({ values, isSubmitting, setValues, handleSubmit }) => {
             return (
               <div>
                 <CreateRaceModal
                   header="Create New Race"
-                  open={state.addRaceModalOpen}
+                  open={addRaceModalOpen}
                   handleClose={() => {
                     setAddRaceModalOpen(false);
                   }}
                   distanceOnly={false}
-                  onSubmit={(race: Partial<IRace>) => {
+                  onSubmit={(race: Partial<Race>) => {
                     //
                     // Add the new race as a new group
                     //
-                    const newRaces = state.raceEvents.concat([[race]]);
+                    const newRaces = raceEvents.concat([[race]]);
 
                     //
                     // Set the state so that the newly created
                     // event + distance is selected
                     //
 
-                    setState({
-                      ...state,
-                      raceEvents: newRaces,
-                      addRaceModalOpen: false,
-                    });
+                    setRaceEvents(newRaces);
+                    setAddRaceModalOpen(false);
 
-                    setFieldValue("selectedEventIndex", newRaces.length - 1);
-                    setFieldValue("selectedRaceIndex", 0);
+                    setValues({
+                      ...values,
+                      selectedEventIndex: newRaces.length - 1,
+                      selectedRaceIndex: 0
+                    });
                   }}
                   initialRace={{
                     name: "",
                     distance: "",
                     date: null,
                     id: "",
-                    //eventId: "",
-                    location: "",
+                    location: ""
                   }}
                 />
                 {values.selectedEventIndex !== undefined && (
                   <CreateRaceModal
                     header="Add Distance"
-                    open={state.addDistanceModalOpen}
+                    open={addDistanceModalOpen}
                     handleClose={() => setAddDistanceModalOpen(false)}
                     distanceOnly={true}
-                    onSubmit={(race: Partial<IRace>) => {
+                    onSubmit={(race: Partial<Race>) => {
                       if (values.selectedEventIndex === undefined) {
                         // TODO: throw error?
                         return;
                       }
 
-                      const newRaces = [...state.raceEvents];
+                      const newRaces = [...raceEvents];
                       newRaces[values.selectedEventIndex].push(race);
 
-                      setState({
-                        ...state,
-                        raceEvents: newRaces,
-                        addDistanceModalOpen: false,
-                      });
+                      setRaceEvents(newRaces);
+                      setAddDistanceModalOpen(false);
 
-                      setFieldValue(
-                        "selectedRaceIndex",
-                        newRaces[values.selectedEventIndex].length - 1
-                      );
+                      setValues({
+                        ...values,
+                        selectedRaceIndex:
+                          newRaces[values.selectedEventIndex].length - 1
+                      });
                     }}
                     initialRace={{
-                      ...state.raceEvents[values.selectedEventIndex][0],
-                      distance: "",
+                      ...raceEvents[values.selectedEventIndex][0],
+                      distance: ""
                     }}
                   />
                 )}
-                {state.error && (
+                {error && (
                   <Message negative>
                     <Message.Header>
                       There was a problem submitting your time.
@@ -288,29 +408,29 @@ const CreateRaceResultPage = () => {
                     <SemanticSelectField
                       label="Race Name"
                       name="selectedEventIndex"
-                      onChange={(_: any, data: DropdownProps) => {
-                        if (data.value === state.raceEvents.length) {
+                      onChange={(_: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+                        if (data.value === raceEvents.length) {
                           setAddRaceModalOpen(true);
                         } else {
-                          setFieldValue(
-                            "selectedEventIndex",
-                            data.value as number
-                          );
-                          setFieldValue("selectedRaceIndex", 0);
+                          setValues({
+                            ...values,
+                            selectedEventIndex: data.value as number,
+                            selectedRaceIndex: 0
+                          });
                         }
                       }}
-                      options={state.raceEvents
-                        .map((races: Partial<IRace>[], index: number) => ({
+                      options={raceEvents
+                        .map((races: Partial<Race>[], index: number) => ({
                           key: index,
                           value: index,
-                          text: races[0].name,
+                          text: races[0].name
                         }))
                         .concat([
                           {
-                            key: state.raceEvents.length,
-                            value: state.raceEvents.length,
-                            text: "Add New",
-                          },
+                            key: raceEvents.length,
+                            value: raceEvents.length,
+                            text: "Add New"
+                          }
                         ])}
                     />
                   </Form.Group>
@@ -322,20 +442,16 @@ const CreateRaceResultPage = () => {
                           disabled
                           label="Race Location"
                           value={
-                            state.raceEvents[values.selectedEventIndex][0]
-                              .location
+                            raceEvents[values.selectedEventIndex][0].location
                           }
                         />
-                        <Form.Input
+                        <SemanticDatePickerInputField
                           name="date"
                           label="Race Date"
                           disabled
                           clearable={false}
                           placeholder="YYYY-MM-DD"
-                          as={SemanticDatepicker}
-                          value={
-                            state.raceEvents[values.selectedEventIndex][0].date
-                          }
+                          value={raceEvents[values.selectedEventIndex][0].date}
                         />
                       </Form.Group>
                       <Form.Group widths="equal">
@@ -343,7 +459,7 @@ const CreateRaceResultPage = () => {
                           label="Distance"
                           name="selectedRaceIndex"
                           value={values.selectedRaceIndex}
-                          onChange={(_, data: DropdownProps) => {
+                          onChange={(_: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
                             if (values.selectedEventIndex === undefined) {
                               // TODO: throw error?
                               return;
@@ -351,32 +467,30 @@ const CreateRaceResultPage = () => {
 
                             if (
                               data.value ===
-                              state.raceEvents[values.selectedEventIndex].length
+                              raceEvents[values.selectedEventIndex].length
                             ) {
                               setAddDistanceModalOpen(true);
                             } else {
-                              setFieldValue(
-                                "selectedRaceIndex",
-                                data.value as number
-                              );
+                              setValues({
+                                ...values,
+                                selectedRaceIndex: data.value as number
+                              });
                             }
                           }}
-                          options={state.raceEvents[values.selectedEventIndex]
-                            .map((race: Partial<IRace>, index: number) => ({
+                          options={raceEvents[values.selectedEventIndex]
+                            .map((race: Partial<Race>, index: number) => ({
                               key: index,
                               value: index,
-                              text: race.distance,
+                              text: race.distance
                             }))
                             .concat([
                               {
                                 key:
-                                  state.raceEvents[values.selectedEventIndex]
-                                    .length,
+                                  raceEvents[values.selectedEventIndex].length,
                                 value:
-                                  state.raceEvents[values.selectedEventIndex]
-                                    .length,
-                                text: "Add New",
-                              },
+                                  raceEvents[values.selectedEventIndex].length,
+                                text: "Add New"
+                              }
                             ])}
                         />
                       </Form.Group>
