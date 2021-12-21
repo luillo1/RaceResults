@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
-  useMsal
+  useMsal,
 } from "@azure/msal-react";
 import { RequireLogin } from "./utils/RequireLogin";
 import routes from "./utils/routes";
@@ -13,6 +13,7 @@ import { Menu, Sidebar } from "semantic-ui-react";
 import LogoutButton from "./components/logoutButton";
 import LoginButton from "./components/loginButton";
 import NavLinks from "./components/navbarlinks";
+import "semantic-ui-css/semantic.min.css";
 
 function App() {
   const appRef = useRef(null);

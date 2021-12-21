@@ -6,15 +6,15 @@ import {
   DropdownProps,
   Form,
   Header,
-  Message
+  Message,
 } from "semantic-ui-react";
 import * as Yup from "yup";
 import {
   useCreateMemberMutation,
-  useCreateRaceMutation,
+  useCreatePublicRaceMutation,
   useCreateRaceResultMutation,
   useFetchMemberIdQuery,
-  useFetchRacesQuery
+  useFetchPublicRacesQuery,
 } from "../../../slices/runners/raceresults-api-slice";
 import BasePage from "../../../utils/basePage";
 import routes from "../../../utils/routes";
@@ -115,7 +115,7 @@ const CreateRaceResultPage = () => {
   //       handler, meaning we automatically refresh the
   //       races after a successful submission.
   //
-  const racesResponse = useFetchRacesQuery();
+  const racesResponse = useFetchPublicRacesQuery();
 
   useMemo(() => {
     if (racesResponse.isSuccess && racesResponse.data !== undefined) {
@@ -129,11 +129,11 @@ const CreateRaceResultPage = () => {
     }
   }, [racesResponse.data]);
 
-  const [createRace] = useCreateRaceMutation();
+  const [createRace] = useCreatePublicRaceMutation();
 
   const memberIdResponse = useFetchMemberIdQuery({
     orgId: id,
-    orgAssignedMemberId: orgAssignedMemberId
+    orgAssignedMemberId: orgAssignedMemberId,
   });
 
   const [createMember] = useCreateMemberMutation();
@@ -174,7 +174,7 @@ const CreateRaceResultPage = () => {
     selectedEventIndex: undefined,
     selectedRaceIndex: undefined,
     comments: "",
-    time: ""
+    time: "",
   };
 
   return (
@@ -210,9 +210,9 @@ const CreateRaceResultPage = () => {
                 /^(\d?\d:)?\d\d:\d\d(\.\d{0,4})?$/,
                 "Seconds cannot contain more than 4 decimal places."
               ),
-            comments: Yup.string().notRequired()
+            comments: Yup.string().notRequired(),
           })}
-          onSubmit={async(values, helpers) => {
+          onSubmit={async (values, helpers) => {
             setError(false);
             setSuccess(false);
 
@@ -237,7 +237,7 @@ const CreateRaceResultPage = () => {
                 date: race.date?.toISOString(),
                 distance: race.distance,
                 location: race.location,
-                eventId: race.eventId
+                eventId: race.eventId,
               })
                 .unwrap()
                 .then((createdRace) => {
@@ -263,8 +263,8 @@ const CreateRaceResultPage = () => {
                   firstName: values.firstName,
                   lastName: values.lastName,
                   organizationId: id,
-                  orgAssignedMemberId: orgAssignedMemberId
-                }
+                  orgAssignedMemberId: orgAssignedMemberId,
+                },
               })
                 .unwrap()
                 .then((createdMember) => {
@@ -296,8 +296,8 @@ const CreateRaceResultPage = () => {
                 raceId: raceIdToSubmit,
                 time: timeToSubmit,
                 comments: values.comments || "",
-                dataSource: "user-submission"
-              }
+                dataSource: "user-submission",
+              },
             })
               .unwrap()
               .then((createdRaceResult) => {
@@ -343,7 +343,7 @@ const CreateRaceResultPage = () => {
                     setValues({
                       ...values,
                       selectedEventIndex: newRaces.length - 1,
-                      selectedRaceIndex: 0
+                      selectedRaceIndex: 0,
                     });
                   }}
                   initialRace={{
@@ -351,7 +351,7 @@ const CreateRaceResultPage = () => {
                     distance: "",
                     date: null,
                     id: "",
-                    location: ""
+                    location: "",
                   }}
                 />
                 {values.selectedEventIndex !== undefined && (
@@ -375,12 +375,12 @@ const CreateRaceResultPage = () => {
                       setValues({
                         ...values,
                         selectedRaceIndex:
-                          newRaces[values.selectedEventIndex].length - 1
+                          newRaces[values.selectedEventIndex].length - 1,
                       });
                     }}
                     initialRace={{
                       ...raceEvents[values.selectedEventIndex][0],
-                      distance: ""
+                      distance: "",
                     }}
                   />
                 )}
@@ -408,14 +408,17 @@ const CreateRaceResultPage = () => {
                     <SemanticSelectField
                       label="Race Name"
                       name="selectedEventIndex"
-                      onChange={(_: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+                      onChange={(
+                        _: React.SyntheticEvent<HTMLElement>,
+                        data: DropdownProps
+                      ) => {
                         if (data.value === raceEvents.length) {
                           setAddRaceModalOpen(true);
                         } else {
                           setValues({
                             ...values,
                             selectedEventIndex: data.value as number,
-                            selectedRaceIndex: 0
+                            selectedRaceIndex: 0,
                           });
                         }
                       }}
@@ -423,14 +426,14 @@ const CreateRaceResultPage = () => {
                         .map((races: Partial<Race>[], index: number) => ({
                           key: index,
                           value: index,
-                          text: races[0].name
+                          text: races[0].name,
                         }))
                         .concat([
                           {
                             key: raceEvents.length,
                             value: raceEvents.length,
-                            text: "Add New"
-                          }
+                            text: "Add New",
+                          },
                         ])}
                     />
                   </Form.Group>
@@ -459,7 +462,10 @@ const CreateRaceResultPage = () => {
                           label="Distance"
                           name="selectedRaceIndex"
                           value={values.selectedRaceIndex}
-                          onChange={(_: React.SyntheticEvent<HTMLElement>, data: DropdownProps) => {
+                          onChange={(
+                            _: React.SyntheticEvent<HTMLElement>,
+                            data: DropdownProps
+                          ) => {
                             if (values.selectedEventIndex === undefined) {
                               // TODO: throw error?
                               return;
@@ -473,7 +479,7 @@ const CreateRaceResultPage = () => {
                             } else {
                               setValues({
                                 ...values,
-                                selectedRaceIndex: data.value as number
+                                selectedRaceIndex: data.value as number,
                               });
                             }
                           }}
@@ -481,7 +487,7 @@ const CreateRaceResultPage = () => {
                             .map((race: Partial<Race>, index: number) => ({
                               key: index,
                               value: index,
-                              text: race.distance
+                              text: race.distance,
                             }))
                             .concat([
                               {
@@ -489,8 +495,8 @@ const CreateRaceResultPage = () => {
                                   raceEvents[values.selectedEventIndex].length,
                                 value:
                                   raceEvents[values.selectedEventIndex].length,
-                                text: "Add New"
-                              }
+                                text: "Add New",
+                              },
                             ])}
                         />
                       </Form.Group>

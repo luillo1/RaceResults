@@ -8,6 +8,9 @@ namespace RaceResults.Common.Models
         public Guid Id { get; set; }
 
         [Required]
+        public Guid OrganizationId { get; set; }
+
+        [Required]
         public string Name { get; set; }
 
         [Required]
@@ -21,9 +24,13 @@ namespace RaceResults.Common.Models
         [Required]
         public string Distance { get; set; }
 
+        public bool Public { get; set; }
+
+        public DateTime Submitted { get; set; }
+
         public string GetPartitionKey()
         {
-            return Id.ToString();
+            return OrganizationId.ToString();
         }
     }
 }

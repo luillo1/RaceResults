@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
@@ -8,6 +9,7 @@ using RaceResults.Data.Core;
 
 namespace RaceResults.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("races")]
     public class RacesController : ControllerBase
@@ -40,13 +42,22 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPatch]
+        public async Task<IActionResult> Update(Race race)
+        {
+            RaceContainerClient container = containerProvider.RaceContainer;
+            var updatedRace = await container.UpdateOneAsync(race);
+            return Ok(updatedRace);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(Race race)
         {
             RaceContainerClient container = containerProvider.RaceContainer;
-            if (race.EventId == Guid.Empty)
+
+            if (!(await PublicRacesController.InitAndVerifyRace(race, container)))
             {
-                race.EventId = Guid.NewGuid();
+                return BadRequest();
             }
 
             await container.AddOneAsync(race);

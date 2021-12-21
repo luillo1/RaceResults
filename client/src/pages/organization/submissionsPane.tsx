@@ -28,7 +28,10 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
 
   return (
     <>
-      <Dimmer active={raceResultsResponse.isLoading} inverted>
+      <Dimmer
+        active={raceResultsResponse.isLoading || raceResultsResponse.isFetching}
+        inverted
+      >
         <Loader active indeterminate>
           Loading submissions...
         </Loader>
