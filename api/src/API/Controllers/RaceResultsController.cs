@@ -90,5 +90,33 @@ namespace RaceResults.Api.Controllers
             await container.AddOneAsync(raceResult);
             return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
         }
+
+        [HttpDelete("{resultId}")]
+        public async Task<IActionResult> Delete(string orgId, string memberId, string resultId)
+        {
+            if (!(await MemberBelongsToOrg(orgId, memberId)))
+            {
+                return BadRequest();
+            }
+
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            await container.DeleteOneAsync(resultId, memberId);
+            return new OkResult();
+        }
+
+        private async Task<bool> MemberBelongsToOrg(string orgId, string memberId)
+        {
+            MemberContainerClient memberContainer = containerProvider.MemberContainer;
+            
+            try
+            {
+                var member = await memberContainer.GetOneAsync(memberId, orgId);
+                return member.OrganizationId == Guid.Parse(orgId);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

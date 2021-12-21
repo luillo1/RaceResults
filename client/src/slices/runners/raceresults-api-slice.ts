@@ -134,6 +134,13 @@ export const raceResultsApiSlice = createApi({
           body: raceResult
         }),
         invalidatesTags: ["RaceResult"]
+      }),
+      deleteRaceResult: builder.mutation<RaceResult, {orgId: string, memberId: string, raceResultId: string}>({
+        query: ({ orgId, memberId, raceResultId }) => ({
+          url: `/organizations/${orgId}/members/${memberId}/raceresults/${raceResultId}`,
+          method: "DELETE"
+        }),
+        invalidatesTags: ["RaceResult"]
       })
     };
   }
@@ -149,6 +156,7 @@ export const {
   useFetchMemberIdQuery,
   useCreateMemberMutation,
   useFetchRaceResultsQuery,
+  useDeleteRaceResultMutation,
   useCreateRaceResultMutation
 } = raceResultsApiSlice;
 

@@ -1,6 +1,9 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { Header, Icon, Loader, Dimmer, Table, Button } from "semantic-ui-react";
-import { useFetchOrganizationsQuery, useFetchRaceResultsQuery, useFetchRacesQuery } from "../../slices/runners/raceresults-api-slice";
+import {
+  useDeleteRaceResultMutation,
+  useFetchRaceResultsQuery,
+} from "../../slices/runners/raceresults-api-slice";
 
 interface SubmissionsPaneProps {
   orgId: string;
@@ -8,6 +11,7 @@ interface SubmissionsPaneProps {
 
 const SubmissionsPane = (props: SubmissionsPaneProps) => {
   const raceResultsResponse = useFetchRaceResultsQuery(props.orgId);
+  const [deleteRaceResult] = useDeleteRaceResultMutation();
 
   if (raceResultsResponse.isError) {
     return (
@@ -46,9 +50,29 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
               <Table.Cell>{raceResult.race.name}</Table.Cell>
               <Table.Cell>{`${raceResult.member.firstName} ${raceResult.member.lastName} (${raceResult.member.orgAssignedMemberId})`}</Table.Cell>
               <Table.Cell>{raceResult.raceResult.time}</Table.Cell>
-              <Table.Cell>{new Date(Date.parse(raceResult.raceResult.submitted)).toDateString()}</Table.Cell>
+              <Table.Cell>
+                {new Date(
+                  Date.parse(raceResult.raceResult.submitted)
+                ).toDateString()}
+              </Table.Cell>
               <Table.Cell>{raceResult.raceResult.comments}</Table.Cell>
-              <Table.Cell><Button title="Delete" color="red" negative compact basic icon="delete"/></Table.Cell>
+              <Table.Cell>
+                <Button
+                  title="Delete"
+                  color="red"
+                  negative
+                  compact
+                  basic
+                  icon="delete"
+                  onClick={() =>
+                    deleteRaceResult({
+                      orgId: props.orgId,
+                      memberId: raceResult.raceResult.memberId,
+                      raceResultId: raceResult.raceResult.id,
+                    })
+                  }
+                />
+              </Table.Cell>
             </Table.Row>
           ))}
         </Table.Body>
