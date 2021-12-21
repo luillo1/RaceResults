@@ -55,6 +55,7 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {

@@ -24,7 +24,6 @@ namespace RaceResults.Common.Models
 
         public string Hometown { get; set; }
 
-        [Required]
         [EmailAddress]
         public string Email { get; set; }
 

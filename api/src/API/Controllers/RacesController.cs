@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -43,6 +44,11 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> Create(Race race)
         {
             RaceContainerClient container = containerProvider.RaceContainer;
+            if (race.EventId == Guid.Empty)
+            {
+                race.EventId = Guid.NewGuid();
+            }
+
             await container.AddOneAsync(race);
             return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
         }
