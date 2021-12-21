@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.ResponseObjects;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
@@ -43,7 +44,22 @@ namespace RaceResults.Api.Controllers
             IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
 
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
-            IEnumerable<RaceResult> result = await container.GetRaceResultsForMembersAsync(memberIds);
+            IEnumerable<RaceResult> raceResults = await container.GetRaceResultsForMembersAsync(memberIds);
+
+            var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
+            var membersNeeded = raceResults.Select(result => result.MemberId);
+
+            var membersInResponse = (await memberContainer.GetMembersAsync(orgId, membersNeeded))
+                .ToDictionary(member => member.Id, member => member);
+            var racesInResponse = (await containerProvider.RaceContainer.GetManyAsync(it => it.Where(race => racesNeeded.Contains(race.Id))))
+                .ToDictionary(race => race.Id, race => race);
+
+            var result = raceResults.Select(raceResult => new RaceResultResponse()
+            {
+                RaceResult = raceResult,
+                Member = membersInResponse[raceResult.MemberId],
+                Race = racesInResponse[raceResult.RaceId],
+            });
             return Ok(result);
         }
 
@@ -60,6 +76,7 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {
             raceResult.Id = Guid.NewGuid();
+            raceResult.Submitted = DateTime.UtcNow;
 
             // if (raceResult.MemberId != Guid.Parse(memberId))
             // {
