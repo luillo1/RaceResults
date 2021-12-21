@@ -27,18 +27,28 @@ namespace RaceResults.Data.Core
 
         public async Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
+            return (await GetManyAsDictAsync(iteratorCreator)).Values;
+        }
+
+        public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
+        {
             IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
             FeedIterator<T> iterator = iteratorCreator(queryable).ToFeedIterator();
 
-            return await ConstructList(iterator);
+            return await ConstructDict(iterator);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
+            return (await GetAllAsDictAsync()).Values;
+        }
+
+        public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
+        {
             FeedIterator<T> iterator = this.container.GetItemLinqQueryable<T>()
                                                      .ToFeedIterator();
 
-            return await ConstructList(iterator);
+            return await ConstructDict(iterator);
         }
 
         public async Task AddOneAsync(T item)
@@ -53,13 +63,21 @@ namespace RaceResults.Data.Core
             await this.container.DeleteItemAsync<T>(id, partition);
         }
 
-        private static async Task<IEnumerable<T>> ConstructList(FeedIterator<T> iterator)
+        private static async Task<IDictionary<Guid, T>> ConstructDict(FeedIterator<T> iterator)
         {
-            List<T> results = new List<T>();
+            Dictionary<Guid, T> results = new Dictionary<Guid, T>();
             while (iterator.HasMoreResults)
             {
                 var response = await iterator.ReadNextAsync();
-                results.AddRange(response.ToList());
+                foreach (var item in response)
+                {
+                    if (results.ContainsKey(item.Id))
+                    {
+                        throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
+                    }
+
+                    results[item.Id] = item;
+                }
             }
 
             return results;

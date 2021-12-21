@@ -39,7 +39,9 @@ namespace RaceResults.Api.Controllers
         [HttpGet("/organizations/{orgId}/raceresults")]
         public async Task<IActionResult> GetAllRaceResults(string orgId)
         {
+            RaceContainerClient raceContainer = containerProvider.RaceContainer;
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
+
             IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
             IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
 
@@ -49,10 +51,9 @@ namespace RaceResults.Api.Controllers
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
             var membersNeeded = raceResults.Select(result => result.MemberId);
 
-            var membersInResponse = (await memberContainer.GetMembersAsync(orgId, membersNeeded))
-                .ToDictionary(member => member.Id, member => member);
-            var racesInResponse = (await containerProvider.RaceContainer.GetManyAsync(it => it.Where(race => racesNeeded.Contains(race.Id))))
-                .ToDictionary(race => race.Id, race => race);
+            var membersInResponse = (await memberContainer.GetMembersAsync(orgId, membersNeeded));
+
+            var racesInResponse = (await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id))));
 
             var result = raceResults.Select(raceResult => new RaceResultResponse()
             {

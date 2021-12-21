@@ -1,13 +1,19 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class MemberMatchRecord
+    public class MemberMatchRecord : IModel
     {
         [Required]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         public double Probability { get; set; }
+
+        public string GetPartitionKey()
+        {
+            return Id.ToString();
+        }
     }
 }
