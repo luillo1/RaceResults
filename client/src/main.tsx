@@ -7,6 +7,7 @@ import App from "./App";
 import { BrowserRouter } from "react-router-dom";
 import { AuthenticationResult, EventType } from "@azure/msal-browser";
 import { msalInstance } from "./utils/mcalInstance";
+import { MsalProvider } from "@azure/msal-react";
 
 // Default to using the first account if no account is active on page load
 if (
@@ -36,7 +37,9 @@ ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-        <App pca={msalInstance} />
+        <MsalProvider instance={msalInstance}>
+          <App />
+        </MsalProvider>
       </BrowserRouter>
     </Provider>
   </React.StrictMode>,

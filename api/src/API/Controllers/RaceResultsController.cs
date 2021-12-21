@@ -10,7 +10,7 @@ using RaceResults.Data.Core;
 
 namespace RaceResults.Api.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [ApiController]
     [Route("organizations/{orgId}/members/{memberId}/raceresults")]
     public class RaceResultsController : ControllerBase
