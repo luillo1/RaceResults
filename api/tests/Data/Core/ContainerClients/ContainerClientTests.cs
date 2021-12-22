@@ -13,17 +13,35 @@ namespace RaceResultsTests.Data.Core
     [TestClass]
     public class ContainerClientTests
     {
+        public class ContainerClientConcrete : ContainerClient<SampleModel>
+        {
+            public ContainerClientConcrete(ICosmosDbClient client, string containerName)
+                : base(client, containerName)
+            {
+            }
+        }
+
+        public class SampleModel : IModel
+        {
+            public Guid Id { get; set; } = Guid.NewGuid();
+
+            public string GetPartitionKey()
+            {
+                return Id.ToString();
+            }
+        }
+
         [TestMethod]
         public async Task GetOneAsyncTest()
         {
-            List<IModel> includedData = new List<IModel>();
-            IModel item = new SampleModel();
+            List<SampleModel> includedData = new List<SampleModel>();
+            SampleModel item = new SampleModel();
             includedData.Add(item);
 
-            ICosmosDbClient cosmosDbClient = GetMockCosmosClient(includedData);
+            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
             ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
 
-            IModel result = await containerClient.GetOneAsync(item.Id.ToString(), item.GetPartitionKey());
+            SampleModel result = await containerClient.GetOneAsync(item.Id.ToString(), item.GetPartitionKey());
 
             Assert.AreEqual(1, includedData.Count);
             Assert.AreEqual(item, result);
@@ -33,7 +51,7 @@ namespace RaceResultsTests.Data.Core
         [TestMethod]
         public async Task GetManyAsyncTest()
         {
-            List<IModel> includedData = new List<IModel>();
+            List<SampleModel> includedData = new List<SampleModel>();
             SampleModel item1 = new SampleModel();
             includedData.Add(item1);
 
@@ -43,7 +61,7 @@ namespace RaceResultsTests.Data.Core
             SampleModel item3 = new SampleModel();
             includedData.Add(item3);
 
-            ICosmosDbClient cosmosDbClient = GetMockCosmosClient(includedData);
+            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
             ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
 
             IEnumerable<IModel> output = await containerClient.GetManyAsync(x => x.Where(_ => true));
@@ -59,7 +77,7 @@ namespace RaceResultsTests.Data.Core
         [TestMethod]
         public async Task GetAllAsyncTest()
         {
-            List<IModel> includedData = new List<IModel>();
+            List<SampleModel> includedData = new List<SampleModel>();
             SampleModel item1 = new SampleModel();
             includedData.Add(item1);
 
@@ -69,7 +87,7 @@ namespace RaceResultsTests.Data.Core
             SampleModel item3 = new SampleModel();
             includedData.Add(item3);
 
-            ICosmosDbClient cosmosDbClient = GetMockCosmosClient(includedData);
+            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
             ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
 
             IEnumerable<IModel> output = await containerClient.GetAllAsync();
@@ -85,11 +103,11 @@ namespace RaceResultsTests.Data.Core
         [TestMethod]
         public async Task AddOneAsyncTest()
         {
-            List<IModel> includedData = new List<IModel>();
-            ICosmosDbClient cosmosDbClient = GetMockCosmosClient(includedData);
+            List<SampleModel> includedData = new List<SampleModel>();
+            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
             ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
 
-            IModel item = new SampleModel();
+            SampleModel item = new SampleModel();
             await containerClient.AddOneAsync(item);
 
             Assert.AreEqual(1, includedData.Count);
@@ -99,92 +117,16 @@ namespace RaceResultsTests.Data.Core
         [TestMethod]
         public async Task DeleteOneAsyncTest()
         {
-            List<IModel> includedData = new List<IModel>();
+            List<SampleModel> includedData = new List<SampleModel>();
             SampleModel item = new SampleModel();
             includedData.Add(item);
 
-            ICosmosDbClient cosmosDbClient = GetMockCosmosClient(includedData);
+            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
             ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
 
             await containerClient.DeleteOneAsync(item.Id.ToString(), item.GetPartitionKey());
 
             Assert.AreEqual(0, includedData.Count);
-        }
-
-        private ICosmosDbClient GetMockCosmosClient(List<IModel> includedData)
-        {
-            ICosmosDbClient result = Substitute.For<ICosmosDbClient>();
-            Container container = GetMockContainer(includedData);
-            result.GetContainer(Arg.Any<string>()).Returns(container);
-
-            return result;
-        }
-
-        private Container GetMockContainer(List<IModel> includedData)
-        {
-            Container container = Substitute.For<Container>();
-
-            ItemResponse<IModel> response = Substitute.For<ItemResponse<IModel>>();
-            container.ReadItemAsync<IModel>(Arg.Any<string>(), Arg.Any<PartitionKey>()).Returns(x =>
-                    {
-                        Guid id = Guid.Parse((string)x[0]);
-                        PartitionKey partitionKey = (PartitionKey)x[1];
-
-                        IModel result = includedData.Single(model =>
-                                model.Id.Equals(id) &&
-                                new PartitionKey(model.GetPartitionKey()) == partitionKey);
-
-                        return CreateMockItemResponse(result);
-                    });
-            container.CreateItemAsync<IModel>(Arg.Any<IModel>()).Returns(x =>
-                    {
-                        IModel item = (IModel)x[0];
-
-                        // TODO: Make sure this is an insert and not an update
-                        includedData.Add(item);
-                        return CreateMockItemResponse(item);
-                    });
-            container.DeleteItemAsync<IModel>(Arg.Any<string>(), Arg.Any<PartitionKey>()).Returns(x =>
-                    {
-                        Guid id = Guid.Parse((string)x[0]);
-                        PartitionKey partitionKey = (PartitionKey)x[1];
-
-                        // TODO: Make sure theres only one item that matches
-                        IModel result = includedData.Single(model =>
-                                model.Id.Equals(id) &&
-                                new PartitionKey(model.GetPartitionKey()) == partitionKey);
-
-                        includedData.Remove(result);
-                        return CreateMockItemResponse(result);
-                    });
-            container.GetItemLinqQueryable<IModel>().Returns(includedData.AsQueryable());
-
-            return container;
-        }
-
-        private ItemResponse<T> CreateMockItemResponse<T>(T item)
-        {
-            ItemResponse<T> response = Substitute.For<ItemResponse<T>>();
-            response.Resource.Returns(item);
-            return response;
-        }
-    }
-
-    public class ContainerClientConcrete : ContainerClient<IModel>
-    {
-        public ContainerClientConcrete(ICosmosDbClient client, string containerName)
-            : base(client, containerName)
-        {
-        }
-    }
-
-    public class SampleModel : IModel
-    {
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-        public string GetPartitionKey()
-        {
-            return Id.ToString();
         }
     }
 }
