@@ -28,17 +28,16 @@ namespace RaceResults.Data.Core
         public async Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
             IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            FeedIterator<T> iterator = iteratorCreator(queryable).ToFeedIterator();
+            List<T> result = iteratorCreator(queryable).ToList();
 
-            return await ConstructList(iterator);
+            return result;
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            FeedIterator<T> iterator = this.container.GetItemLinqQueryable<T>()
-                                                     .ToFeedIterator();
+            List<T> result = this.container.GetItemLinqQueryable<T>().ToList();
 
-            return await ConstructList(iterator);
+            return result;
         }
 
         public async Task AddOneAsync(T item)
@@ -51,18 +50,6 @@ namespace RaceResults.Data.Core
         {
             PartitionKey partition = new PartitionKey(partitionKey);
             await this.container.DeleteItemAsync<T>(id, partition);
-        }
-
-        private static async Task<IEnumerable<T>> ConstructList(FeedIterator<T> iterator)
-        {
-            List<T> results = new List<T>();
-            while (iterator.HasMoreResults)
-            {
-                var response = await iterator.ReadNextAsync();
-                results.AddRange(response.ToList());
-            }
-
-            return results;
         }
     }
 }
