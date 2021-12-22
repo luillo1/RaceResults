@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Internal.RaceResults.Data.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace RaceResultsTests.Data.Core
+namespace Internal.RaceResults.Data.Core
 {
     [TestClass]
     public class RaceResultContainerClientTests

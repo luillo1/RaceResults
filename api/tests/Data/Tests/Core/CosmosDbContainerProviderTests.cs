@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using Internal.RaceResults.Data.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace RaceResultsTests.Data.Core
+namespace Internal.RaceResults.Data.Core
 {
     [TestClass]
     public class CosmosDbContainerProviderTests

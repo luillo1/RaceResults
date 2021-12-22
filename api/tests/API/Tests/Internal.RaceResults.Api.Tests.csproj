@@ -2,13 +2,13 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <CodeAnalysisRuleSet>../../CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>../../../CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\API\RaceResults.Api.csproj" />
-    <ProjectReference Include="..\..\src\Common\RaceResults.Common.csproj" />
-    <ProjectReference Include="..\..\src\Data\RaceResults.Data.csproj" />
-    <ProjectReference Include="..\..\tests\Data\Tests.RaceResults.Data.csproj" />
+    <ProjectReference Include="..\..\..\src\API\RaceResults.Api.csproj" />
+    <ProjectReference Include="..\..\..\src\Common\RaceResults.Common.csproj" />
+    <ProjectReference Include="..\..\..\src\Data\RaceResults.Data.csproj" />
+    <ProjectReference Include="..\..\..\tests\Data\Utils\Internal.RaceResults.Data.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />

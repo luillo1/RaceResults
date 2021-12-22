@@ -6,7 +6,7 @@ using NSubstitute;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace RaceResultsTests.Data.Core
+namespace Internal.RaceResults.Data.Utils
 {
     public static class Utils<T>
        where T : IModel

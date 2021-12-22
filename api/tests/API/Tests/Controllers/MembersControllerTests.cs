@@ -1,15 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Api.Controllers;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
-using RaceResultsTests.Data.Core;
 
-namespace RaceResultsTests.Api.Controllers
+namespace Internal.RaceResults.Api.Controllers
 {
     [TestClass]
     public class MembersControllerTests
