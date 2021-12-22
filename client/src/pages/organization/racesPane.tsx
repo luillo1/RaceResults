@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Header,
   Icon,
@@ -7,9 +7,12 @@ import {
   Table,
   Checkbox,
   CheckboxProps,
+  Button,
 } from "semantic-ui-react";
 import { Race } from "../../common";
+import CreateRaceModal from "../../components/createRaceModal";
 import {
+  useCreateRaceMutation,
   useFetchRacesQuery,
   useUpdateRaceMutation,
 } from "../../slices/runners/raceresults-api-slice";
@@ -23,8 +26,11 @@ interface RacesPaneProps {
 
 const RacesPane = () => {
   const [raceEvents, setRaceEvents] = useState<Race[][]>([]);
+  const [isMutating, setisMutating] = useState(false);
+  const [addRaceModalOpen, setAddRaceModalOpen] = useState(false);
   const racesResponse = useFetchRacesQuery();
   const [updateRace] = useUpdateRaceMutation();
+  const [createRace] = useCreateRaceMutation();
 
   const raceCells = (race: Race): JSX.Element => {
     return (
@@ -37,7 +43,10 @@ const RacesPane = () => {
               _: React.FormEvent<HTMLInputElement>,
               data: CheckboxProps
             ) => {
-              updateRace({ ...race, public: data.checked || false });
+              setisMutating(true);
+              updateRace({ ...race, public: data.checked || false }).then(() =>
+                setisMutating(false)
+              );
             }}
           />
         </Table.Cell>
@@ -57,6 +66,19 @@ const RacesPane = () => {
     }
   }, [racesResponse.data]);
 
+  const [addDistanceModalOpen, setAddDistanceModalOpen] = useState(false);
+  const [addDistanceRace, setAddDistanceRace] = useState<Race | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    setAddDistanceModalOpen(true);
+  }, [addDistanceRace]);
+
+  const addDistanceForRace = (race: Race): void => {
+    setAddDistanceRace(race);
+  };
+
   if (racesResponse.isError) {
     return (
       <Header as="h4" icon textAlign="center">
@@ -69,13 +91,65 @@ const RacesPane = () => {
   return (
     <>
       <Dimmer
-        active={racesResponse.isFetching || racesResponse.isLoading}
+        active={
+          racesResponse.isFetching || racesResponse.isLoading || isMutating
+        }
         inverted
       >
         <Loader active indeterminate>
           Loading races...
         </Loader>
       </Dimmer>
+      <CreateRaceModal
+        open={addRaceModalOpen}
+        initialRace={{ name: "", distance: "", location: "" }}
+        distanceOnly={false}
+        onSubmit={async (race) => {
+          setisMutating(true);
+          setAddRaceModalOpen(false);
+          await createRace({
+            name: race.name,
+            date: race.date?.toISOString(),
+            distance: race.distance,
+            location: race.location,
+            eventId: race.eventId,
+            public: true,
+          }).then(() => setisMutating(false));
+        }}
+        handleClose={function(): void {
+          setAddRaceModalOpen(false);
+        }}
+        header={"Add Public Race"}
+      />
+      {addDistanceRace !== undefined && (
+        <CreateRaceModal
+          open={addDistanceModalOpen}
+          initialRace={{
+            distance: "",
+            name: addDistanceRace.name,
+            location: addDistanceRace.location,
+            date: addDistanceRace.date,
+            eventId: addDistanceRace.eventId,
+          }}
+          distanceOnly={true}
+          onSubmit={async (race) => {
+            setisMutating(true);
+            setAddDistanceModalOpen(false);
+            await createRace({
+              name: race.name,
+              date: race.date?.toISOString(),
+              distance: race.distance,
+              location: race.location,
+              eventId: race.eventId,
+              public: true,
+            }).then(() => setisMutating(false));
+          }}
+          handleClose={function(): void {
+            setAddDistanceModalOpen(false);
+          }}
+          header={"Add Public Distance - " + addDistanceRace.name}
+        />
+      )}
       <Table celled structured>
         <Table.Header>
           <Table.Row>
@@ -91,7 +165,10 @@ const RacesPane = () => {
                 {index === 0 && (
                   <Table.Cell rowSpan={races.length}>
                     <b>{race.name}</b> <br />
-                    {race.location} - {race.date?.toDateString()}
+                    {race.location} - {race.date?.toDateString()} <br />
+                    <a href="#" onClick={() => addDistanceForRace(race)}>
+                      Add New Distance
+                    </a>
                   </Table.Cell>
                 )}
                 {raceCells(race)}
@@ -100,6 +177,7 @@ const RacesPane = () => {
           })}
         </Table.Body>
       </Table>
+      <Button onClick={() => setAddRaceModalOpen(true)} content="Create Race" />
     </>
   );
 };

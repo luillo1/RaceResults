@@ -119,6 +119,14 @@ export const raceResultsApiSlice = createApi({
         }),
         invalidatesTags: ["Race"]
       }),
+      createRace: builder.mutation<RaceResponse, Partial<RaceResponse>>({
+        query: (race) => ({
+          url: "/races",
+          method: "POST",
+          body: race
+        }),
+        invalidatesTags: ["Race"]
+      }),
       updateRace: builder.mutation<RaceResponse, Race>({
         query: (race) => ({
           url: "/races",
@@ -172,6 +180,7 @@ export const {
   useFetchRacesQuery,
   useFetchPublicRacesQuery,
   useCreatePublicRaceMutation,
+  useCreateRaceMutation,
   useUpdateRaceMutation,
   useFetchMemberIdQuery,
   useCreateMemberMutation,

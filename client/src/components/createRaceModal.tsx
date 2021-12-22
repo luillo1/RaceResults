@@ -33,8 +33,9 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
         name: props.initialRace.name,
         date: props.initialRace.date,
         location: props.initialRace.location,
-        distance: props.initialRace.distance
+        distance: props.initialRace.distance,
       }}
+      enableReinitialize={true}
       validationSchema={Yup.object({
         name: Yup.string()
           .not(["Add New"], "Entered name is invalid.")
@@ -43,7 +44,7 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
           .nullable()
           .required("This field is required."),
         location: Yup.string().required("This field is required."),
-        distance: Yup.string().required("This field is required.")
+        distance: Yup.string().required("This field is required."),
       })}
       onSubmit={(values) => {
         const createdRace: Partial<Race> = {
@@ -51,7 +52,7 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
           distance: values.distance as string,
           date: values.date as Date,
           location: values.location as string,
-          eventId: props.initialRace.eventId
+          eventId: props.initialRace.eventId,
         };
 
         props.onSubmit(createdRace);
@@ -75,7 +76,6 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
             open={props.open}
             onClose={props.handleClose}
             dimmer="blurring"
-            size="fullscreen"
           >
             <Modal.Header>{props.header}</Modal.Header>
             <Modal.Content>
