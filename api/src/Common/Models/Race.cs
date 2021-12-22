@@ -30,7 +30,7 @@ namespace RaceResults.Common.Models
 
         public string GetPartitionKey()
         {
-            return OrganizationId.ToString();
+            return Id.ToString();
         }
     }
 }
