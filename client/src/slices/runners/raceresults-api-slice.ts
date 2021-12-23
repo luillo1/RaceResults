@@ -32,6 +32,13 @@ interface RaceResult {
   time: string;
   dataSource: string;
   comments: string;
+  submitted: string;
+}
+
+interface RaceResultResponse {
+  raceResult: RaceResult;
+  race: RaceResponse;
+  member: Member;
 }
 
 export const raceResultsApiSlice = createApi({
@@ -58,7 +65,7 @@ export const raceResultsApiSlice = createApi({
       return headers;
     }
   }),
-  tagTypes: ["Organization", "Race"],
+  tagTypes: ["Organization", "Race", "RaceResult"],
   endpoints(builder) {
     return {
       fetchOrganization: builder.query<Organization, string>({
@@ -114,12 +121,26 @@ export const raceResultsApiSlice = createApi({
           body: member
         })
       }),
+      fetchRaceResults: builder.query<RaceResultResponse[], string>({
+        query(orgId) {
+          return `/organizations/${orgId}/raceresults`;
+        },
+        providesTags: ["RaceResult"]
+      }),
       createRaceResult: builder.mutation<RaceResult, {orgId: string, memberId: string, raceResult: Partial<RaceResult>}>({
         query: ({ orgId, memberId, raceResult }) => ({
           url: `/organizations/${orgId}/members/${memberId}/raceresults`,
           method: "POST",
           body: raceResult
-        })
+        }),
+        invalidatesTags: ["RaceResult"]
+      }),
+      deleteRaceResult: builder.mutation<RaceResult, {orgId: string, memberId: string, raceResultId: string}>({
+        query: ({ orgId, memberId, raceResultId }) => ({
+          url: `/organizations/${orgId}/members/${memberId}/raceresults/${raceResultId}`,
+          method: "DELETE"
+        }),
+        invalidatesTags: ["RaceResult"]
       })
     };
   }
@@ -134,6 +155,8 @@ export const {
   useCreateRaceMutation,
   useFetchMemberIdQuery,
   useCreateMemberMutation,
+  useFetchRaceResultsQuery,
+  useDeleteRaceResultMutation,
   useCreateRaceResultMutation
 } = raceResultsApiSlice;
 

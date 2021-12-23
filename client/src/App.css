@@ -43,6 +43,11 @@
   height: 100%;
 }
 
+.fluid.container {
+  margin-left: 10px!important;
+  margin-right: 10px!important;
+}
+
 .bottom-aligned {
   margin: 0px;
   margin-top: auto;
