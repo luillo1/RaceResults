@@ -24,7 +24,7 @@ interface RaceResponse {
   date: string;
   distance: string;
   location: string;
-  public: boolean;
+  isPublic: boolean;
   submitted: string;
 }
 
@@ -130,7 +130,7 @@ export const raceResultsApiSlice = createApi({
       updateRace: builder.mutation<RaceResponse, Race>({
         query: (race) => ({
           url: "/races",
-          method: "PATCH",
+          method: "PUT",
           body: race
         }),
         invalidatesTags: ["Race"]

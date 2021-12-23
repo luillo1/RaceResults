@@ -38,15 +38,16 @@ const RacesPane = () => {
         <Table.Cell>{race.distance}</Table.Cell>
         <Table.Cell>
           <Checkbox
-            checked={race.public}
+            checked={race.isPublic}
             onChange={(
               _: React.FormEvent<HTMLInputElement>,
               data: CheckboxProps
             ) => {
               setisMutating(true);
-              updateRace({ ...race, public: data.checked || false }).then(() =>
-                setisMutating(false)
-              );
+              updateRace({
+                ...race,
+                isPublic: data.checked || false,
+              }).then(() => setisMutating(false));
             }}
           />
         </Table.Cell>
@@ -83,7 +84,7 @@ const RacesPane = () => {
     return (
       <Header as="h4" icon textAlign="center">
         <Icon name="exclamation triangle" />
-        There was an issue fetching members.
+        There was an issue fetching races.
       </Header>
     );
   }
@@ -113,7 +114,7 @@ const RacesPane = () => {
             distance: race.distance,
             location: race.location,
             eventId: race.eventId,
-            public: true,
+            isPublic: true,
           }).then(() => setisMutating(false));
         }}
         handleClose={function(): void {
@@ -141,7 +142,7 @@ const RacesPane = () => {
               distance: race.distance,
               location: race.location,
               eventId: race.eventId,
-              public: true,
+              isPublic: true,
             }).then(() => setisMutating(false));
           }}
           handleClose={function(): void {
