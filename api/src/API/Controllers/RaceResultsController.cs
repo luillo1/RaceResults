@@ -45,13 +45,13 @@ namespace RaceResults.Api.Controllers
             IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
             IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
 
-            RaceResultContainerClient container = containerProvider.RaceResultContainer;
-            IEnumerable<RaceResult> raceResults = await container.GetRaceResultsForMembersAsync(memberIds);
+            RaceResultContainerClient raceResultContainer = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> raceResults = await raceResultContainer.GetRaceResultsForMembersAsync(memberIds);
 
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
             var membersNeeded = raceResults.Select(result => result.MemberId);
 
-            var membersInResponse = (await memberContainer.GetMembersAsync(orgId, membersNeeded));
+            var membersInResponse = (await memberContainer.GetMembersAsDictAsync(orgId, membersNeeded));
 
             var racesInResponse = (await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id))));
 

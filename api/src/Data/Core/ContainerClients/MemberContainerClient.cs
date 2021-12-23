@@ -20,7 +20,7 @@ namespace RaceResults.Data.Core
             return await this.GetManyAsync(it => it.Where(member => member.OrganizationId == orgGuid));
         }
 
-        public async Task<IDictionary<Guid, Member>> GetMembersAsync(string orgId, IEnumerable<Guid> ids)
+        public async Task<IDictionary<Guid, Member>> GetMembersAsDictAsync(string orgId, IEnumerable<Guid> ids)
         {
             var orgGuid = Guid.Parse(orgId);
             var memberIds = ids.ToHashSet();
