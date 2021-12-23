@@ -14,10 +14,10 @@ namespace RaceResults.Data.Core
         {
         }
 
-        public async Task<IEnumerable<Member>> GetAllMembersAsync(string orgId)
+        public async Task<IDictionary<Guid, Member>> GetAllMembersAsDictAsync(string orgId)
         {
             var orgGuid = Guid.Parse(orgId);
-            return await this.GetManyAsync(it => it.Where(member => member.OrganizationId == orgGuid));
+            return await this.GetManyAsDictAsync(it => it.Where(member => member.OrganizationId == orgGuid));
         }
 
         public async Task<IDictionary<Guid, Member>> GetMembersAsDictAsync(string orgId, IEnumerable<Guid> ids)

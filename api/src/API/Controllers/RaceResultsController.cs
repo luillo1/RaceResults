@@ -42,23 +42,19 @@ namespace RaceResults.Api.Controllers
             RaceContainerClient raceContainer = containerProvider.RaceContainer;
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
 
-            IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
-            IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
+            IDictionary<Guid, Member> members = await memberContainer.GetAllMembersAsDictAsync(orgId);
+            IEnumerable<string> memberIds = members.Values.Select(member => member.Id.ToString());
 
             RaceResultContainerClient raceResultContainer = containerProvider.RaceResultContainer;
             IEnumerable<RaceResult> raceResults = await raceResultContainer.GetRaceResultsForMembersAsync(memberIds);
 
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
-            var membersNeeded = raceResults.Select(result => result.MemberId);
-
-            var membersInResponse = (await memberContainer.GetMembersAsDictAsync(orgId, membersNeeded));
-
             var racesInResponse = (await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id))));
 
             var result = raceResults.Select(raceResult => new RaceResultResponse()
             {
                 RaceResult = raceResult,
-                Member = membersInResponse[raceResult.MemberId],
+                Member = members[raceResult.MemberId],
                 Race = racesInResponse[raceResult.RaceId],
             });
             return Ok(result);

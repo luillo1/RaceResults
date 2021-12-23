@@ -6,11 +6,17 @@ namespace RaceResults.MemberMatch
 {
     public class ProbabilityProvider
     {
-        private ContainerClient<MemberMatchRecord> containerClient;
+        private ICosmosDbContainerClient<MemberMatchRecord> containerClient;
 
-        public ProbabilityProvider(ContainerClient<MemberMatchRecord> containerClient)
+        public ProbabilityProvider(ICosmosDbContainerClient<MemberMatchRecord> containerClient)
         {
             this.containerClient = containerClient;
+        }
+
+        public async Task<double> GetProbability(string name)
+        {
+            MemberMatchRecord data = await this.containerClient.GetItemAsync(name);
+            return data.Probability;
         }
     }
 }

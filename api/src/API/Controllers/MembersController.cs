@@ -31,7 +31,7 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> GetAllMembers(string orgId)
         {
             MemberContainerClient container = containerProvider.MemberContainer;
-            IEnumerable<Member> result = await container.GetAllMembersAsync(orgId);
+            IEnumerable<Member> result = (await container.GetAllMembersAsDictAsync(orgId)).Values;
             return Ok(result);
         }
 
