@@ -48,7 +48,7 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> GetAllPublic()
         {
             RaceContainerClient container = containerProvider.RaceContainer;
-            IEnumerable<Race> result = await container.GetAllAsync();
+            IEnumerable<Race> result = await container.GetManyAsync(it => it.Where(race => race.IsPublic));
             return Ok(result);
         }
 
@@ -70,12 +70,11 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> CreatePublic(Race race)
         {
             RaceContainerClient container = containerProvider.RaceContainer;
-            race.IsPublic = false;
             if (!(await InitAndVerifyRace(race, container)))
             {
                 return BadRequest();
             }
-
+            race.IsPublic = false;
             await container.AddOneAsync(race);
             return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
         }
