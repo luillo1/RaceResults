@@ -25,15 +25,18 @@ namespace RaceResults.Data.Core
             return response.Resource;
         }
 
-        public async Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
+        public Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
-            return (await GetManyAsDictAsync(iteratorCreator)).Values;
+            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
+            List<T> result = iteratorCreator(queryable).ToList();
+
+            return Task.FromResult<IEnumerable<T>>(result);
         }
 
         public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
             IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            FeedIterator<T> iterator = iteratorCreator(queryable).ToFeedIterator();
+            List<T> iterator = iteratorCreator(queryable).ToList();
 
             return await ConstructDict(iterator);
         }
@@ -45,8 +48,7 @@ namespace RaceResults.Data.Core
 
         public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
         {
-            FeedIterator<T> iterator = this.container.GetItemLinqQueryable<T>()
-                                                     .ToFeedIterator();
+            List<T> iterator = this.container.GetItemLinqQueryable<T>().ToList();
 
             return await ConstructDict(iterator);
         }
@@ -63,24 +65,20 @@ namespace RaceResults.Data.Core
             await this.container.DeleteItemAsync<T>(id, partition);
         }
 
-        private static async Task<IDictionary<Guid, T>> ConstructDict(FeedIterator<T> iterator)
+        private static Task<IDictionary<Guid, T>> ConstructDict(List<T> iterator)
         {
-            Dictionary<Guid, T> results = new Dictionary<Guid, T>();
-            while (iterator.HasMoreResults)
+            IDictionary<Guid, T> results = new Dictionary<Guid, T>();
+            foreach (T item in iterator)
             {
-                var response = await iterator.ReadNextAsync();
-                foreach (var item in response)
+                if (results.ContainsKey(item.Id))
                 {
-                    if (results.ContainsKey(item.Id))
-                    {
-                        throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
-                    }
-
-                    results[item.Id] = item;
+                    throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
                 }
+
+                results[item.Id] = item;
             }
 
-            return results;
+            return Task.FromResult(results);
         }
     }
 }
