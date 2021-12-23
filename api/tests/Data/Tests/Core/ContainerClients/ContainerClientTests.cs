@@ -31,106 +31,71 @@ namespace Internal.RaceResults.Data.Core
             }
         }
 
+        private static List<SampleModel> models = new List<SampleModel>()
+        {
+            new SampleModel()
+            {
+                Id = Guid.NewGuid(),
+            },
+            new SampleModel()
+            {
+                Id = Guid.NewGuid(),
+            },
+            new SampleModel()
+            {
+                Id = Guid.NewGuid(),
+            },
+        };
+
+        private ContainerClientConcrete containerClient;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(models);
+            containerClient = new ContainerClientConcrete(container);
+        }
+
         [TestMethod]
         public async Task GetOneAsyncTest()
         {
-            List<SampleModel> includedData = new List<SampleModel>();
-            SampleModel item = new SampleModel();
-            includedData.Add(item);
-
-            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
-
+            SampleModel item = models.First();
             SampleModel result = await containerClient.GetOneAsync(item.Id.ToString(), item.GetPartitionKey());
-
-            Assert.AreEqual(1, includedData.Count);
             Assert.AreEqual(item, result);
-            Assert.IsTrue(includedData.Contains(item));
         }
 
         [TestMethod]
         public async Task GetManyAsyncTest()
         {
-            List<SampleModel> includedData = new List<SampleModel>();
-
-            SampleModel item1 = new SampleModel();
-            includedData.Add(item1);
-
-            SampleModel item2 = new SampleModel();
-            includedData.Add(item2);
-
-            SampleModel item3 = new SampleModel();
-            includedData.Add(item3);
-
-            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
-
             IEnumerable<SampleModel> output = await containerClient.GetManyAsync(x => x.Where(_ => true));
-            List<SampleModel> result = output.ToList();
 
-            Assert.AreEqual(3, includedData.Count);
-            Assert.AreEqual(3, result.Count);
-            Assert.IsTrue(result.Contains(item1));
-            Assert.IsTrue(result.Contains(item2));
-            Assert.IsTrue(result.Contains(item3));
+            Assert.IsTrue(models.ToHashSet().SetEquals(output));
         }
 
         [TestMethod]
         public async Task GetAllAsyncTest()
         {
-            List<SampleModel> includedData = new List<SampleModel>();
-
-            SampleModel item1 = new SampleModel();
-            includedData.Add(item1);
-
-            SampleModel item2 = new SampleModel();
-            includedData.Add(item2);
-
-            SampleModel item3 = new SampleModel();
-            includedData.Add(item3);
-
-            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
-
             IEnumerable<SampleModel> output = await containerClient.GetAllAsync();
-            List<SampleModel> result = output.ToList();
 
-            Assert.AreEqual(3, includedData.Count);
-            Assert.AreEqual(3, result.Count);
-            Assert.IsTrue(result.Contains(item1));
-            Assert.IsTrue(result.Contains(item2));
-            Assert.IsTrue(result.Contains(item3));
+            Assert.IsTrue(models.ToHashSet().SetEquals(output));
         }
 
         [TestMethod]
         public async Task AddOneAsyncTest()
         {
-            List<SampleModel> includedData = new List<SampleModel>();
-
-            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
-
             SampleModel item = new SampleModel();
             await containerClient.AddOneAsync(item);
 
-            Assert.AreEqual(1, includedData.Count);
-            Assert.IsTrue(includedData.Contains(item));
+            Assert.IsTrue(models.Contains(item));
         }
 
         [TestMethod]
         public async Task DeleteOneAsyncTest()
         {
-            List<SampleModel> includedData = new List<SampleModel>();
-
-            SampleModel item = new SampleModel();
-            includedData.Add(item);
-
-            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
-
+            SampleModel item = models.First();
             await containerClient.DeleteOneAsync(item.Id.ToString(), item.GetPartitionKey());
 
-            Assert.AreEqual(0, includedData.Count);
+            Assert.IsTrue(!models.Contains(item));
         }
     }
 }

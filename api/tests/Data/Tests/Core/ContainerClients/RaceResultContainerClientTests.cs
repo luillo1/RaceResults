@@ -13,90 +13,58 @@ namespace Internal.RaceResults.Data.Core
     [TestClass]
     public class RaceResultContainerClientTests
     {
+        private static Guid memberId1 = Guid.NewGuid();
+
+        private static Guid memberId2 = Guid.NewGuid();
+
+        private static Guid memberId3 = Guid.NewGuid();
+
+        private static List<RaceResult> raceResults = new List<RaceResult>()
+        {
+            new RaceResult()
+            {
+                Id = Guid.NewGuid(),
+                MemberId = memberId1,
+            },
+            new RaceResult()
+            {
+                Id = Guid.NewGuid(),
+                MemberId = memberId1,
+            },
+            new RaceResult()
+            {
+                Id = Guid.NewGuid(),
+                MemberId = memberId2,
+            },
+            new RaceResult()
+            {
+                Id = Guid.NewGuid(),
+                MemberId = memberId3,
+            },
+        };
+
+        private RaceResultContainerClient containerClient;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Container container = MockContainerProvider<RaceResult>.CreateMockContainer(raceResults);
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer("RaceResultContainer", container);
+            containerClient = new RaceResultContainerClient(cosmosDbClient);
+        }
+
         [TestMethod]
         public async Task GetRaceResultsForMemberAsyncTest()
         {
-            List<RaceResult> includedData = new List<RaceResult>();
-
-            Guid memberId1 = Guid.NewGuid();
-            Guid memberId2 = Guid.NewGuid();
-
-            RaceResult raceResult1 = new RaceResult()
-            {
-                MemberId = memberId1,
-            };
-
-            RaceResult raceResult2 = new RaceResult()
-            {
-                MemberId = memberId1,
-            };
-
-            RaceResult raceResult3 = new RaceResult()
-            {
-                MemberId = memberId2,
-            };
-
-            includedData.Add(raceResult1);
-            includedData.Add(raceResult2);
-            includedData.Add(raceResult3);
-
-            Container container = MockContainerProvider<RaceResult>.CreateMockContainer(includedData);
-
-            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
-            cosmosDbClient.AddNewContainer("RaceResultContainer", container);
-
-            RaceResultContainerClient containerClient = new RaceResultContainerClient(cosmosDbClient);
-
             IEnumerable<RaceResult> output = await containerClient.GetRaceResultsForMemberAsync(memberId1.ToString());
-            List<RaceResult> result = output.ToList();
 
-            Assert.AreEqual(3, includedData.Count);
-            Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(raceResult1));
-            Assert.IsTrue(result.Contains(raceResult2));
+            Assert.IsTrue(raceResults.Where(result => result.MemberId == memberId1).ToHashSet().SetEquals(output));
         }
 
         [TestMethod]
         public async Task GetRaceResultsForMembersAsyncTest()
         {
-            List<RaceResult> includedData = new List<RaceResult>();
-
-            Guid memberId1 = Guid.NewGuid();
-            Guid memberId2 = Guid.NewGuid();
-            Guid memberId3 = Guid.NewGuid();
-
-            RaceResult raceResult1 = new RaceResult()
-            {
-                MemberId = memberId1,
-            };
-
-            RaceResult raceResult2 = new RaceResult()
-            {
-                MemberId = memberId1,
-            };
-
-            RaceResult raceResult3 = new RaceResult()
-            {
-                MemberId = memberId2,
-            };
-
-            RaceResult raceResult4 = new RaceResult()
-            {
-                MemberId = memberId3,
-            };
-
-            includedData.Add(raceResult1);
-            includedData.Add(raceResult2);
-            includedData.Add(raceResult3);
-            includedData.Add(raceResult4);
-
-            Container container = MockContainerProvider<RaceResult>.CreateMockContainer(includedData);
-
-            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
-            cosmosDbClient.AddNewContainer("RaceResultContainer", container);
-
-            RaceResultContainerClient containerClient = new RaceResultContainerClient(cosmosDbClient);
-
             List<string> memberIdQuery = new List<string>()
             {
                 memberId1.ToString(),
@@ -104,13 +72,10 @@ namespace Internal.RaceResults.Data.Core
             };
 
             IEnumerable<RaceResult> output = await containerClient.GetRaceResultsForMembersAsync(memberIdQuery);
-            List<RaceResult> result = output.ToList();
-
-            Assert.AreEqual(4, includedData.Count);
-            Assert.AreEqual(3, result.Count);
-            Assert.IsTrue(result.Contains(raceResult1));
-            Assert.IsTrue(result.Contains(raceResult2));
-            Assert.IsTrue(result.Contains(raceResult3));
+            Assert.IsTrue(raceResults
+                    .Where(result => result.MemberId == memberId1 || result.MemberId == memberId2)
+                    .ToHashSet()
+                    .SetEquals(output));
         }
     }
 }

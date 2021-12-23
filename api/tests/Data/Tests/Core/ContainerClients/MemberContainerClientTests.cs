@@ -13,47 +13,46 @@ namespace Internal.RaceResults.Data.Core
     [TestClass]
     public class MemberContainerClientTests
     {
+        private static Guid orgainzationId1 = Guid.NewGuid();
+
+        private static Guid orgainzationId2 = Guid.NewGuid();
+
+        private static List<Member> members = new List<Member>()
+        {
+            new Member()
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = orgainzationId1,
+            },
+            new Member()
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = orgainzationId1,
+            },
+            new Member()
+            {
+                Id = Guid.NewGuid(),
+                OrganizationId = orgainzationId2,
+            },
+        };
+
+        private MemberContainerClient containerClient;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Container container = MockContainerProvider<Member>.CreateMockContainer(members);
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer("MemberContainer", container);
+            containerClient = new MemberContainerClient(cosmosDbClient);
+        }
+
         [TestMethod]
         public async Task GetAllMembersAsyncTest()
         {
-            List<Member> includedData = new List<Member>();
+            IEnumerable<Member> output = await containerClient.GetAllMembersAsync(orgainzationId1.ToString());
 
-            Guid orgId1 = Guid.NewGuid();
-            Guid orgId2 = Guid.NewGuid();
-
-            Member member1 = new Member()
-            {
-                OrganizationId = orgId1,
-            };
-
-            Member member2 = new Member()
-            {
-                OrganizationId = orgId1,
-            };
-
-            Member member3 = new Member()
-            {
-                OrganizationId = orgId2,
-            };
-
-            includedData.Add(member1);
-            includedData.Add(member2);
-            includedData.Add(member3);
-
-            Container container = MockContainerProvider<Member>.CreateMockContainer(includedData);
-
-            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
-            cosmosDbClient.AddNewContainer("MemberContainer", container);
-
-            MemberContainerClient containerClient = new MemberContainerClient(cosmosDbClient);
-
-            IEnumerable<Member> output = await containerClient.GetAllMembersAsync(orgId1.ToString());
-            List<Member> result = output.ToList();
-
-            Assert.AreEqual(3, includedData.Count);
-            Assert.AreEqual(2, result.Count);
-            Assert.IsTrue(result.Contains(member1));
-            Assert.IsTrue(result.Contains(member2));
+            Assert.IsTrue(members.Where(member => member.OrganizationId == orgainzationId1).ToHashSet().SetEquals(output));
         }
     }
 }
