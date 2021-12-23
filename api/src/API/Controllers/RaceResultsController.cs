@@ -49,7 +49,7 @@ namespace RaceResults.Api.Controllers
             IEnumerable<RaceResult> raceResults = await raceResultContainer.GetRaceResultsForMembersAsync(memberIds);
 
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
-            var racesInResponse = (await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id))));
+            var racesInResponse = await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id)));
 
             var result = raceResults.Select(raceResult => new RaceResultResponse()
             {
@@ -103,7 +103,7 @@ namespace RaceResults.Api.Controllers
         private async Task<bool> MemberBelongsToOrg(string orgId, string memberId)
         {
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
-            
+
             try
             {
                 var member = await memberContainer.GetOneAsync(memberId, orgId);
