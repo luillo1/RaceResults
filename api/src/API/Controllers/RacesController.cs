@@ -74,6 +74,7 @@ namespace RaceResults.Api.Controllers
             {
                 return BadRequest();
             }
+
             race.IsPublic = false;
             await container.AddOneAsync(race);
             return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
