@@ -4,7 +4,7 @@ using RaceResults.Common.Models;
 
 namespace RaceResults.Api.ResponseObjects
 {
-    public class RaceResultResponse
+    public struct RaceResultResponse
     {
         public RaceResult RaceResult { get; set; }
 

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class Race : IModel
+    public struct Race : IModel
     {
         public Guid Id { get; set; }
 

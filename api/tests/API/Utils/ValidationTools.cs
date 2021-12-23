@@ -33,7 +33,7 @@ namespace Internal.RaceResults.Api.Utils
             Assert.AreEqual(expected.Count, actualItemsFound.Count);
             foreach (T expectedItem in expected)
             {
-                Assert.IsTrue(actualItemsFound.Contains(expectedItem));
+                Assert.IsTrue(actualItemsFound.Contains(expectedItem), $"Failed to find {expectedItem.ToString()}");
             }
         }
     }

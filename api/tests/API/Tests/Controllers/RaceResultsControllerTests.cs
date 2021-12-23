@@ -32,6 +32,8 @@ namespace Internal.RaceResults.Api.Controllers
 
         private static Guid raceB = Guid.NewGuid();
 
+        private static Guid raceEventId = Guid.NewGuid();
+
         private static List<Member> members = new List<Member>()
         {
             new Member()
@@ -104,6 +106,7 @@ namespace Internal.RaceResults.Api.Controllers
             new Race()
             {
                 Id = raceA,
+                EventId = raceEventId,
                 Name = "Ben's Annual Race",
                 Date = DateTime.Now,
                 Location = "Ben's House",
@@ -112,6 +115,7 @@ namespace Internal.RaceResults.Api.Controllers
             new Race()
             {
                 Id = raceB,
+                EventId = raceEventId,
                 Name = "Alyssa's Annual Race",
                 Date = DateTime.Now,
                 Location = "Alyssa's House",
