@@ -41,7 +41,7 @@ namespace RaceResults.Api.Controllers
             {
                 return BadRequest();
             }
-            
+
             race.Public = false;
 
             await container.AddOneAsync(race);
