@@ -56,13 +56,15 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> Create(Race race)
         {
             RaceContainerClient container = containerProvider.RaceContainer;
-            if (!(await InitAndVerifyRace(race, container)))
+
+            var (validRace, updatedRace) = await InitAndVerifyRace(race, container);
+            if (!validRace)
             {
                 return BadRequest();
             }
 
-            await container.AddOneAsync(race);
-            return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
+            await container.AddOneAsync(updatedRace);
+            return CreatedAtAction(nameof(Create), new { id = updatedRace.Id }, updatedRace);
         }
 
         [AllowAnonymous]
@@ -70,14 +72,16 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> CreatePublic(Race race)
         {
             RaceContainerClient container = containerProvider.RaceContainer;
-            if (!(await InitAndVerifyRace(race, container)))
+
+            var (validRace, updatedRace) = await InitAndVerifyRace(race, container);
+            if (!validRace)
             {
                 return BadRequest();
             }
 
-            race.IsPublic = false;
-            await container.AddOneAsync(race);
-            return CreatedAtAction(nameof(Create), new { id = race.Id }, race);
+            updatedRace.IsPublic = false;
+            await container.AddOneAsync(updatedRace);
+            return CreatedAtAction(nameof(Create), new { id = updatedRace.Id }, updatedRace);
         }
 
         [HttpPut]
@@ -88,7 +92,7 @@ namespace RaceResults.Api.Controllers
             return Ok(updatedRace);
         }
 
-        private static async Task<bool> InitAndVerifyRace(Race race, RaceContainerClient container)
+        private static async Task<(bool, Race)> InitAndVerifyRace(Race race, RaceContainerClient container)
         {
             if (race.EventId == Guid.Empty)
             {
@@ -99,7 +103,7 @@ namespace RaceResults.Api.Controllers
                 var racesInEvent = await container.GetManyAsync(it => it.Where(other => other.EventId == race.EventId));
                 if (!racesInEvent.Any())
                 {
-                    return false;
+                    return (false, default(Race));
                 }
                 else
                 {
@@ -108,13 +112,13 @@ namespace RaceResults.Api.Controllers
                         toCompare.Date != race.Date ||
                         toCompare.Location != race.Location)
                     {
-                        return false;
+                        return (false, default(Race));
                     }
                 }
             }
 
             race.Submitted = DateTime.UtcNow;
-            return true;
+            return (true, race);
         }
     }
 }
