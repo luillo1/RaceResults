@@ -49,9 +49,49 @@ namespace Internal.RaceResults.Api.Controllers
         }
 
         [TestMethod]
-        public void GetAllRaceResultsWholeOrganizationTest()
+        public async Task GetAllRaceResultsWholeOrganizationTest()
         {
-            // TODO: Need to refactor mock utilities to enable access to multiple containers
+            List<Member> memberData = new List<Member>();
+            Guid orgId = Guid.NewGuid();
+            Guid memberId = Guid.NewGuid();
+            Member member = new Member()
+            {
+                Id = memberId,
+                OrganizationId = orgId,
+                OrgAssignedMemberId = "10",
+                FirstName = "Ben",
+                LastName = "Bitdiddle",
+                Email = "ben.bit@raceresults.run",
+            };
+            memberData.Add(member);
+
+            List<RaceResult> raceResultData = new List<RaceResult>();
+            Guid raceId = Guid.NewGuid();
+            RaceResult raceResult = new RaceResult()
+            {
+                Id = raceId,
+                MemberId = memberId,
+                RaceId = raceId,
+                Time = TimeSpan.FromHours(2.5),
+                DataSource = "Manual Entry",
+            };
+            raceResultData.Add(raceResult);
+            Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(memberData);
+            Container raceResultContainer = MockContainerProvider<RaceResult>.CreateMockContainer(raceResultData);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.RaceResultContainerName, raceResultContainer);
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
+            RaceResultsController controller = new RaceResultsController(provider, NullLogger<RaceResultsController>.Instance);
+
+            IActionResult result = await controller.GetAllRaceResults(orgId.ToString());
+            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
+            Assert.IsTrue(raceResultData.Contains(raceResult));
+            Assert.AreEqual(1, raceResultData.Count);
         }
 
         [TestMethod]
