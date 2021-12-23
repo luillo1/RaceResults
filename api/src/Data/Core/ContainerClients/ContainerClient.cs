@@ -55,6 +55,12 @@ namespace RaceResults.Data.Core
             await this.container.CreateItemAsync<T>(item);
         }
 
+        public async Task<T> UpdateOneAsync(T item)
+        {
+            PartitionKey partition = new PartitionKey(item.GetPartitionKey());
+            return await this.container.UpsertItemAsync<T>(item, partition);
+        }
+
         public async Task DeleteOneAsync(string id, string partitionKey)
         {
             PartitionKey partition = new PartitionKey(partitionKey);
