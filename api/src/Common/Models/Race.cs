@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class Race : IModel
+    public struct Race : IModel
     {
         public Guid Id { get; set; }
 
@@ -20,6 +20,10 @@ namespace RaceResults.Common.Models
 
         [Required]
         public string Distance { get; set; }
+
+        public bool IsPublic { get; set; }
+
+        public DateTime Submitted { get; set; }
 
         public string GetPartitionKey()
         {

@@ -6,6 +6,6 @@ namespace RaceResults.Common.Models
     {
         Guid Id { get; set; }
 
-        public string GetPartitionKey();
+        string GetPartitionKey();
     }
 }

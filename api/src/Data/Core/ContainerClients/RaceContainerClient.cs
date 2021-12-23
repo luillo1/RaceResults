@@ -5,7 +5,7 @@ namespace RaceResults.Data.Core
     public class RaceContainerClient : ContainerClient<Race>
     {
         public RaceContainerClient(ICosmosDbClient cosmosDbClient)
-            : base(cosmosDbClient, ContainerConstants.RaceContainerName)
+            : base(cosmosDbClient.GetContainer(ContainerConstants.RaceContainerName))
         {
         }
     }
