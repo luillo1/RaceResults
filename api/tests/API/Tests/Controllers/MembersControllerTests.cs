@@ -65,14 +65,14 @@ namespace Internal.RaceResults.Api.Controllers
             cosmosDbClient.AddEmptyRaceResultContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
-            this.controller = new MembersController(provider, NullLogger<MembersController>.Instance);
+            controller = new MembersController(provider, NullLogger<MembersController>.Instance);
         }
 
         [TestMethod]
         public async Task GetAllMembersTest()
         {
             Guid orgId = organizationA;
-            IActionResult result = await this.controller.GetAllMembers(orgId.ToString());
+            IActionResult result = await controller.GetAllMembers(orgId.ToString());
 
             HashSet<Member> expectedResult = members.Where(member => member.OrganizationId == orgId).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 member.");
