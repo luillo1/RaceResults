@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Api.Controllers;
@@ -28,8 +29,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Distance = "5k",
             };
             data.Add(race);
-            ICosmosDbClient client = Utils<Race>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container raceContainer = MockContainerProvider<Race>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             RacesController controller = new RacesController(provider, NullLogger<RacesController>.Instance);
 
             IActionResult result = await controller.GetOne(raceId.ToString());
@@ -52,8 +60,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Distance = "5k",
             };
             data.Add(race);
-            ICosmosDbClient client = Utils<Race>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container raceContainer = MockContainerProvider<Race>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             RacesController controller = new RacesController(provider, NullLogger<RacesController>.Instance);
 
             IActionResult result = await controller.GetAll();
@@ -73,8 +88,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Location = "Ben's House",
                 Distance = "5k",
             };
-            ICosmosDbClient client = Utils<Race>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container raceContainer = MockContainerProvider<Race>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             RacesController controller = new RacesController(provider, NullLogger<RacesController>.Instance);
 
             IActionResult result = await controller.Create(race);

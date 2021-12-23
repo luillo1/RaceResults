@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
+using Microsoft.Azure.Cosmos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -39,7 +40,11 @@ namespace Internal.RaceResults.Data.Core
             includedData.Add(member2);
             includedData.Add(member3);
 
-            ICosmosDbClient cosmosDbClient = Utils<Member>.GetMockCosmosClient(includedData);
+            Container container = MockContainerProvider<Member>.CreateMockContainer(includedData);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer("MemberContainer", container);
+
             MemberContainerClient containerClient = new MemberContainerClient(cosmosDbClient);
 
             IEnumerable<Member> output = await containerClient.GetAllMembersAsync(orgId1.ToString());

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.Azure.Cosmos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
@@ -16,8 +15,8 @@ namespace Internal.RaceResults.Data.Core
     {
         public class ContainerClientConcrete : ContainerClient<SampleModel>
         {
-            public ContainerClientConcrete(ICosmosDbClient client, string containerName)
-                : base(client, containerName)
+            public ContainerClientConcrete(Container container)
+                : base(container)
             {
             }
         }
@@ -39,8 +38,8 @@ namespace Internal.RaceResults.Data.Core
             SampleModel item = new SampleModel();
             includedData.Add(item);
 
-            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
+            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
 
             SampleModel result = await containerClient.GetOneAsync(item.Id.ToString(), item.GetPartitionKey());
 
@@ -53,6 +52,7 @@ namespace Internal.RaceResults.Data.Core
         public async Task GetManyAsyncTest()
         {
             List<SampleModel> includedData = new List<SampleModel>();
+
             SampleModel item1 = new SampleModel();
             includedData.Add(item1);
 
@@ -62,11 +62,11 @@ namespace Internal.RaceResults.Data.Core
             SampleModel item3 = new SampleModel();
             includedData.Add(item3);
 
-            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
+            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
 
-            IEnumerable<IModel> output = await containerClient.GetManyAsync(x => x.Where(_ => true));
-            List<IModel> result = output.ToList();
+            IEnumerable<SampleModel> output = await containerClient.GetManyAsync(x => x.Where(_ => true));
+            List<SampleModel> result = output.ToList();
 
             Assert.AreEqual(3, includedData.Count);
             Assert.AreEqual(3, result.Count);
@@ -79,6 +79,7 @@ namespace Internal.RaceResults.Data.Core
         public async Task GetAllAsyncTest()
         {
             List<SampleModel> includedData = new List<SampleModel>();
+
             SampleModel item1 = new SampleModel();
             includedData.Add(item1);
 
@@ -88,11 +89,11 @@ namespace Internal.RaceResults.Data.Core
             SampleModel item3 = new SampleModel();
             includedData.Add(item3);
 
-            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
+            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
 
-            IEnumerable<IModel> output = await containerClient.GetAllAsync();
-            List<IModel> result = output.ToList();
+            IEnumerable<SampleModel> output = await containerClient.GetAllAsync();
+            List<SampleModel> result = output.ToList();
 
             Assert.AreEqual(3, includedData.Count);
             Assert.AreEqual(3, result.Count);
@@ -105,8 +106,9 @@ namespace Internal.RaceResults.Data.Core
         public async Task AddOneAsyncTest()
         {
             List<SampleModel> includedData = new List<SampleModel>();
-            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
+
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
+            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
 
             SampleModel item = new SampleModel();
             await containerClient.AddOneAsync(item);
@@ -119,11 +121,12 @@ namespace Internal.RaceResults.Data.Core
         public async Task DeleteOneAsyncTest()
         {
             List<SampleModel> includedData = new List<SampleModel>();
+
             SampleModel item = new SampleModel();
             includedData.Add(item);
 
-            ICosmosDbClient cosmosDbClient = Utils<SampleModel>.GetMockCosmosClient(includedData);
-            ContainerClientConcrete containerClient = new ContainerClientConcrete(cosmosDbClient, "ContainerName");
+            Container container = MockContainerProvider<SampleModel>.CreateMockContainer(includedData);
+            ContainerClientConcrete containerClient = new ContainerClientConcrete(container);
 
             await containerClient.DeleteOneAsync(item.Id.ToString(), item.GetPartitionKey());
 

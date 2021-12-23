@@ -13,9 +13,9 @@ namespace RaceResults.Data.Core
     {
         private readonly Container container;
 
-        public ContainerClient(ICosmosDbClient client, string containerName)
+        public ContainerClient(Container container)
         {
-            this.container = client.GetContainer(containerName);
+            this.container = container;
         }
 
         public async Task<T> GetOneAsync(string id, string partitionKey)

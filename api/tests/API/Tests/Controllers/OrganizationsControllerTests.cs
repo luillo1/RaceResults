@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Api.Controllers;
@@ -25,8 +26,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Name = "Ben's Running Club",
             };
             data.Add(org);
-            ICosmosDbClient client = Utils<Organization>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
 
             IActionResult result = await controller.GetAllOrganizations();
@@ -46,8 +54,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Name = "Ben's Running Club",
             };
             data.Add(org);
-            ICosmosDbClient client = Utils<Organization>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
 
             IActionResult result = await controller.GetOneOrganization(orgId.ToString());
@@ -64,8 +79,15 @@ namespace Internal.RaceResults.Api.Controllers
             {
                 Name = "Ben's Running Club",
             };
-            ICosmosDbClient client = Utils<Organization>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddEmptyMemberContainer();
+            cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
 
             IActionResult result = await controller.CreateNewOrganization(org);

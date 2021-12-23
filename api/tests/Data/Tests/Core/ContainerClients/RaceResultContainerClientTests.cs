@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
+using Microsoft.Azure.Cosmos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -39,7 +40,11 @@ namespace Internal.RaceResults.Data.Core
             includedData.Add(raceResult2);
             includedData.Add(raceResult3);
 
-            ICosmosDbClient cosmosDbClient = Utils<RaceResult>.GetMockCosmosClient(includedData);
+            Container container = MockContainerProvider<RaceResult>.CreateMockContainer(includedData);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer("RaceResultContainer", container);
+
             RaceResultContainerClient containerClient = new RaceResultContainerClient(cosmosDbClient);
 
             IEnumerable<RaceResult> output = await containerClient.GetRaceResultsForMemberAsync(memberId1.ToString());
@@ -85,7 +90,11 @@ namespace Internal.RaceResults.Data.Core
             includedData.Add(raceResult3);
             includedData.Add(raceResult4);
 
-            ICosmosDbClient cosmosDbClient = Utils<RaceResult>.GetMockCosmosClient(includedData);
+            Container container = MockContainerProvider<RaceResult>.CreateMockContainer(includedData);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer("RaceResultContainer", container);
+
             RaceResultContainerClient containerClient = new RaceResultContainerClient(cosmosDbClient);
 
             List<string> memberIdQuery = new List<string>()
@@ -93,6 +102,7 @@ namespace Internal.RaceResults.Data.Core
                 memberId1.ToString(),
                 memberId2.ToString(),
             };
+
             IEnumerable<RaceResult> output = await containerClient.GetRaceResultsForMembersAsync(memberIdQuery);
             List<RaceResult> result = output.ToList();
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Api.Controllers;
@@ -30,8 +31,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Email = "ben.bit@raceresults.run",
             };
             data.Add(member);
-            ICosmosDbClient client = Utils<Member>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             MembersController controller = new MembersController(provider, NullLogger<MembersController>.Instance);
 
             IActionResult result = await controller.GetAllMembers(orgId.ToString());
@@ -56,8 +64,15 @@ namespace Internal.RaceResults.Api.Controllers
                 Email = "ben.bit@raceresults.run",
             };
             data.Add(member);
-            ICosmosDbClient client = Utils<Member>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             MembersController controller = new MembersController(provider, NullLogger<MembersController>.Instance);
 
             IActionResult result = await controller.GetOneMember(orgId.ToString(), memberId.ToString());
@@ -71,9 +86,6 @@ namespace Internal.RaceResults.Api.Controllers
         public async Task CreateNewMemberTest_ValidMember()
         {
             List<Member> data = new List<Member>();
-            ICosmosDbClient client = Utils<Member>.GetMockCosmosClient(data);
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
-            MembersController controller = new MembersController(provider, NullLogger<MembersController>.Instance);
             Guid orgId = Guid.NewGuid();
             Member member = new Member()
             {
@@ -83,6 +95,16 @@ namespace Internal.RaceResults.Api.Controllers
                 LastName = "Bitdiddle",
                 Email = "ben.bit@raceresults.run",
             };
+            Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(data);
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
+            MembersController controller = new MembersController(provider, NullLogger<MembersController>.Instance);
 
             IActionResult result = await controller.CreateNewMember(orgId.ToString(), member);
             Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
@@ -94,8 +116,15 @@ namespace Internal.RaceResults.Api.Controllers
         [TestMethod]
         public async Task CreateNewMemberTest_InvalidOrgId()
         {
-            ICosmosDbClient client = Utils<IModel>.GetMockCosmosClient(new List<IModel>());
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(client);
+            Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(new List<Member>());
+
+            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
+            cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
+            cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultContainer();
+
+            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             MembersController controller = new MembersController(provider, NullLogger<MembersController>.Instance);
             Member member = new Member()
             {
