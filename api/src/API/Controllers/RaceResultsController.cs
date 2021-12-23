@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.ResponseObjects;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
@@ -38,12 +39,24 @@ namespace RaceResults.Api.Controllers
         [HttpGet("/organizations/{orgId}/raceresults")]
         public async Task<IActionResult> GetAllRaceResults(string orgId)
         {
+            RaceContainerClient raceContainer = containerProvider.RaceContainer;
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
-            IEnumerable<Member> members = await memberContainer.GetAllMembersAsync(orgId);
-            IEnumerable<string> memberIds = members.Select(member => member.Id.ToString());
 
-            RaceResultContainerClient container = containerProvider.RaceResultContainer;
-            IEnumerable<RaceResult> result = await container.GetRaceResultsForMembersAsync(memberIds);
+            IDictionary<Guid, Member> members = await memberContainer.GetAllMembersAsDictAsync(orgId);
+            IEnumerable<string> memberIds = members.Values.Select(member => member.Id.ToString());
+
+            RaceResultContainerClient raceResultContainer = containerProvider.RaceResultContainer;
+            IEnumerable<RaceResult> raceResults = await raceResultContainer.GetRaceResultsForMembersAsync(memberIds);
+
+            var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
+            var racesInResponse = await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id)));
+
+            var result = raceResults.Select(raceResult => new RaceResultResponse()
+            {
+                RaceResult = raceResult,
+                Member = members[raceResult.MemberId],
+                Race = racesInResponse[raceResult.RaceId],
+            });
             return Ok(result);
         }
 
@@ -55,10 +68,12 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {
             raceResult.Id = Guid.NewGuid();
+            raceResult.Submitted = DateTime.UtcNow;
 
             // if (raceResult.MemberId != Guid.Parse(memberId))
             // {
@@ -70,6 +85,34 @@ namespace RaceResults.Api.Controllers
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
             await container.AddOneAsync(raceResult);
             return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
+        }
+
+        [HttpDelete("{resultId}")]
+        public async Task<IActionResult> Delete(string orgId, string memberId, string resultId)
+        {
+            if (!(await MemberBelongsToOrg(orgId, memberId)))
+            {
+                return BadRequest();
+            }
+
+            RaceResultContainerClient container = containerProvider.RaceResultContainer;
+            await container.DeleteOneAsync(resultId, memberId);
+            return new OkResult();
+        }
+
+        private async Task<bool> MemberBelongsToOrg(string orgId, string memberId)
+        {
+            MemberContainerClient memberContainer = containerProvider.MemberContainer;
+
+            try
+            {
+                var member = await memberContainer.GetOneAsync(memberId, orgId);
+                return member.OrganizationId == Guid.Parse(orgId);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }

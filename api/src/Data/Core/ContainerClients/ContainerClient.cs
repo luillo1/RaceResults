@@ -27,17 +27,28 @@ namespace RaceResults.Data.Core
 
         public async Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
-            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            List<T> result = iteratorCreator(queryable).ToList();
+            return (await GetManyAsDictAsync(iteratorCreator)).Values;
+        }
 
-            return result;
+        public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
+        {
+            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
+            FeedIterator<T> iterator = iteratorCreator(queryable).ToFeedIterator();
+
+            return await ConstructDict(iterator);
         }
 
         public async Task<IEnumerable<T>> GetAllAsync()
         {
-            List<T> result = this.container.GetItemLinqQueryable<T>().ToList();
+            return (await GetAllAsDictAsync()).Values;
+        }
 
-            return result;
+        public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
+        {
+            FeedIterator<T> iterator = this.container.GetItemLinqQueryable<T>()
+                                                     .ToFeedIterator();
+
+            return await ConstructDict(iterator);
         }
 
         public async Task AddOneAsync(T item)
@@ -50,6 +61,26 @@ namespace RaceResults.Data.Core
         {
             PartitionKey partition = new PartitionKey(partitionKey);
             await this.container.DeleteItemAsync<T>(id, partition);
+        }
+
+        private static async Task<IDictionary<Guid, T>> ConstructDict(FeedIterator<T> iterator)
+        {
+            Dictionary<Guid, T> results = new Dictionary<Guid, T>();
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync();
+                foreach (var item in response)
+                {
+                    if (results.ContainsKey(item.Id))
+                    {
+                        throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
+                    }
+
+                    results[item.Id] = item;
+                }
+            }
+
+            return results;
         }
     }
 }

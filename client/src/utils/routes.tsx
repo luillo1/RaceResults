@@ -3,8 +3,9 @@ import LoginSuccess from "../pages/loginSuccess";
 import { Logout } from "../pages/logout";
 import NotFound from "../pages/notFound";
 import CreateOrganizationPage from "../pages/organizations/createOrganization";
-import OrganizationPage from "../pages/organizations/organization";
+import OrganizationPage from "../pages/organization";
 import OrganizationsPage from "../pages/organizations/organizations";
+import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceResult";
 
 export interface RouteWrapper {
   path: string;
@@ -65,6 +66,12 @@ const routes = {
     "/organizations/new",
     <CreateOrganizationPage />,
     true
+  ),
+
+  submitRaceResult: createRouteWrapper(
+    "/organizations/:id/raceresults/create",
+    <CreateRaceResultPage />,
+    false
   ),
 
   loginSuccess: createRouteWrapper(

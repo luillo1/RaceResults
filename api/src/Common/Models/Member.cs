@@ -22,7 +22,8 @@ namespace RaceResults.Common.Models
 
         public List<string> Nicknames { get; set; }
 
-        [Required]
+        public string Hometown { get; set; }
+
         [EmailAddress]
         public string Email { get; set; }
 

@@ -37,17 +37,22 @@
   }
 }
 
-button {
-  font-size: calc(10px + 2vmin);
-}
-
 .flex-container {
   display: flex !important;
   justify-content: space-between !important;
   height: 100%;
 }
 
+.fluid.container {
+  margin-left: 10px!important;
+  margin-right: 10px!important;
+}
+
 .bottom-aligned {
   margin: 0px;
   margin-top: auto;
+}
+
+.date-picker-field > .field {
+  display: inherit !important;
 }

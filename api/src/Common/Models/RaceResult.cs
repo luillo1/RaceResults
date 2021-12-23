@@ -7,6 +7,7 @@ namespace RaceResults.Common.Models
     {
         public Guid Id { get; set; }
 
+        [Required]
         public Guid MemberId { get; set; }
 
         [Required]
@@ -15,7 +16,11 @@ namespace RaceResults.Common.Models
         [Required]
         public TimeSpan Time { get; set; }
 
+        public string Comments { get; set; }
+
         public string DataSource { get; set; }
+
+        public DateTime Submitted { get; set; }
 
         public string GetPartitionKey()
         {
