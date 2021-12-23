@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Internal.RaceResults.Api.Utils;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -15,18 +17,31 @@ namespace Internal.RaceResults.Api.Controllers
     [TestClass]
     public class OrganizationsControllerTests
     {
-        [TestMethod]
-        public async Task GetAllOrganizationsTest()
+        private static List<Organization> organizations = new List<Organization>()
         {
-            List<Organization> data = new List<Organization>();
-            Guid orgId = Guid.NewGuid();
-            Organization org = new Organization()
+            new Organization()
             {
-                Id = orgId,
+                Id = Guid.NewGuid(),
                 Name = "Ben's Running Club",
-            };
-            data.Add(org);
-            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
+            },
+            new Organization()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Alyssa's Running Club",
+            },
+            new Organization()
+            {
+                Id = Guid.NewGuid(),
+                Name = "Jane's Running Club",
+            },
+        };
+
+        private OrganizationsController controller;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(organizations);
 
             MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
             cosmosDbClient.AddEmptyMemberContainer();
@@ -35,66 +50,39 @@ namespace Internal.RaceResults.Api.Controllers
             cosmosDbClient.AddEmptyRaceResultContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
-            OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
+            controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
+        }
 
+        [TestMethod]
+        public async Task GetAllOrganizationsTest()
+        {
             IActionResult result = await controller.GetAllOrganizations();
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            Assert.IsTrue(data.Contains(org));
-            Assert.AreEqual(1, data.Count);
+            HashSet<Organization> expectedResult = organizations.ToHashSet();
+            Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 organization.");
+            ValidationTools.AssertFoundItems(expectedResult, result);
         }
 
         [TestMethod]
         public async Task GetOneOrganizationTest()
         {
-            List<Organization> data = new List<Organization>();
-            Guid orgId = Guid.NewGuid();
-            Organization org = new Organization()
-            {
-                Id = orgId,
-                Name = "Ben's Running Club",
-            };
-            data.Add(org);
-            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
-
-            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
-            cosmosDbClient.AddEmptyMemberContainer();
-            cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
-            cosmosDbClient.AddEmptyRaceContainer();
-            cosmosDbClient.AddEmptyRaceResultContainer();
-
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
-            OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
+            Organization orgToFind = organizations.First();
+            Guid orgId = orgToFind.Id;
 
             IActionResult result = await controller.GetOneOrganization(orgId.ToString());
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            Assert.IsTrue(data.Contains(org));
-            Assert.AreEqual(1, data.Count);
+            ValidationTools.AssertFoundItem(orgToFind, result);
         }
 
         [TestMethod]
         public async Task CreateNewOrganizationTest()
         {
-            List<Organization> data = new List<Organization>();
             Organization org = new Organization()
             {
-                Name = "Ben's Running Club",
+                Name = "Bob's Running Club",
             };
-            Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(data);
-
-            MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
-            cosmosDbClient.AddEmptyMemberContainer();
-            cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
-            cosmosDbClient.AddEmptyRaceContainer();
-            cosmosDbClient.AddEmptyRaceResultContainer();
-
-            ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
-            OrganizationsController controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
 
             IActionResult result = await controller.CreateNewOrganization(org);
             Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
             Assert.IsNotNull(org.Id);
-            Assert.IsTrue(data.Contains(org));
-            Assert.AreEqual(1, data.Count);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Internal.RaceResults.Api.Utils;
 using Internal.RaceResults.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
@@ -36,9 +37,9 @@ namespace Internal.RaceResults.Api.Controllers
                 Id = Guid.NewGuid(),
                 OrganizationId = organizationA,
                 OrgAssignedMemberId = "20",
-                FirstName = "John",
-                LastName = "Doe",
-                Email = "john.doe@raceresults.run",
+                FirstName = "Alyssa",
+                LastName = "Hacker",
+                Email = "alyssa.hacker@raceresults.run",
             },
             new Member()
             {
@@ -47,7 +48,7 @@ namespace Internal.RaceResults.Api.Controllers
                 OrgAssignedMemberId = "30",
                 FirstName = "Jane",
                 LastName = "Doe",
-                Email = "Jane.doe@raceresults.run",
+                Email = "jane.doe@raceresults.run",
             },
         };
 
@@ -76,24 +77,24 @@ namespace Internal.RaceResults.Api.Controllers
 
             HashSet<Member> expectedResult = members.Where(member => member.OrganizationId == orgId).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 member.");
-            AssertFoundMembers(expectedResult, result);
+            ValidationTools.AssertFoundItems(expectedResult, result);
         }
 
         [TestMethod]
         public async Task GetOneMemberTest()
         {
-            var memberToFind = members.First();
-            var orgId = memberToFind.OrganizationId;
-            var memberId = memberToFind.Id;
+            Member memberToFind = members.First();
+            Guid orgId = memberToFind.OrganizationId;
+            Guid memberId = memberToFind.Id;
 
             IActionResult result = await controller.GetOneMember(orgId.ToString(), memberId.ToString());
-            AssertFoundMember(memberToFind, result);
+            ValidationTools.AssertFoundItem(memberToFind, result);
         }
 
         [TestMethod]
         public async Task CreateNewMemberTest_ValidMember()
         {
-            var orgId = organizationA;
+            Guid orgId = organizationA;
 
             Member memberToAdd = new Member()
             {
@@ -112,7 +113,7 @@ namespace Internal.RaceResults.Api.Controllers
         [TestMethod]
         public async Task CreateNewMemberTest_InvalidOrgId()
         {
-            var invalidOrgId = Guid.NewGuid();
+            Guid invalidOrgId = Guid.NewGuid();
 
             Member memberToAdd = new Member()
             {
@@ -124,37 +125,6 @@ namespace Internal.RaceResults.Api.Controllers
             };
             IActionResult result = await controller.CreateNewMember(Guid.NewGuid().ToString(), memberToAdd);
             Assert.IsInstanceOfType(result, typeof(BadRequestResult));
-        }
-
-        private void AssertFoundMember(Member expected, IActionResult result)
-        {
-            AssertFoundMembers(new HashSet<Member>(new Member[] { expected }), result);
-        }
-
-        private void AssertFoundMembers(HashSet<Member> expected, IActionResult result)
-        {
-            Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-            var actual = result as OkObjectResult;
-
-            HashSet<Member> actualMembersFound = null;
-            switch (actual.Value)
-            {
-                case Member foundMember:
-                    actualMembersFound = new HashSet<Member>(new Member[] { foundMember });
-                    break;
-                case IEnumerable<Member> foundMembers:
-                    actualMembersFound = new HashSet<Member>(foundMembers);
-                    break;
-                default:
-                    Assert.Fail();
-                    break;
-            }
-
-            Assert.AreEqual(expected.Count, actualMembersFound.Count);
-            foreach (var expectedMember in expected)
-            {
-                Assert.IsTrue(actualMembersFound.Contains(expectedMember));
-            }
         }
     }
 }
