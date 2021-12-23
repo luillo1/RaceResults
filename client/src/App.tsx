@@ -13,7 +13,6 @@ import { Menu, Sidebar } from "semantic-ui-react";
 import LogoutButton from "./components/logoutButton";
 import LoginButton from "./components/loginButton";
 import NavLinks from "./components/navbarlinks";
-import "semantic-ui-css/semantic.min.css";
 
 function App() {
   const appRef = useRef(null);
