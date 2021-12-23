@@ -8,9 +8,6 @@ namespace RaceResults.Common.Models
         public Guid Id { get; set; }
 
         [Required]
-        public Guid OrganizationId { get; set; }
-
-        [Required]
         public string Name { get; set; }
 
         [Required]
