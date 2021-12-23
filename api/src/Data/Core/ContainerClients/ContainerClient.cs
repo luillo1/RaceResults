@@ -31,7 +31,7 @@ namespace RaceResults.Data.Core
 
         public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
-            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
+            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>(true);
             IQueryable<T> iterator = iteratorCreator(queryable);
 
             return await ConstructDict(iterator);
@@ -44,9 +44,9 @@ namespace RaceResults.Data.Core
 
         public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
         {
-            IQueryable<T> iterator = this.container.GetItemLinqQueryable<T>();
+            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>(true);
 
-            return await ConstructDict(iterator);
+            return await ConstructDict(queryable);
         }
 
         public async Task AddOneAsync(T item)
