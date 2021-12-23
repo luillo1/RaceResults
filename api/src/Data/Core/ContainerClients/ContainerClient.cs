@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using RaceResults.Common.Models;
 
 namespace RaceResults.Data.Core
@@ -13,9 +12,9 @@ namespace RaceResults.Data.Core
     {
         private readonly Container container;
 
-        public ContainerClient(ICosmosDbClient client, string containerName)
+        public ContainerClient(Container container)
         {
-            this.container = client.GetContainer(containerName);
+            this.container = container;
         }
 
         public async Task<T> GetOneAsync(string id, string partitionKey)
@@ -33,7 +32,7 @@ namespace RaceResults.Data.Core
         public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
             IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            FeedIterator<T> iterator = iteratorCreator(queryable).ToFeedIterator();
+            IQueryable<T> iterator = iteratorCreator(queryable);
 
             return await ConstructDict(iterator);
         }
@@ -45,8 +44,7 @@ namespace RaceResults.Data.Core
 
         public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
         {
-            FeedIterator<T> iterator = this.container.GetItemLinqQueryable<T>()
-                                                     .ToFeedIterator();
+            IQueryable<T> iterator = this.container.GetItemLinqQueryable<T>();
 
             return await ConstructDict(iterator);
         }
@@ -63,24 +61,20 @@ namespace RaceResults.Data.Core
             await this.container.DeleteItemAsync<T>(id, partition);
         }
 
-        private static async Task<IDictionary<Guid, T>> ConstructDict(FeedIterator<T> iterator)
+        private static Task<IDictionary<Guid, T>> ConstructDict(IQueryable<T> iterator)
         {
-            Dictionary<Guid, T> results = new Dictionary<Guid, T>();
-            while (iterator.HasMoreResults)
+            IDictionary<Guid, T> results = new Dictionary<Guid, T>();
+            foreach (T item in iterator)
             {
-                var response = await iterator.ReadNextAsync();
-                foreach (var item in response)
+                if (results.ContainsKey(item.Id))
                 {
-                    if (results.ContainsKey(item.Id))
-                    {
-                        throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
-                    }
-
-                    results[item.Id] = item;
+                    throw new InvalidOperationException($"Duplicate GUID {item.Id} found for {typeof(T)}");
                 }
+
+                results[item.Id] = item;
             }
 
-            return results;
+            return Task.FromResult(results);
         }
     }
 }

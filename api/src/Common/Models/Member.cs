@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
-    public class Member : IModel
+    public struct Member : IModel
     {
         public Guid Id { get; set; }
 
