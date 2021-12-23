@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 using RaceResults.Common.Models;
 
 namespace RaceResults.Data.Core
@@ -25,18 +24,15 @@ namespace RaceResults.Data.Core
             return response.Resource;
         }
 
-        public Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
+        public async Task<IEnumerable<T>> GetManyAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
-            IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            List<T> result = iteratorCreator(queryable).ToList();
-
-            return Task.FromResult<IEnumerable<T>>(result);
+            return (await GetManyAsDictAsync(iteratorCreator)).Values;
         }
 
         public async Task<IDictionary<Guid, T>> GetManyAsDictAsync(Func<IQueryable<T>, IQueryable<T>> iteratorCreator)
         {
             IQueryable<T> queryable = this.container.GetItemLinqQueryable<T>();
-            List<T> iterator = iteratorCreator(queryable).ToList();
+            IQueryable<T> iterator = iteratorCreator(queryable);
 
             return await ConstructDict(iterator);
         }
@@ -48,7 +44,7 @@ namespace RaceResults.Data.Core
 
         public async Task<IDictionary<Guid, T>> GetAllAsDictAsync()
         {
-            List<T> iterator = this.container.GetItemLinqQueryable<T>().ToList();
+            IQueryable<T> iterator = this.container.GetItemLinqQueryable<T>();
 
             return await ConstructDict(iterator);
         }
@@ -65,7 +61,7 @@ namespace RaceResults.Data.Core
             await this.container.DeleteItemAsync<T>(id, partition);
         }
 
-        private static Task<IDictionary<Guid, T>> ConstructDict(List<T> iterator)
+        private static Task<IDictionary<Guid, T>> ConstructDict(IQueryable<T> iterator)
         {
             IDictionary<Guid, T> results = new Dictionary<Guid, T>();
             foreach (T item in iterator)
