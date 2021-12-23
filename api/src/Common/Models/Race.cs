@@ -21,6 +21,10 @@ namespace RaceResults.Common.Models
         [Required]
         public string Distance { get; set; }
 
+        public bool IsPublic { get; set; }
+
+        public DateTime Submitted { get; set; }
+
         public string GetPartitionKey()
         {
             return Id.ToString();
