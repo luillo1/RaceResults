@@ -5,7 +5,7 @@ import { Routes, Route } from "react-router-dom";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
-  useMsal
+  useMsal,
 } from "@azure/msal-react";
 import { RequireLogin } from "./utils/RequireLogin";
 import routes from "./utils/routes";

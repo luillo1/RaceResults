@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { loginRequest } from "../../authConfig";
+import { Race } from "../../common";
 import { msalInstance } from "../../utils/mcalInstance";
 
 interface Member {
@@ -23,6 +24,8 @@ interface RaceResponse {
   date: string;
   distance: string;
   location: string;
+  isPublic: boolean;
+  submitted: string;
 }
 
 interface RaceResult {
@@ -45,7 +48,7 @@ export const raceResultsApiSlice = createApi({
   reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
-    prepareHeaders: async(headers) => {
+    prepareHeaders: async (headers) => {
       //
       // See if we're logged in. If we are, attach the bearer
       // token to this request.
@@ -101,10 +104,33 @@ export const raceResultsApiSlice = createApi({
         },
         providesTags: ["Race"]
       }),
+      fetchPublicRaces: builder.query<RaceResponse[], void>({
+        query() {
+          // TODO: this needs to be org-specific
+          return "/races/public";
+        },
+        providesTags: ["Race"]
+      }),
+      createPublicRace: builder.mutation<RaceResponse, Partial<RaceResponse>>({
+        query: (race) => ({
+          url: "/races/public",
+          method: "POST",
+          body: race
+        }),
+        invalidatesTags: ["Race"]
+      }),
       createRace: builder.mutation<RaceResponse, Partial<RaceResponse>>({
         query: (race) => ({
           url: "/races",
           method: "POST",
+          body: race
+        }),
+        invalidatesTags: ["Race"]
+      }),
+      updateRace: builder.mutation<RaceResponse, Race>({
+        query: (race) => ({
+          url: "/races",
+          method: "PUT",
           body: race
         }),
         invalidatesTags: ["Race"]
@@ -152,7 +178,10 @@ export const {
   useFetchOrganizationsQuery,
   useCreateOrganizationMutation,
   useFetchRacesQuery,
+  useFetchPublicRacesQuery,
+  useCreatePublicRaceMutation,
   useCreateRaceMutation,
+  useUpdateRaceMutation,
   useFetchMemberIdQuery,
   useCreateMemberMutation,
   useFetchRaceResultsQuery,

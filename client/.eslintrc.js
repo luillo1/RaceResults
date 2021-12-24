@@ -3,36 +3,44 @@ module.exports = {
   env: {
     browser: true,
     commonjs: true,
-    es2021: true
+    es2021: true,
   },
   extends: [
+    "eslint:recommended",
     "plugin:react/recommended",
     "plugin:react/jsx-runtime",
     "standard",
     "plugin:@typescript-eslint/recommended",
-    "prettier"
+    "prettier",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
-      jsx: true
+      jsx: true,
     },
-    ecmaVersion: 13
+    ecmaVersion: 13,
   },
   plugins: ["react", "@typescript-eslint"],
   rules: {
     "react/jsx-uses-react": 1,
     quotes: [2, "double"],
-    "space-before-function-paren": ["error", "never"],
     semi: ["warn", "always"],
     "no-use-before-define": "off",
     "@typescript-eslint/no-use-before-define": ["error"],
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"]
+    "@typescript-eslint/no-unused-vars": ["error"],
+    "space-before-function-paren": [
+      "error",
+      {
+        anonymous: "never",
+        named: "never",
+        asyncArrow: "always",
+      },
+    ],
   },
   settings: {
     react: {
-      version: "detect"
-    }
-  }
+      version: "detect",
+    },
+  },
 };
