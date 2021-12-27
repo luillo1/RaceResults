@@ -25,7 +25,6 @@ import { LoadingOrError } from "../../../utils/loadingOrError";
 import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
-import { SemanticDatePickerInputField } from "../../../components/SemanticFields/SemanticDatePickerInputField";
 
 /**
  * Groups the given race models by their eventId.
