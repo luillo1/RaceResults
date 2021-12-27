@@ -72,7 +72,6 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
 
         return (
           <Modal
-            centered={false}
             open={props.open}
             onClose={props.handleClose}
             dimmer="blurring"
