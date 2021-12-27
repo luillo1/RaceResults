@@ -18,7 +18,6 @@ import {
 } from "../../../slices/runners/raceresults-api-slice";
 import BasePage from "../../../utils/basePage";
 import routes from "../../../utils/routes";
-import "react-semantic-ui-datepickers/dist/react-semantic-ui-datepickers.css";
 import CreateRaceModal from "../../../components/createRaceModal";
 import { Formik } from "formik";
 import { SemanticTextInputField } from "../../../components/SemanticFields/SemanticTextInputField";
@@ -26,7 +25,6 @@ import { LoadingOrError } from "../../../utils/loadingOrError";
 import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
-import { SemanticDatePickerInputField } from "../../../components/SemanticFields/SemanticDatePickerInputField";
 
 /**
  * Groups the given race models by their eventId.
@@ -450,13 +448,14 @@ const CreateRaceResultPage = () => {
                             raceEvents[values.selectedEventIndex][0].location
                           }
                         />
-                        <SemanticDatePickerInputField
+
+                        <Form.Input
                           name="date"
-                          label="Race Date"
                           disabled
-                          clearable={false}
-                          placeholder="YYYY-MM-DD"
-                          value={raceEvents[values.selectedEventIndex][0].date}
+                          label="Race Date"
+                          value={raceEvents[
+                            values.selectedEventIndex
+                          ][0].date?.toLocaleDateString()}
                         />
                       </Form.Group>
                       <Form.Group widths="equal">

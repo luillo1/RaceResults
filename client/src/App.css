@@ -56,3 +56,42 @@
 .date-picker-field > .field {
   display: inherit !important;
 }
+
+.react-datepicker {
+  border: 1px solid rgba(34, 36, 38, 0.15) !important;
+}
+
+.react-datepicker__header {
+  background-color: white !important;
+}
+
+.react-datepicker-popper {
+  z-index: 99999 !important;
+}
+
+.react-datepicker__day {
+  width: 2.2rem !important;
+  height: 2.2rem !important;
+  line-height: 2.3rem !important;
+  font-size: 1rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: lightgray !important;
+}
+
+.react-datepicker__day-name {
+  width: 2.2rem !important;
+}
+
+.react-datepicker__triangle {
+  transform: translate(75px) !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: lightgray !important;
+}
+
+.react-datepicker__day--outside-month:hover {
+  background-color: white !important;
+}
