@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { SemanticTextInputField } from "./SemanticFields/SemanticTextInputField";
 import { SemanticDatePickerInputField } from "./SemanticFields/SemanticDatePickerInputField";
 import { Race } from "../common";
+import { ObjectShape } from "yup/lib/object";
 
 interface CreateRaceModalProps {
   // If this modal is currently being displayed
@@ -22,11 +23,32 @@ interface CreateRaceModalProps {
   // If this form is for creating a new distance for an existing race event
   distanceOnly: boolean;
 
+  showDistanceField: boolean;
+
   // The text to display in the header of the modal
   header: string;
 }
 
 const CreateRaceModal = (props: CreateRaceModalProps) => {
+  let fields: ObjectShape = {
+    name: Yup.string()
+      .not(["Add New"], "Entered name is invalid.")
+      .required("This field is required."),
+    date: Yup.date()
+      .nullable()
+      .required("This field is required."),
+    location: Yup.string().required("This field is required."),
+  };
+
+  if (props.showDistanceField) {
+    fields = {
+      ...fields,
+      distance: Yup.string().required("This field is required."),
+    };
+  }
+
+  const validationSchema = Yup.object(fields);
+
   return (
     <Formik
       initialValues={{
@@ -36,16 +58,7 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
         distance: props.initialRace.distance,
       }}
       enableReinitialize={true}
-      validationSchema={Yup.object({
-        name: Yup.string()
-          .not(["Add New"], "Entered name is invalid.")
-          .required("This field is required."),
-        date: Yup.date()
-          .nullable()
-          .required("This field is required."),
-        location: Yup.string().required("This field is required."),
-        distance: Yup.string().required("This field is required."),
-      })}
+      validationSchema={validationSchema}
       onSubmit={(values) => {
         const createdRace: Partial<Race> = {
           name: values.name as string,
@@ -104,13 +117,15 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
                       placeholder="YYYY-MM-DD"
                     />
                   </Form.Group>
-                  <Form.Group widths="equal">
-                    <SemanticTextInputField
-                      label="Race Distance"
-                      name="distance"
-                      placeholder="10K"
-                    />
-                  </Form.Group>
+                  {props.showDistanceField && (
+                    <Form.Group widths="equal">
+                      <SemanticTextInputField
+                        label="Race Distance"
+                        name="distance"
+                        placeholder="10K"
+                      />
+                    </Form.Group>
+                  )}
                 </Form>
               </Modal.Description>
             </Modal.Content>

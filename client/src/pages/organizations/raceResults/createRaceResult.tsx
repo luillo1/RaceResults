@@ -320,6 +320,7 @@ const CreateRaceResultPage = () => {
             return (
               <div>
                 <CreateRaceModal
+                  showDistanceField
                   header="Create New Race"
                   open={addRaceModalOpen}
                   handleClose={() => {
@@ -356,6 +357,7 @@ const CreateRaceResultPage = () => {
                 />
                 {values.selectedEventIndex !== undefined && (
                   <CreateRaceModal
+                    showDistanceField
                     header="Add Distance"
                     open={addDistanceModalOpen}
                     handleClose={() => setAddDistanceModalOpen(false)}

@@ -28,6 +28,7 @@ const RacesPane = () => {
   const [raceEvents, setRaceEvents] = useState<Race[][]>([]);
   const [isMutating, setisMutating] = useState(false);
   const [addRaceModalOpen, setAddRaceModalOpen] = useState(false);
+
   const racesResponse = useFetchRacesQuery();
   const [updateRace] = useUpdateRaceMutation();
   const [createRace] = useCreateRaceMutation();
@@ -72,12 +73,29 @@ const RacesPane = () => {
     undefined
   );
 
+  const [editRaceModalOpen, setEditRaceModalOpen] = useState(false);
+  const [indexOfRaceToEdit, setIndexOfRaceToEdit] = useState<
+    number | undefined
+  >(undefined);
+  const [raceToEdit, setRaceToEdit] = useState<Race | undefined>(undefined);
+
   useEffect(() => {
     setAddDistanceModalOpen(true);
   }, [addDistanceRace]);
 
   const addDistanceForRace = (race: Race): void => {
     setAddDistanceRace(race);
+  };
+
+  useEffect(() => {
+    if (indexOfRaceToEdit !== undefined) {
+      setRaceToEdit(raceEvents[indexOfRaceToEdit][0]);
+      setEditRaceModalOpen(true);
+    }
+  }, [indexOfRaceToEdit]);
+
+  const editRace = (index: number): void => {
+    setIndexOfRaceToEdit(index);
   };
 
   if (racesResponse.isError) {
@@ -102,6 +120,7 @@ const RacesPane = () => {
         </Loader>
       </Dimmer>
       <CreateRaceModal
+        showDistanceField
         open={addRaceModalOpen}
         initialRace={{ name: "", distance: "", location: "" }}
         distanceOnly={false}
@@ -124,6 +143,7 @@ const RacesPane = () => {
       />
       {addDistanceRace !== undefined && (
         <CreateRaceModal
+          showDistanceField
           open={addDistanceModalOpen}
           initialRace={{
             distance: "",
@@ -151,6 +171,43 @@ const RacesPane = () => {
           header={"Add Public Distance - " + addDistanceRace.name}
         />
       )}
+      {raceToEdit !== undefined && (
+        <CreateRaceModal
+          showDistanceField={false}
+          distanceOnly={false}
+          open={editRaceModalOpen}
+          initialRace={{
+            distance: "",
+            name: raceToEdit.name,
+            location: raceToEdit.location,
+            date: raceToEdit.date,
+            eventId: raceToEdit.eventId,
+          }}
+          onSubmit={async (race) => {
+            if (indexOfRaceToEdit === undefined) {
+              return;
+            }
+
+            setisMutating(true);
+            setEditRaceModalOpen(false);
+
+            raceEvents[indexOfRaceToEdit].forEach(async (raceToUpdate) => {
+              await updateRace({
+                ...raceToUpdate,
+                name: race.name || raceToUpdate.name,
+                location: race.location || raceToUpdate.name,
+                date: race.date || raceToUpdate.date,
+              });
+            });
+
+            setisMutating(false);
+          }}
+          handleClose={function(): void {
+            setEditRaceModalOpen(false);
+          }}
+          header={"Edit Race - " + raceToEdit.name}
+        />
+      )}
       <Table celled structured>
         <Table.Header>
           <Table.Row>
@@ -160,7 +217,7 @@ const RacesPane = () => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {raceEvents.map((races) => {
+          {raceEvents.map((races, outerIndex) => {
             return races.map((race, index) => (
               <Table.Row key={race.id}>
                 {index === 0 && (
@@ -169,6 +226,10 @@ const RacesPane = () => {
                     {race.location} - {race.date?.toDateString()} <br />
                     <a href="#" onClick={() => addDistanceForRace(race)}>
                       Add New Distance
+                    </a>
+                    {" | "}
+                    <a href="#" onClick={() => editRace(outerIndex)}>
+                      Edit
                     </a>
                   </Table.Cell>
                 )}
