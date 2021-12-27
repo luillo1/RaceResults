@@ -5,7 +5,8 @@
     "dev": "vite --host",
     "build": "tsc && vite build",
     "serve": "vite preview",
-    "lint": "eslint . --max-warnings 0"
+    "lint": "eslint . --max-warnings 0",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@azure/msal-browser": "^2.19.0",
@@ -45,6 +46,7 @@
     "eslint-plugin-promise": "^5.1.1",
     "eslint-plugin-react": "^7.27.0",
     "eslint-webpack-plugin": "^3.0.3",
+    "patch-package": "^6.4.7",
     "prettier": "^1.19.1",
     "typescript": "^4.5.2",
     "vite": "^2.6.4"
