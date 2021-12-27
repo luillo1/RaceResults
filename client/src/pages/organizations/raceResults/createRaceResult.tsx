@@ -449,7 +449,7 @@ const CreateRaceResultPage = () => {
                         />
 
                         <Form.Input
-                          name="location"
+                          name="date"
                           disabled
                           label="Race Date"
                           value={raceEvents[
