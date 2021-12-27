@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     };
   } else {
     return {
-      plugins: [react()],
+      plugins: [react(), viteCommonjs()],
       build: {
         outDir: "./build",
       },
