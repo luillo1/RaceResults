@@ -62,8 +62,8 @@ function groupByEventId(races: Race[]): Race[][] {
 interface FormValues {
   firstName: string;
   lastName: string;
-  selectedEventIndex: number | undefined;
-  selectedRaceIndex: number | undefined;
+  selectedEventIndex: number;
+  selectedRaceIndex: number;
   comments: string;
   time: string;
 }
@@ -169,8 +169,8 @@ const CreateRaceResultPage = () => {
   const initialFormValues: FormValues = {
     firstName: firstName ?? "",
     lastName: lastName ?? "",
-    selectedEventIndex: undefined,
-    selectedRaceIndex: undefined,
+    selectedEventIndex: -1,
+    selectedRaceIndex: -1,
     comments: "",
     time: "",
   };
@@ -215,8 +215,8 @@ const CreateRaceResultPage = () => {
             setSuccess(false);
 
             if (
-              values.selectedEventIndex === undefined ||
-              values.selectedRaceIndex === undefined
+              values.selectedEventIndex === -1 ||
+              values.selectedRaceIndex === -1
             ) {
               setError(true);
               return;
@@ -359,7 +359,7 @@ const CreateRaceResultPage = () => {
                     location: "",
                   }}
                 />
-                {values.selectedEventIndex !== undefined && (
+                {values.selectedEventIndex !== -1 && (
                   <CreateRaceModal
                     showDistanceField
                     header="Add Distance"
@@ -367,7 +367,7 @@ const CreateRaceResultPage = () => {
                     handleClose={() => setAddDistanceModalOpen(false)}
                     distanceOnly={true}
                     onSubmit={(race: Partial<Race>) => {
-                      if (values.selectedEventIndex === undefined) {
+                      if (values.selectedEventIndex === -1) {
                         // TODO: throw error?
                         return;
                       }
@@ -415,9 +415,11 @@ const CreateRaceResultPage = () => {
                       label="Race Name"
                       name="selectedEventIndex"
                       onChange={(
-                        _: React.SyntheticEvent<HTMLElement>,
+                        e: React.SyntheticEvent<HTMLElement>,
                         data: DropdownProps
                       ) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         if (data.value === raceEvents.length) {
                           setAddRaceModalOpen(true);
                         } else {
@@ -443,7 +445,7 @@ const CreateRaceResultPage = () => {
                         ])}
                     />
                   </Form.Group>
-                  {values.selectedEventIndex !== undefined && (
+                  {values.selectedEventIndex !== -1 && (
                     <>
                       <Form.Group widths="equal">
                         <Form.Input
@@ -473,7 +475,7 @@ const CreateRaceResultPage = () => {
                             _: React.SyntheticEvent<HTMLElement>,
                             data: DropdownProps
                           ) => {
-                            if (values.selectedEventIndex === undefined) {
+                            if (values.selectedEventIndex === -1) {
                               // TODO: throw error?
                               return;
                             }
