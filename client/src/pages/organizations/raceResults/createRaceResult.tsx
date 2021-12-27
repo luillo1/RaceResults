@@ -282,8 +282,14 @@ const CreateRaceResultPage = () => {
 
             // Fix the time so we have hours if none were specified
             let timeToSubmit = values.time;
-            if (timeToSubmit.split(":").length === 2) {
+            const timeParts = timeToSubmit.split(":");
+            if (timeParts.length === 2) {
               timeToSubmit = "00:" + timeToSubmit;
+            } else if (timeParts.length === 3) {
+              if (timeParts[0].length === 1) {
+                // Server expects 2 digits for hours place :)
+                timeToSubmit = "0" + timeToSubmit;
+              }
             }
 
             await createRaceResult({
