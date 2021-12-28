@@ -8,7 +8,7 @@ import {
   Icon,
   Grid,
   GridRow,
-  GridColumn
+  GridColumn,
 } from "semantic-ui-react";
 
 function Home() {
@@ -29,10 +29,7 @@ function Home() {
       <Segment vertical>
         <Grid verticalAlign="middle" stackable container>
           <GridRow>
-            <GridColumn textAlign="center">
-              <Header as="h2">This is our landing page</Header>
-              <p>We can put stuff here.</p>
-            </GridColumn>
+            <GridColumn textAlign="center"></GridColumn>
           </GridRow>
         </Grid>
       </Segment>
