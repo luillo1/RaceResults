@@ -86,7 +86,7 @@ const CreateRaceResultPage = () => {
   // the user adds new races/distances.
   const [raceEvents, setRaceEvents] = useState<Partial<Race>[][]>([]);
 
-  // Get the organizaiton ID from the URL.
+  // Get the organization ID from the URL.
   const { id } = useParams();
 
   // Get search params for the given org member ID, firstName, and lastName.

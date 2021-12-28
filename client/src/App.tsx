@@ -32,7 +32,7 @@ function App() {
 
   return (
     <div ref={appRef} className="full-height">
-      <Sidebar.Pushable>
+      <Sidebar.Pushable style={{ transform: "none" }}>
         <Sidebar
           className="flex-container"
           as={Menu}
