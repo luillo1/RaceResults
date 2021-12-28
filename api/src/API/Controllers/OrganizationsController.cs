@@ -47,8 +47,8 @@ namespace RaceResults.Api.Controllers
         {
             organization.Id = Guid.NewGuid();
             OrganizationContainerClient container = containerProvider.OrganizationContainer;
-            await container.AddOneAsync(organization);
-            return CreatedAtAction(nameof(CreateNewOrganization), new { id = organization.Id }, organization);
+            var addedOrg = await container.AddOneAsync(organization);
+            return CreatedAtAction(nameof(CreateNewOrganization), new { id = addedOrg.Id }, addedOrg);
         }
     }
 }

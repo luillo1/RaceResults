@@ -60,6 +60,8 @@ namespace Internal.RaceResults.Data.Utils
                     });
 
             container.GetItemLinqQueryable<T>().Returns(data.AsQueryable());
+            
+            container.GetItemLinqQueryable<T>(Arg.Any<bool>()).Returns(data.AsQueryable());
 
             return container;
         }

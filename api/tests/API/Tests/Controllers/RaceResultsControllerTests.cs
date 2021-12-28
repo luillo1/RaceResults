@@ -184,9 +184,9 @@ namespace Internal.RaceResults.Api.Controllers
         [TestMethod]
         public async Task CreateTest()
         {
-            Guid orgId = Guid.NewGuid();
-            Guid memberId = Guid.NewGuid();
-            Guid raceId = Guid.NewGuid();
+            Guid orgId = organizationA;
+            Guid memberId = memberA;
+            Guid raceId = raceA;
             RaceResult raceResult = new RaceResult()
             {
                 MemberId = memberId,
