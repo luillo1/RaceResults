@@ -8,8 +8,8 @@ namespace RaceResults.Api.ResponseObjects
     {
         public RaceResult RaceResult { get; set; }
 
-        public Member Member { get; set; }
+        public Member? Member { get; set; }
 
-        public Race Race { get; set; }
+        public Race? Race { get; set; }
     }
 }

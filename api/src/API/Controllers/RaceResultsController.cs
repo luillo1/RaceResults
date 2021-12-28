@@ -54,18 +54,24 @@ namespace RaceResults.Api.Controllers
             var result = new List<RaceResultResponse>();
             foreach (var raceResult in raceResults)
             {
-                try
+                Member? memberForRaceResult = null;
+                if (members.TryGetValue(raceResult.MemberId, out var member))
                 {
-                    result.Add(new RaceResultResponse()
-                    {
-                        RaceResult = raceResult,
-                        Member = members[raceResult.MemberId],
-                        Race = racesInResponse[raceResult.RaceId],
-                    });
-                } catch (KeyNotFoundException)
-                {
-                    continue;
+                    memberForRaceResult = member;
                 }
+
+                Race? raceForRaceResult = null;
+                if (racesInResponse.TryGetValue(raceResult.RaceId, out var race))
+                {
+                    raceForRaceResult = race;
+                }
+
+                result.Add(new RaceResultResponse()
+                {
+                    RaceResult = raceResult,
+                    Member = memberForRaceResult,
+                    Race = raceForRaceResult,
+                });
             }
 
             return Ok(result);
