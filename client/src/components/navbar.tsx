@@ -2,7 +2,7 @@ import React from "react";
 import {
   useMsal,
   AuthenticatedTemplate,
-  UnauthenticatedTemplate
+  UnauthenticatedTemplate,
 } from "@azure/msal-react";
 import { Sticky, Menu, Container, Grid, Icon } from "semantic-ui-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
