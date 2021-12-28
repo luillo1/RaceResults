@@ -63,8 +63,8 @@ namespace RaceResults.Api.Controllers
                 return BadRequest();
             }
 
-            await container.AddOneAsync(updatedRace);
-            return CreatedAtAction(nameof(Create), new { id = updatedRace.Id }, updatedRace);
+            var addedRace = await container.AddOneAsync(updatedRace);
+            return CreatedAtAction(nameof(Create), new { id = addedRace.Id }, addedRace);
         }
 
         [AllowAnonymous]
@@ -80,8 +80,8 @@ namespace RaceResults.Api.Controllers
             }
 
             updatedRace.IsPublic = false;
-            await container.AddOneAsync(updatedRace);
-            return CreatedAtAction(nameof(Create), new { id = updatedRace.Id }, updatedRace);
+            var addedRace = await container.AddOneAsync(updatedRace);
+            return CreatedAtAction(nameof(Create), new { id = addedRace.Id }, addedRace);
         }
 
         [HttpPut]

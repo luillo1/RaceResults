@@ -83,19 +83,31 @@ namespace RaceResults.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {
+            if (raceResult.MemberId != Guid.Parse(memberId))
+            {
+                return BadRequest();
+            }
+
+            // Verify member and race exist
+            MemberContainerClient memberContainer = containerProvider.MemberContainer;
+            RaceContainerClient raceContainer = containerProvider.RaceContainer;
+
+            if (!(await memberContainer.ItemExistsAsync(raceResult.MemberId.ToString(), orgId)))
+            {
+                return BadRequest($"A member with ID {raceResult.MemberId.ToString()} could not be found");
+            }
+
+            if (!(await raceContainer.ItemExistsAsync(raceResult.RaceId.ToString(), raceResult.RaceId.ToString())))
+            {
+                return BadRequest($"A race with ID {raceResult.RaceId.ToString()} could not be found");
+            }
+
             raceResult.Id = Guid.NewGuid();
             raceResult.Submitted = DateTime.UtcNow;
 
-            // if (raceResult.MemberId != Guid.Parse(memberId))
-            // {
-            //     return BadRequest();
-            // }
-
-            // TODO: Validate that member exists under organization
-            // TODO: Validate that race exists
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
-            await container.AddOneAsync(raceResult);
-            return CreatedAtAction(nameof(Create), new { id = raceResult.Id }, raceResult);
+            var addedRaceResult = await container.AddOneAsync(raceResult);
+            return CreatedAtAction(nameof(Create), new { id = addedRaceResult.Id }, addedRaceResult);
         }
 
         [HttpDelete("{resultId}")]

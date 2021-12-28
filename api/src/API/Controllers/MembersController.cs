@@ -70,8 +70,8 @@ namespace RaceResults.Api.Controllers
             }
 
             MemberContainerClient container = containerProvider.MemberContainer;
-            await container.AddOneAsync(member);
-            return CreatedAtAction(nameof(CreateNewMember), new { id = member.Id }, member);
+            var addedMember = await container.AddOneAsync(member);
+            return CreatedAtAction(nameof(CreateNewMember), new { id = addedMember.Id }, addedMember);
         }
     }
 }

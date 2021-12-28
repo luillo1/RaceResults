@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Cosmos;
 using RaceResults.Common.Models;
@@ -15,6 +16,21 @@ namespace RaceResults.Data.Core
         public ContainerClient(Container container)
         {
             this.container = container;
+        }
+
+        public async Task<bool> ItemExistsAsync(string id, string partitionKey)
+        {
+            PartitionKey partition = new PartitionKey(partitionKey);
+
+            try
+            {
+                await this.container.ReadItemAsync<T>(id, partition);
+                return true;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
+            {
+                return false;
+            }
         }
 
         public async Task<T> GetOneAsync(string id, string partitionKey)
@@ -49,10 +65,11 @@ namespace RaceResults.Data.Core
             return await ConstructDict(queryable);
         }
 
-        public async Task AddOneAsync(T item)
+        public async Task<T> AddOneAsync(T item)
         {
             item.Id = Guid.NewGuid();
             await this.container.CreateItemAsync<T>(item);
+            return item;
         }
 
         public async Task<T> UpdateOneAsync(T item)
