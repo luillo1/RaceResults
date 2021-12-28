@@ -10,6 +10,10 @@ import {
   Image,
 } from "semantic-ui-react";
 
+import submitImgUrl from "../../images/submit.png";
+import createRaceUrl from "../../images/create_race.png";
+import racesImgUrl from "../../images/races.png";
+
 function Home() {
   return (
     <div id="home-page">
@@ -42,7 +46,7 @@ function Home() {
               </p>
             </GridColumn>
             <GridColumn width={7} floated="right">
-              <Image size="large" bordered rounded src="/images/submit.png" />
+              <Image size="large" bordered rounded src={submitImgUrl} />
             </GridColumn>
           </GridRow>
         </Grid>
@@ -62,12 +66,7 @@ function Home() {
           <hr />
           <GridRow>
             <GridColumn width={7} floated="left">
-              <Image
-                size="large"
-                bordered
-                rounded
-                src="/images/create_race.png"
-              />
+              <Image size="large" bordered rounded src={createRaceUrl} />
             </GridColumn>
             <GridColumn
               width={2}
@@ -84,7 +83,7 @@ function Home() {
               <Icon name="arrow circle down" size="huge" />
             </GridColumn>
             <GridColumn width={7} floated="right">
-              <Image size="large" bordered rounded src="/images/races.png" />
+              <Image size="large" bordered rounded src={racesImgUrl} />
             </GridColumn>
           </GridRow>
         </Grid>
