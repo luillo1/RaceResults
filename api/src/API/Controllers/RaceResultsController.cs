@@ -51,12 +51,17 @@ namespace RaceResults.Api.Controllers
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
             var racesInResponse = await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id)));
 
-            var result = raceResults.Select(raceResult => new RaceResultResponse()
+            var result = new List<RaceResultResponse>();
+            foreach (var raceResult in raceResults)
             {
-                RaceResult = raceResult,
-                Member = members[raceResult.MemberId],
-                Race = racesInResponse[raceResult.RaceId],
-            });
+                result.Add(new RaceResultResponse()
+                {
+                    RaceResult = raceResult,
+                    Member = members.TryGetValue(raceResult.MemberId, out var member) ? member : null,
+                    Race = racesInResponse.TryGetValue(raceResult.RaceId, out var race) ? race : null,
+                });
+            }
+
             return Ok(result);
         }
 

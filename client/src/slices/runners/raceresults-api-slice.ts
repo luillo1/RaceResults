@@ -40,8 +40,8 @@ interface RaceResult {
 
 interface RaceResultResponse {
   raceResult: RaceResult;
-  race: RaceResponse;
-  member: Member;
+  race: RaceResponse | null;
+  member: Member | null;
 }
 
 export const raceResultsApiSlice = createApi({

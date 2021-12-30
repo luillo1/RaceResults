@@ -50,8 +50,14 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
         <Table.Body>
           {raceResultsResponse.data?.map((raceResult) => (
             <Table.Row key={raceResult.raceResult.id}>
-              <Table.Cell>{raceResult.race.name}</Table.Cell>
-              <Table.Cell>{`${raceResult.member.firstName} ${raceResult.member.lastName} (${raceResult.member.orgAssignedMemberId})`}</Table.Cell>
+              <Table.Cell>
+                {raceResult.race !== null ? raceResult.race.name : "ERROR"}
+              </Table.Cell>
+              <Table.Cell>
+                {raceResult.member !== null
+                  ? `${raceResult.member.firstName} ${raceResult.member.lastName} (${raceResult.member.orgAssignedMemberId})`
+                  : "ERROR"}
+              </Table.Cell>
               <Table.Cell>{raceResult.raceResult.time}</Table.Cell>
               <Table.Cell>
                 {new Date(
