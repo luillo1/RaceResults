@@ -20,8 +20,19 @@ namespace RaceResults.Data.Core
 
         public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(IEnumerable<string> memberIds)
         {
+            return await GetRaceResultsForMembersAsync(memberIds, DateTime.MinValue, DateTime.MaxValue);
+        }
+
+        public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(
+            IEnumerable<string> memberIds,
+            DateTime submittedOnOrAfter,
+            DateTime submittedBefore)
+        {
             var memberGuids = memberIds.Select(id => Guid.Parse(id)).ToHashSet();
-            return await this.GetManyAsync(it => it.Where(raceResult => memberGuids.Contains(raceResult.MemberId)));
+            return await this.GetManyAsync(it =>
+                it.Where(raceResult => memberGuids.Contains(raceResult.MemberId) &&
+                                       raceResult.Submitted >= submittedOnOrAfter &&
+                                       raceResult.Submitted < submittedBefore));
         }
     }
 }
