@@ -21,6 +21,6 @@ jobs:
         with:
           dotnet-version: 6.0.x
       - name: build
-        run: dotnet build ./api/src/RaceResult.sln
+        run: dotnet build ./src/*.sln
       - name: test API
-        run: dotnet test ./api/tests/API/Tests/Internal.Api.Tests.csproj
+        run: dotnet test ./tests/API/Tests/Internal.Api.Tests.csproj
