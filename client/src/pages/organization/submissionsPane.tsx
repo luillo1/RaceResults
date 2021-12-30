@@ -1,5 +1,14 @@
-import React from "react";
-import { Header, Icon, Loader, Dimmer, Table, Button } from "semantic-ui-react";
+import React, { useState } from "react";
+import {
+  Header,
+  Icon,
+  Loader,
+  Dimmer,
+  Table,
+  Button,
+  Form,
+} from "semantic-ui-react";
+import DatePickerInput from "../../components/DatePickerInput";
 import {
   useDeleteRaceResultMutation,
   useFetchRaceResultsQuery,
@@ -9,8 +18,49 @@ interface SubmissionsPaneProps {
   orgId: string;
 }
 
+//
+// Get the current date and 1 week before the current date for
+// the initial values of the date filter. We add 1 to the current
+// date since endDate is exclusive, and we want to default to including
+// submissions that occurred today.
+//
+const initialEndDate = new Date(new Date().toDateString());
+initialEndDate.setDate(initialEndDate.getDate() + 1);
+
+const initialStartDate = new Date(initialEndDate);
+initialStartDate.setDate(initialEndDate.getDate() - 8);
+
 const SubmissionsPane = (props: SubmissionsPaneProps) => {
-  const raceResultsResponse = useFetchRaceResultsQuery(props.orgId);
+  const [dateRange, setDateRange] = useState<{
+    startDate: Date;
+    endDate: Date;
+  }>({ startDate: initialStartDate, endDate: initialEndDate });
+
+  const updateDateRange = (date: Date, startDate: boolean) => {
+    let newStartDate = dateRange.startDate;
+    let newEndDate = dateRange.endDate;
+
+    if (startDate) {
+      newStartDate = date;
+      if (dateRange.endDate < date) {
+        newEndDate = date;
+      }
+    } else {
+      newEndDate = date;
+      if (dateRange.startDate > date) {
+        newStartDate = date;
+      }
+    }
+
+    setDateRange({ startDate: newStartDate, endDate: newEndDate });
+  };
+
+  const raceResultsResponse = useFetchRaceResultsQuery({
+    orgId: props.orgId,
+    startDate: dateRange.startDate,
+    endDate: dateRange.endDate,
+  });
+
   const [deleteRaceResult] = useDeleteRaceResultMutation();
 
   if (raceResultsResponse.isError) {
@@ -23,8 +73,6 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
   }
 
   // TODO: make this table sortable
-  // TODO: add ability to delete submissions
-  // TODO: add ability to query range of dates
 
   return (
     <>
@@ -36,7 +84,27 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
           Loading submissions...
         </Loader>
       </Dimmer>
-      <Table celled striped>
+      <Form>
+        <Form.Group>
+          <Form.Field
+            control={DatePickerInput}
+            onChange={(date: Date) => {
+              updateDateRange(date, true);
+            }}
+            selected={dateRange.startDate}
+            label={"Submitted on or after"}
+          />
+          <Form.Field
+            control={DatePickerInput}
+            onChange={(date: Date) => {
+              updateDateRange(date, false);
+            }}
+            selected={dateRange.endDate}
+            label={"Submitted before"}
+          />
+        </Form.Group>
+      </Form>
+      <Table celled striped selectable>
         <Table.Header fullWidth>
           <Table.Row>
             <Table.HeaderCell>Race</Table.HeaderCell>

@@ -112,7 +112,6 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
                       label="Race Date"
                       name="date"
                       disabled={props.distanceOnly}
-                      clearable={!props.distanceOnly}
                       placeholder="YYYY-MM-DD"
                     />
                   </Form.Group>

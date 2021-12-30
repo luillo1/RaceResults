@@ -44,6 +44,20 @@ interface RaceResultResponse {
   member: Member;
 }
 
+interface QueryParams {
+  [key: string]: string | null | undefined;
+}
+
+function constructQueryParams(params: QueryParams){
+  const validKeys = Object.keys(params).filter((key) => params[key] !== null && params[key] !== undefined);
+  if (validKeys.length === 0) {
+    return "";
+  }
+
+  const pairs = validKeys.map((key) => key + "=" + params[key]);
+  return "?" + pairs.join("&");
+}
+
 export const raceResultsApiSlice = createApi({
   reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
@@ -147,9 +161,10 @@ export const raceResultsApiSlice = createApi({
           body: member
         })
       }),
-      fetchRaceResults: builder.query<RaceResultResponse[], string>({
-        query(orgId) {
-          return `/organizations/${orgId}/raceresults`;
+      fetchRaceResults: builder.query<RaceResultResponse[], {orgId: string, startDate: Date | null, endDate: Date | null}>({
+        query({orgId, startDate, endDate}) {
+          const url = `/organizations/${orgId}/raceresults`;
+          return url + constructQueryParams({startDate: startDate?.toISOString(), endDate: endDate?.toISOString()});
         },
         providesTags: ["RaceResult"]
       }),
