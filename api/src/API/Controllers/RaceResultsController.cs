@@ -57,8 +57,8 @@ namespace RaceResults.Api.Controllers
                 result.Add(new RaceResultResponse()
                 {
                     RaceResult = raceResult,
-                    Member = members.TryGetValue(raceResult.MemberId, out var member) ? member : (Member?) null,
-                    Race = racesInResponse.TryGetValue(raceResult.RaceId, out var race) ? race : (Race?) null,
+                    Member = members.TryGetValue(raceResult.MemberId, out var member) ? member : null,
+                    Race = racesInResponse.TryGetValue(raceResult.RaceId, out var race) ? race : null,
                 });
             }
 
