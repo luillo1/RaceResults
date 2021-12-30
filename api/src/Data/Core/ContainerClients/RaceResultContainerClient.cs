@@ -26,7 +26,10 @@ namespace RaceResults.Data.Core
         public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(IEnumerable<string> memberIds, DateTime? start, DateTime? end)
         {
             var memberGuids = memberIds.Select(id => Guid.Parse(id)).ToHashSet();
-            return await this.GetManyAsync(it => it.Where(raceResult => (start == null || raceResult.Submitted >= start) && (end == null || raceResult.Submitted < end) && memberGuids.Contains(raceResult.MemberId)));
+            return await this.GetManyAsync(it =>  
+                it.Where(raceResult => memberGuids.Contains(raceResult.MemberId) &&
+                                       (start == null || raceResult.Submitted >= start) &&
+                                       (end == null || raceResult.Submitted < end)));
         }
     }
 }

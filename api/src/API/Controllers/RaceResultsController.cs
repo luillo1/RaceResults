@@ -33,7 +33,6 @@ namespace RaceResults.Api.Controllers
         {
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
             IEnumerable<RaceResult> result = await container.GetRaceResultsForMemberAsync(memberId);
-
             return Ok(result);
         }
 
@@ -63,7 +62,8 @@ namespace RaceResults.Api.Controllers
                 endDate = parsedEnd;
             }
 
-            IEnumerable<RaceResult> raceResults = await raceResultContainer.GetRaceResultsForMembersAsync(memberIds, startDate, endDate);
+            IEnumerable<RaceResult> raceResults = 
+                await raceResultContainer.GetRaceResultsForMembersAsync(memberIds, startDate, endDate);
 
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();
             var racesInResponse = await raceContainer.GetManyAsDictAsync(it => it.Where(race => racesNeeded.Contains(race.Id)));
