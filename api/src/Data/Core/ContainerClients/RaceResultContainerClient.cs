@@ -15,21 +15,24 @@ namespace RaceResults.Data.Core
 
         public async Task<IEnumerable<RaceResult>> GetRaceResultsForMemberAsync(string memberId)
         {
-            return await GetRaceResultsForMembersAsync(new string[] { memberId }, null, null);
+            return await GetRaceResultsForMembersAsync(new string[] { memberId });
         }
 
         public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(IEnumerable<string> memberIds)
         {
-            return await GetRaceResultsForMembersAsync(memberIds, null, null);
+            return await GetRaceResultsForMembersAsync(memberIds, DateTime.MinValue, DateTime.MaxValue);
         }
 
-        public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(IEnumerable<string> memberIds, DateTime? start, DateTime? end)
+        public async Task<IEnumerable<RaceResult>> GetRaceResultsForMembersAsync(
+            IEnumerable<string> memberIds,
+            DateTime submittedOnOrAfter,
+            DateTime submittedBefore)
         {
             var memberGuids = memberIds.Select(id => Guid.Parse(id)).ToHashSet();
-            return await this.GetManyAsync(it =>  
+            return await this.GetManyAsync(it =>
                 it.Where(raceResult => memberGuids.Contains(raceResult.MemberId) &&
-                                       (start == null || raceResult.Submitted >= start) &&
-                                       (end == null || raceResult.Submitted < end)));
+                                       raceResult.Submitted >= submittedOnOrAfter &&
+                                       raceResult.Submitted < submittedBefore));
         }
     }
 }

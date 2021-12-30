@@ -37,8 +37,19 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet("/organizations/{orgId}/raceresults")]
-        public async Task<IActionResult> GetAllRaceResults(string orgId)
+        public async Task<IActionResult> GetAllRaceResults(
+            string orgId,
+            [FromQuery(Name = "startDate")] DateTime? startDateParam = null,
+            [FromQuery(Name = "endDate")] DateTime? endDateParam = null)
         {
+            /*
+            * If a start or end date is missing, provide a default value.
+            * This has to be done inside the method since default parameters must be
+            * compile-time constants.
+            */
+            var startDate = startDateParam ?? DateTime.MinValue;
+            var endDate = endDateParam ?? DateTime.MaxValue;
+
             RaceContainerClient raceContainer = containerProvider.RaceContainer;
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
 
@@ -47,22 +58,7 @@ namespace RaceResults.Api.Controllers
 
             RaceResultContainerClient raceResultContainer = containerProvider.RaceResultContainer;
 
-            string startDateParam = Request.Query["startDate"];
-            string endDateParam = Request.Query["endDate"];
-
-            DateTime? startDate = null;
-            if (DateTime.TryParse(startDateParam, out var parsedStart))
-            {
-                startDate = parsedStart;
-            }
-
-            DateTime? endDate = null;
-            if (DateTime.TryParse(endDateParam, out var parsedEnd))
-            {
-                endDate = parsedEnd;
-            }
-
-            IEnumerable<RaceResult> raceResults = 
+            IEnumerable<RaceResult> raceResults =
                 await raceResultContainer.GetRaceResultsForMembersAsync(memberIds, startDate, endDate);
 
             var racesNeeded = raceResults.Select(result => result.RaceId).ToHashSet();

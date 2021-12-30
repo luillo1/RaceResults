@@ -19,7 +19,6 @@ namespace RaceResults.Common.Models
         public string Comments { get; set; }
 
         public string DataSource { get; set; }
-
         public DateTime Submitted { get; set; }
 
         public string GetPartitionKey()
