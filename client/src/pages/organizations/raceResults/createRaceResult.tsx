@@ -521,6 +521,7 @@ const CreateRaceResultPage = () => {
                           name="comments"
                           label="Comments (optional)"
                           rows="5"
+                          placeholder="This is a personal record!"
                         />
                       </Form.Group>
                     </>
