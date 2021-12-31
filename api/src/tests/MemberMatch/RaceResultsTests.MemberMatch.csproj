@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
+    <CodeAnalysisRuleSet>../../../CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\MemberMatch\MemberMatch.csproj" />
+    <ProjectReference Include="..\..\MemberMatch\RaceResults.MemberMatch.csproj" />
   </ItemGroup>
 
 </Project>

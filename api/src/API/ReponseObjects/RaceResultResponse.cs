@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using RaceResults.Common.Models;
 
 namespace RaceResults.Api.ResponseObjects

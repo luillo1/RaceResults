@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <CodeAnalysisRuleSet>../../../CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>../../../../CodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src\Common\RaceResults.Common.csproj" />
-    <ProjectReference Include="..\..\..\src\Data\RaceResults.Data.csproj" />
+    <ProjectReference Include="..\..\..\Common\RaceResults.Common.csproj" />
+    <ProjectReference Include="..\..\..\Data\RaceResults.Data.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />

@@ -164,7 +164,7 @@ namespace Internal.RaceResults.Api.Controllers
                         RaceResult = raceResult,
                         Member = member,
                         Race = races.Single(race => race.Id == raceResult.RaceId),
-                    }).Where(response => response.Member.OrganizationId == organizationA).ToHashSet();
+                    }).Where(response => response.Member?.OrganizationId == organizationA).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 raceResult.");
             ValidationTools.AssertFoundItems(expectedResult, result);
         }
