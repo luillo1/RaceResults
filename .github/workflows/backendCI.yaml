@@ -24,5 +24,5 @@ jobs:
         run: dotnet restore ./src/RaceResults.sln
       - name: build
         run: dotnet build ./src/RaceResults.sln --no-restore
-      - name: test API
-        run: dotnet test ./tests/API/Tests/Internal.Api.Tests.csproj --verbosity normal
+      - name: test
+        run: dotnet test ./src/RaceResults.sln --no-build --verbosity normal
