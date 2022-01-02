@@ -24,13 +24,13 @@ function Navbar(props: NavbarProps) {
   // A menu item containing the app name + icon
   const brandMenuItem = (
     <Menu.Item>
-      <FontAwesomeIcon size="2x" icon={faRunning} color="white" />
+      <FontAwesomeIcon size="2x" icon={faRunning} className="color-primary" />
       <Menu.Header style={{ paddingLeft: 15 }}>RaceResults</Menu.Header>
     </Menu.Item>
   );
 
   const normalNavbarMenu = (
-    <Menu as="nav" inverted stackable attached>
+    <Menu as="nav" stackable attached>
       <Container fluid>
         {brandMenuItem}
         <NavLinks />

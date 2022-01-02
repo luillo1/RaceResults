@@ -526,7 +526,7 @@ const CreateRaceResultPage = () => {
                       </Form.Group>
                     </>
                   )}
-                  <Form.Button>Submit</Form.Button>
+                  <Form.Button primary>Submit</Form.Button>
                 </Form>
               </div>
             );

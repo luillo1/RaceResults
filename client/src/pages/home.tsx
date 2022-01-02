@@ -13,6 +13,7 @@ import {
 import submitImgUrl from "../../images/submit.png";
 import createRaceUrl from "../../images/create_race.png";
 import racesImgUrl from "../../images/races.png";
+import "../styles/home.less";
 
 function Home() {
   return (

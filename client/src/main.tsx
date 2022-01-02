@@ -9,6 +9,9 @@ import { AuthenticationResult, EventType } from "@azure/msal-browser";
 import { msalInstance } from "./utils/mcalInstance";
 import { MsalProvider } from "@azure/msal-react";
 
+import "@neocoast/semantic-ui-less/semantic.less";
+import "./styles/default.less";
+
 // Default to using the first account if no account is active on page load
 if (
   !msalInstance.getActiveAccount() &&
