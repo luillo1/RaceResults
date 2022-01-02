@@ -1,4 +1,4 @@
-name: Build and lint RaceResults backend
+name: Build and test RaceResults backend
 
 on:
   pull_request:
