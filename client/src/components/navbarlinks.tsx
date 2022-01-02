@@ -1,7 +1,7 @@
 import React from "react";
 import {
   AuthenticatedTemplate,
-  UnauthenticatedTemplate
+  UnauthenticatedTemplate,
 } from "@azure/msal-react";
 import { NavLink } from "react-router-dom";
 import { Menu, MenuItemProps } from "semantic-ui-react";

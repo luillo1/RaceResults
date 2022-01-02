@@ -52,7 +52,7 @@ function Navbar(props: NavbarProps) {
   );
 
   const mobileNavbarMenu = (
-    <Menu as="nav" inverted attached borderless>
+    <Menu as="nav" attached borderless>
       <Container fluid>
         {brandMenuItem}
         <Menu.Item position="right">
@@ -61,7 +61,6 @@ function Navbar(props: NavbarProps) {
               name="bars"
               link
               size="big"
-              inverted
               onClick={() => props.setSidebarIsVisible(!props.sidebarIsVisible)}
             />
           </Menu.Header>
