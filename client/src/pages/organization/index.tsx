@@ -1,7 +1,8 @@
 import React from "react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import { Divider, Header, Tab, TabProps } from "semantic-ui-react";
+import { Header, Tab, TabProps } from "semantic-ui-react";
+import MainDivider from "../../components/mainDivider";
 import { useFetchOrganizationQuery } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
@@ -55,7 +56,7 @@ const OrganizationPage = () => {
       >
         <BasePage fluid>
           <Header as="h2" content={orgResponse.data?.name} />
-          <Divider />
+          <MainDivider />
           <Tab
             panes={panes}
             activeIndex={activeIndex}

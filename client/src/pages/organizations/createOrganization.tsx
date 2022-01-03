@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router";
-import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
+import { Button, Form, Header, Message } from "semantic-ui-react";
+import MainDivider from "../../components/mainDivider";
 import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import routes from "../../utils/routes";
@@ -8,7 +9,7 @@ import routes from "../../utils/routes";
 const CreateOrganizationPage = () => {
   const [
     createOrganization, // This is the mutation trigger
-    { isLoading: isUpdating } // This is the destructured mutation result
+    { isLoading: isUpdating }, // This is the destructured mutation result
   ] = useCreateOrganizationMutation();
 
   const navigate = useNavigate();
@@ -35,7 +36,7 @@ const CreateOrganizationPage = () => {
   return (
     <BasePage>
       <Header as="h2" content="Create Organization" />
-      <Divider />
+      <MainDivider />
       {error && (
         <Message negative>
           <Message.Header>

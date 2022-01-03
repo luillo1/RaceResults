@@ -27,7 +27,7 @@ function Home() {
       >
         <Container fluid>
           <div>
-            <Header as="h1" inverted icon textAlign="center">
+            <Header as="h1" inverted textAlign="center">
               {"Welcome to RaceResults"}
             </Header>
             <Header as="h2" inverted textAlign="center">
@@ -74,14 +74,22 @@ function Home() {
               only="computer tablet"
               style={{ display: "flex", alignItems: "center" }}
             >
-              <Icon name="arrow circle right" size="huge" />
+              <Icon
+                name="arrow circle right"
+                className="color-secondary"
+                size="huge"
+              />
             </GridColumn>
             <GridColumn
               width={2}
               only="mobile"
               style={{ display: "flex", alignItems: "center" }}
             >
-              <Icon name="arrow circle down" size="huge" />
+              <Icon
+                name="arrow circle down"
+                className="color-secondary"
+                size="huge"
+              />
             </GridColumn>
             <GridColumn width={7} floated="right">
               <Image size="large" bordered rounded src={racesImgUrl} />

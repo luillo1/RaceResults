@@ -35,7 +35,7 @@ function Navbar(props: NavbarProps) {
         {brandMenuItem}
         <NavLinks />
         <AuthenticatedTemplate>
-          <Menu.Item className="borderless" position="right">
+          <Menu.Item position="right">
             {accounts[0] != null && (
               <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
             )}
@@ -43,7 +43,7 @@ function Navbar(props: NavbarProps) {
           </Menu.Item>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
-          <Menu.Item className="borderless" position="right">
+          <Menu.Item position="right">
             <LoginButton />
           </Menu.Item>
         </UnauthenticatedTemplate>
@@ -52,7 +52,7 @@ function Navbar(props: NavbarProps) {
   );
 
   const mobileNavbarMenu = (
-    <Menu as="nav" attached borderless>
+    <Menu as="nav" pointing attached borderless>
       <Container fluid>
         {brandMenuItem}
         <Menu.Item position="right">
