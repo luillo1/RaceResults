@@ -2,5 +2,5 @@
      User Global Variables
 *******************************/
 @primaryColor   : #407eae;
-@secondaryColor : #ae7040;
-@tertiaryColor  : #d8b395;
+@secondaryColor : #1A281F;
+@tertiaryColor  : #8DAB7F;
