@@ -21,8 +21,8 @@ jobs:
         with:
           dotnet-version: 6.0.x
       - name: restore
-        run: dotnet restore ./src/RaceResults.sln
+        run: dotnet restore ./RaceResults.sln
       - name: build
-        run: dotnet build ./src/RaceResults.sln --no-restore
+        run: dotnet build ./RaceResults.sln --no-restore
       - name: test
-        run: dotnet test ./src/RaceResults.sln --no-build --verbosity normal
+        run: dotnet test ./RaceResults.sln --no-build --verbosity normal
