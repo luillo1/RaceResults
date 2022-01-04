@@ -1,6 +1,6 @@
+using System.Threading.Tasks;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
-using System.Threading.Tasks;
 
 namespace RaceResults.MemberMatch
 {
