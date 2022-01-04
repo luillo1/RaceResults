@@ -18,6 +18,11 @@ import {
 } from "../../slices/runners/raceresults-api-slice";
 import { groupByEventId } from "../../utils/helpers";
 
+interface ModalState {
+  race: Race | undefined;
+  isOpen: boolean;
+}
+
 /*  TODO: use
 interface RacesPaneProps {
   orgId: string;
@@ -68,34 +73,38 @@ const RacesPane = () => {
     }
   }, [racesResponse.data]);
 
-  const [addDistanceModalOpen, setAddDistanceModalOpen] = useState(false);
-  const [addDistanceRace, setAddDistanceRace] = useState<Race | undefined>(
+  const [addDistanceModalState, setAddDistanceModalState] = useState<
+    ModalState
+  >({ isOpen: false, race: undefined });
+
+  const addDistanceForRace = (race: Race): void => {
+    setAddDistanceModalState({ race, isOpen: true });
+  };
+
+  // The index into raceEvents that corresponds to the event being edited.
+  // We store this so we iterate through each race that needs to be PATCHed
+  // after the modal closes
+  const [editEventIndex, setEditEventIndex] = useState<number | undefined>(
     undefined
   );
 
-  const [editRaceModalOpen, setEditRaceModalOpen] = useState(false);
-  const [indexOfRaceToEdit, setIndexOfRaceToEdit] = useState<
-    number | undefined
-  >(undefined);
-  const [raceToEdit, setRaceToEdit] = useState<Race | undefined>(undefined);
+  const [editRaceModalState, setEditRaceModalState] = useState<ModalState>({
+    isOpen: false,
+    race: undefined,
+  });
 
   useEffect(() => {
-    setAddDistanceModalOpen(true);
-  }, [addDistanceRace]);
-
-  const addDistanceForRace = (race: Race): void => {
-    setAddDistanceRace(race);
-  };
-
-  useEffect(() => {
-    if (indexOfRaceToEdit !== undefined) {
-      setRaceToEdit(raceEvents[indexOfRaceToEdit][0]);
-      setEditRaceModalOpen(true);
+    if (editEventIndex !== undefined) {
+      setEditRaceModalState({
+        isOpen: true,
+        race: raceEvents[editEventIndex][0],
+      });
+      setEditEventIndex(undefined);
     }
-  }, [indexOfRaceToEdit]);
+  }, [editEventIndex]);
 
   const editRace = (index: number): void => {
-    setIndexOfRaceToEdit(index);
+    setEditEventIndex(index);
   };
 
   if (racesResponse.isError) {
@@ -141,21 +150,21 @@ const RacesPane = () => {
         }}
         header={"Add Public Race"}
       />
-      {addDistanceRace !== undefined && (
+      {addDistanceModalState.race !== undefined && (
         <CreateRaceModal
           showDistanceField
-          open={addDistanceModalOpen}
+          open={addDistanceModalState.isOpen}
           initialRace={{
             distance: "",
-            name: addDistanceRace.name,
-            location: addDistanceRace.location,
-            date: addDistanceRace.date,
-            eventId: addDistanceRace.eventId,
+            name: addDistanceModalState.race.name,
+            location: addDistanceModalState.race.location,
+            date: addDistanceModalState.race.date,
+            eventId: addDistanceModalState.race.eventId,
           }}
           distanceOnly={true}
           onSubmit={async (race) => {
             setisMutating(true);
-            setAddDistanceModalOpen(false);
+            setAddDistanceModalState({ race: undefined, isOpen: false });
             await createRace({
               name: race.name,
               date: race.date?.toISOString(),
@@ -166,32 +175,32 @@ const RacesPane = () => {
             }).then(() => setisMutating(false));
           }}
           handleClose={function(): void {
-            setAddDistanceModalOpen(false);
+            setAddDistanceModalState({ race: undefined, isOpen: false });
           }}
-          header={"Add Public Distance - " + addDistanceRace.name}
+          header={"Add Public Distance - " + addDistanceModalState.race.name}
         />
       )}
-      {raceToEdit !== undefined && (
+      {editRaceModalState.race !== undefined && (
         <CreateRaceModal
           showDistanceField={false}
           distanceOnly={false}
-          open={editRaceModalOpen}
+          open={editRaceModalState.isOpen}
           initialRace={{
             distance: "",
-            name: raceToEdit.name,
-            location: raceToEdit.location,
-            date: raceToEdit.date,
-            eventId: raceToEdit.eventId,
+            name: editRaceModalState.race.name,
+            location: editRaceModalState.race.location,
+            date: editRaceModalState.race.date,
+            eventId: editRaceModalState.race.eventId,
           }}
           onSubmit={async (race) => {
-            if (indexOfRaceToEdit === undefined) {
+            if (editEventIndex === undefined) {
               return;
             }
 
             setisMutating(true);
-            setEditRaceModalOpen(false);
+            setEditRaceModalState({ race: undefined, isOpen: false });
 
-            raceEvents[indexOfRaceToEdit].forEach(async (raceToUpdate) => {
+            raceEvents[editEventIndex].forEach(async (raceToUpdate) => {
               await updateRace({
                 ...raceToUpdate,
                 name: race.name || raceToUpdate.name,
@@ -203,9 +212,9 @@ const RacesPane = () => {
             setisMutating(false);
           }}
           handleClose={function(): void {
-            setEditRaceModalOpen(false);
+            setEditRaceModalState({ race: undefined, isOpen: false });
           }}
-          header={"Edit Race - " + raceToEdit.name}
+          header={"Edit Race - " + editRaceModalState.race.name}
         />
       )}
       <Table celled structured>
@@ -239,7 +248,11 @@ const RacesPane = () => {
           })}
         </Table.Body>
       </Table>
-      <Button onClick={() => setAddRaceModalOpen(true)} content="Create Race" />
+      <Button
+        primary
+        onClick={() => setAddRaceModalOpen(true)}
+        content="Create Race"
+      />
     </>
   );
 };
