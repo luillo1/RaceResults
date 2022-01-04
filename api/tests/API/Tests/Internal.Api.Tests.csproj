@@ -8,8 +8,8 @@
     <ProjectReference Include="..\..\..\src\API\RaceResults.Api.csproj" />
     <ProjectReference Include="..\..\..\src\Common\RaceResults.Common.csproj" />
     <ProjectReference Include="..\..\..\src\Data\RaceResults.Data.csproj" />
-    <ProjectReference Include="..\..\..\tests\Data\Utils\Internal.RaceResults.Data.Utils.csproj" />
-    <ProjectReference Include="..\..\..\tests\API\Utils\Internal.RaceResults.Api.Utils.csproj" />
+    <ProjectReference Include="..\..\..\tests\API\Utils\Internal.Api.Utils.csproj" />
+    <ProjectReference Include="..\..\..\tests\Data\Utils\Internal.Data.Utils.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />

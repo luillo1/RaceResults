@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Internal.RaceResults.Api.Utils;
-using Internal.RaceResults.Data.Utils;
+using Internal.Api.Utils;
+using Internal.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -13,7 +13,7 @@ using RaceResults.Api.ResponseObjects;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace Internal.RaceResults.Api.Controllers
+namespace Internal.Api.Tests
 {
     [TestClass]
     public class RaceResultsControllerTests
@@ -164,7 +164,7 @@ namespace Internal.RaceResults.Api.Controllers
                         RaceResult = raceResult,
                         Member = member,
                         Race = races.Single(race => race.Id == raceResult.RaceId),
-                    }).Where(response => response.Member.OrganizationId == organizationA).ToHashSet();
+                    }).Where(response => response.Member?.OrganizationId == organizationA).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 raceResult.");
             ValidationTools.AssertFoundItems(expectedResult, result);
         }

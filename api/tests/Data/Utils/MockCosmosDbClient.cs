@@ -4,7 +4,7 @@ using Microsoft.Azure.Cosmos;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace Internal.RaceResults.Data.Utils
+namespace Internal.Data.Utils
 {
     public class MockCosmosDbClient : ICosmosDbClient
     {
