@@ -10,6 +10,7 @@ import {
   Image,
 } from "semantic-ui-react";
 
+import Footer from "../components/footer";
 import submitImgUrl from "../../images/submit.png";
 import createRaceUrl from "../../images/create_race.png";
 import racesImgUrl from "../../images/races.png";
@@ -106,6 +107,7 @@ function Home() {
           </GridRow>
         </Grid>
       </Segment>
+      <Footer/>
     </div>
   );
 }
