@@ -1,7 +1,16 @@
-name: Build and lint RaceResults frontend
+name: Build, Lint and Deploy RaceResults Frontend
 
 on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "client/**"
+      - ".github/workflows/frontendDeploy.yaml"
+      - ".github/workflows/frontendCI.yaml"
   pull_request:
+    types: [opened, synchronize, reopened, closed]
     branches:
       - main
     paths:
@@ -10,7 +19,7 @@ on:
       - ".github/workflows/frontendCI.yaml"
 
 jobs:
-  lint-and-build:
+  lint:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,10 +29,32 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "16.x"
-      - name: Install packages
-        run: |
-          npm install
-      - name: run eslint
+      - name: Run eslint
         run: npm run lint
-      - name: build frontend
-        run: npm run build
+
+  build-and-deploy:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
+    runs-on: ubuntu-latest
+    name: Build and Deploy
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Build And Deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "upload"
+          app_location: "/client"
+          output_location: "/build"
+
+  close-pull-request-job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request Job
+    steps:
+      - name: Close Pull Request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"
