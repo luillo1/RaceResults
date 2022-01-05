@@ -19,7 +19,7 @@ on:
       - ".github/workflows/frontendCI.yaml"
 
 jobs:
-  lint:
+  Lint:
     runs-on: ubuntu-latest
     defaults:
       run:
