@@ -1,4 +1,4 @@
-name: Build, Lint and Deploy RaceResults Frontend
+name: RaceResults CI
 
 on:
   workflow_dispatch:
@@ -29,6 +29,8 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: "16.x"
+      - name: Install packages
+        run: npm install
       - name: Run eslint
         run: npm run lint
 
