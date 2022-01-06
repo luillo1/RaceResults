@@ -12,7 +12,7 @@ import DatePickerInput from "../../components/DatePickerInput";
 import {
   useDeleteRaceResultMutation,
   useFetchRaceResultsQuery,
-} from "../../slices/runners/raceresults-api-slice";
+} from "../../slices/runners/raceresults-standard-api-slice";
 
 interface SubmissionsPaneProps {
   orgId: string;

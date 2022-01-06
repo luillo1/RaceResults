@@ -6,6 +6,8 @@ import CreateOrganizationPage from "../pages/organizations/createOrganization";
 import OrganizationPage from "../pages/organization";
 import OrganizationsPage from "../pages/organizations/organizations";
 import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceResult";
+import OAuthLogin from "../pages/oauthLogin";
+import RequireWildApricotLogin from "../pages/organizations/raceResults/requireWildApricotLogin";
 
 export interface RouteWrapper {
   path: string;
@@ -24,7 +26,7 @@ const createParameterizedRouteWrapper = (
     path: path,
     element: element,
     requiresLogin: requiresLogin,
-    createPath: createPath
+    createPath: createPath,
   };
 };
 
@@ -68,10 +70,11 @@ const routes = {
     true
   ),
 
-  submitRaceResult: createRouteWrapper(
+  submitRaceResult: createParameterizedRouteWrapper(
     "/organizations/:id/raceresults/create",
     <CreateRaceResultPage />,
-    false
+    false,
+    (orgId: string) => `/organizations/${orgId}/raceresults/create`
   ),
 
   loginSuccess: createRouteWrapper(
@@ -80,7 +83,9 @@ const routes = {
     false
   ),
 
-  logout: createRouteWrapper("logout", <Logout />, false)
+  logout: createRouteWrapper("logout", <Logout />, false),
+
+  oauthLogin: createRouteWrapper("/auth/oauth", <OAuthLogin />, false),
 } as const;
 
 /**
@@ -92,7 +97,7 @@ const navbarRoutes: {
   requiresLogin: boolean;
 }[] = [
   { header: "Home", route: routes.home, requiresLogin: false },
-  { header: "Organizations", route: routes.organizations, requiresLogin: true }
+  { header: "Organizations", route: routes.organizations, requiresLogin: true },
 ];
 
 export { navbarRoutes };

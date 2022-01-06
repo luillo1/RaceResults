@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Exceptions;
 using RaceResults.Common.Models;
@@ -35,6 +37,27 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("orgAssignedMemberId/{orgAssignedMemberId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOneMemberFromOrgAssignedMemberId(string orgId, string orgAssignedMemberId)
+        {
+            if (!await WildApricotController.Authorized(Request, orgAssignedMemberId))
+            {
+                return Unauthorized();
+            }
+
+            MemberContainerClient container = containerProvider.MemberContainer;
+            try
+            {
+                Member result = await container.GetOneMemberAsync(orgAssignedMemberId, orgId);
+                return Ok(result);
+            }
+            catch (MemberIdNotFoundException)
+            {
+                return BadRequest();
+            }
+        }
+
         [HttpGet("{memberId}")]
         public async Task<IActionResult> GetOneMember(string orgId, string memberId)
         {
@@ -44,25 +67,14 @@ namespace RaceResults.Api.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("ids/{orgAssignedMemberId}")]
-        public async Task<IActionResult> ConvertMemberId(string orgId, string orgAssignedMemberId)
-        {
-            MemberContainerClient container = containerProvider.MemberContainer;
-            try
-            {
-                Member result = await container.GetOneMemberAsync(orgAssignedMemberId, orgId);
-                return Ok(result.Id);
-            }
-            catch (MemberIdNotFoundException)
-            {
-                return BadRequest();
-            }
-        }
-
-        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {
+            if (!await WildApricotController.Authorized(Request, member.OrgAssignedMemberId))
+            {
+                return Unauthorized();
+            }
+
             member.Id = Guid.NewGuid();
             if (member.OrganizationId != Guid.Parse(orgId))
             {

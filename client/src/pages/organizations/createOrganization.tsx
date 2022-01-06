@@ -1,14 +1,14 @@
 import React, { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
-import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-api-slice";
+import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-standard-api-slice";
 import BasePage from "../../utils/basePage";
 import routes from "../../utils/routes";
 
 const CreateOrganizationPage = () => {
   const [
     createOrganization, // This is the mutation trigger
-    { isLoading: isUpdating } // This is the destructured mutation result
+    { isLoading: isUpdating }, // This is the destructured mutation result
   ] = useCreateOrganizationMutation();
 
   const navigate = useNavigate();

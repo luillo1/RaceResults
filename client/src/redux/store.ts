@@ -1,17 +1,22 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { raceResultsApiSlice } from "../slices/runners/raceresults-api-slice";
+import wildApricotAuthSlice from "../slices/wild-apricot-auth/wild-apricot-auth-slice";
+import { wildApricotApiSlice } from "../slices/wild-apricot/wild-apricot-api-slice";
+import { raceResultsApiSlice } from "../slices/runners/raceresults-standard-api-slice";
+import { raceresultsWaApiSlice } from "../slices/runners/raceresults-wa-api-slice";
 
 export const store = configureStore({
   reducer: {
-    [raceResultsApiSlice.reducerPath]: raceResultsApiSlice.reducer
+    wildApricotAuth: wildApricotAuthSlice,
+    [wildApricotApiSlice.reducerPath]: wildApricotApiSlice.reducer,
+    [raceresultsWaApiSlice.reducerPath]: raceresultsWaApiSlice.reducer,
+    [raceResultsApiSlice.reducerPath]: raceResultsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
-    /*
-    * This is where we can add a bunch of API-specific middleware
-    */
     return getDefaultMiddleware()
-      .concat(raceResultsApiSlice.middleware);
-  }
+      .concat(raceResultsApiSlice.middleware)
+      .concat(raceresultsWaApiSlice.middleware)
+      .concat(wildApricotApiSlice.middleware);
+  },
 });
 
 export type AppDispatch = typeof store.dispatch;

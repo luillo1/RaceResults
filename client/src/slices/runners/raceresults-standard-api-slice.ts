@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { string } from "yup/lib/locale";
 import { loginRequest } from "../../authConfig";
 import { Race } from "../../common";
 import { msalInstance } from "../../utils/mcalInstance";
@@ -9,12 +10,15 @@ interface Member {
   orgAssignedMemberId: string
   firstName: string;
   lastName: string;
+  email: string;
   nicknames: string[];
 }
 
 interface Organization {
   id: string;
   name: string;
+  wildApricotClientId: string;
+  wildApricotDomain: string;
 }
 
 interface RaceResponse {
@@ -149,32 +153,12 @@ export const raceResultsApiSlice = createApi({
         }),
         invalidatesTags: ["Race"]
       }),
-      fetchMemberId: builder.query<string, {orgId: string, orgAssignedMemberId: string}>({
-        query: ({ orgId, orgAssignedMemberId }) => ({
-          url: `/organizations/${orgId}/members/ids/${orgAssignedMemberId}`
-        })
-      }),
-      createMember: builder.mutation<Member, {orgId: string, member: Partial<Member>}>({
-        query: ({ orgId, member }) => ({
-          url: `/organizations/${orgId}/members`,
-          method: "POST",
-          body: member
-        })
-      }),
       fetchRaceResults: builder.query<RaceResultResponse[], {orgId: string, startDate: Date | null, endDate: Date | null}>({
         query({orgId, startDate, endDate}) {
           const url = `/organizations/${orgId}/raceresults`;
           return url + constructQueryParams({startDate: startDate?.toISOString(), endDate: endDate?.toISOString()});
         },
         providesTags: ["RaceResult"]
-      }),
-      createRaceResult: builder.mutation<RaceResult, {orgId: string, memberId: string, raceResult: Partial<RaceResult>}>({
-        query: ({ orgId, memberId, raceResult }) => ({
-          url: `/organizations/${orgId}/members/${memberId}/raceresults`,
-          method: "POST",
-          body: raceResult
-        }),
-        invalidatesTags: ["RaceResult"]
       }),
       deleteRaceResult: builder.mutation<RaceResult, {orgId: string, memberId: string, raceResultId: string}>({
         query: ({ orgId, memberId, raceResultId }) => ({
@@ -197,13 +181,13 @@ export const {
   useCreatePublicRaceMutation,
   useCreateRaceMutation,
   useUpdateRaceMutation,
-  useFetchMemberIdQuery,
-  useCreateMemberMutation,
   useFetchRaceResultsQuery,
-  useDeleteRaceResultMutation,
-  useCreateRaceResultMutation
+  useDeleteRaceResultMutation
 } = raceResultsApiSlice;
 
 export type {
+  Member,
+  Organization,
+  RaceResult,
   RaceResponse
 };

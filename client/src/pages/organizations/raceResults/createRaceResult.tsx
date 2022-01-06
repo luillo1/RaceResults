@@ -1,6 +1,4 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router";
-import { useSearchParams } from "react-router-dom";
 import {
   Divider,
   DropdownProps,
@@ -10,14 +8,12 @@ import {
 } from "semantic-ui-react";
 import * as Yup from "yup";
 import {
-  useCreateMemberMutation,
+  Organization,
   useCreatePublicRaceMutation,
-  useCreateRaceResultMutation,
-  useFetchMemberIdQuery,
+  useFetchOrganizationQuery,
   useFetchPublicRacesQuery,
-} from "../../../slices/runners/raceresults-api-slice";
+} from "../../../slices/runners/raceresults-standard-api-slice";
 import BasePage from "../../../utils/basePage";
-import routes from "../../../utils/routes";
 import CreateRaceModal from "../../../components/createRaceModal";
 import { Formik } from "formik";
 import { SemanticTextInputField } from "../../../components/SemanticFields/SemanticTextInputField";
@@ -25,6 +21,18 @@ import { LoadingOrError } from "../../../utils/loadingOrError";
 import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
+import { useAppSelector } from "../../../redux/hooks";
+import {
+  useFetchUserInfoQuery,
+  UserInfo,
+} from "../../../slices/wild-apricot/wild-apricot-api-slice";
+import { useParams } from "react-router-dom";
+import {
+  useCreateMemberMutation,
+  useCreateRaceResultMutation,
+  useFetchMemberQuery,
+} from "../../../slices/runners/raceresults-wa-api-slice";
+import RequireWildApricotLogin from "./requireWildApricotLogin";
 
 /**
  * Groups the given race models by their eventId.
@@ -68,7 +76,10 @@ interface FormValues {
   time: string;
 }
 
-const CreateRaceResultPage = () => {
+const CreateRaceResultPageForm = (props: {
+  organization: Organization;
+  user: UserInfo;
+}) => {
   // State to track if there is an error creating submission
   const [error, setError] = useState(false);
 
@@ -86,33 +97,6 @@ const CreateRaceResultPage = () => {
   // the user adds new races/distances.
   const [raceEvents, setRaceEvents] = useState<Partial<Race>[][]>([]);
 
-  // Get the organization ID from the URL.
-  const { id } = useParams();
-
-  // Get search params for the given org member ID, firstName, and lastName.
-  // We require being given an org member ID, but first & last names are optional.
-  const [searchParams] = useSearchParams();
-
-  const orgAssignedMemberId = searchParams.get("memberId");
-  const firstName = searchParams.get("firstName");
-  const lastName = searchParams.get("lastName");
-
-  if (id === undefined || orgAssignedMemberId === null) {
-    const navigate = useNavigate();
-    navigate(routes.notFound.createPath());
-    return <></>;
-  }
-
-  //
-  // Fetch all current races to display on the form
-  // and update the state with them. This use method will
-  // result in fetching races from the backend
-  //    1. when we initially load the page
-  //    2. whenever the "Race" tag is invalidated. This happens
-  //       when we POST a new race in the form submission
-  //       handler, meaning we automatically refresh the
-  //       races after a successful submission.
-  //
   const racesResponse = useFetchPublicRacesQuery();
 
   useMemo(() => {
@@ -129,19 +113,21 @@ const CreateRaceResultPage = () => {
 
   const [createRace] = useCreatePublicRaceMutation();
 
-  const memberIdResponse = useFetchMemberIdQuery({
-    orgId: id,
-    orgAssignedMemberId: orgAssignedMemberId,
-  });
+  const [createRaceResult] = useCreateRaceResultMutation();
 
   const [createMember] = useCreateMemberMutation();
 
-  const [createRaceResult] = useCreateRaceResultMutation();
+  const memberResponse = useFetchMemberQuery({
+    orgId: props.organization.id,
+    orgAssignedMemberId: props.user.id.toString(),
+  });
+
+  const header = `Submit Race Result - ${props.organization.name}`;
 
   if (success && !error) {
     return (
       <BasePage>
-        <Header as="h2" content="Submit Race Result" />
+        <Header as="h2" content={header} />
         <Divider />
         <Message positive>
           <Message.Header>Time submitted</Message.Header>
@@ -153,6 +139,18 @@ const CreateRaceResultPage = () => {
               style={{ cursor: "pointer" }}
               role="button"
               onClick={() => {
+                // Remove all added races
+                const newRaces: Partial<Race>[][] = [];
+                raceEvents.forEach((events) => {
+                  const newEvents = events.filter(
+                    (race) => race.id !== undefined
+                  );
+                  if (newEvents.length > 0) {
+                    newRaces.push(newEvents);
+                  }
+                });
+                setRaceEvents(newRaces);
+
                 setError(false);
                 setSuccess(false);
               }}
@@ -167,8 +165,8 @@ const CreateRaceResultPage = () => {
   }
 
   const initialFormValues: FormValues = {
-    firstName: firstName ?? "",
-    lastName: lastName ?? "",
+    firstName: props.user.firstName,
+    lastName: props.user.lastName,
     selectedEventIndex: -1,
     selectedRaceIndex: -1,
     comments: "",
@@ -177,11 +175,11 @@ const CreateRaceResultPage = () => {
 
   return (
     <LoadingOrError
-      isLoading={racesResponse.isLoading || memberIdResponse.isLoading}
+      isLoading={racesResponse.isLoading || memberResponse.isLoading}
       hasError={racesResponse.isError}
     >
       <BasePage>
-        <Header as="h2" content="Submit Race Result" />
+        <Header as="h2" content={header} />
         <Divider />
         <Formik
           initialValues={initialFormValues}
@@ -218,7 +216,6 @@ const CreateRaceResultPage = () => {
               values.selectedEventIndex === -1 ||
               values.selectedRaceIndex === -1
             ) {
-              setError(true);
               return;
             }
 
@@ -249,19 +246,22 @@ const CreateRaceResultPage = () => {
             }
 
             if (error) {
+              setError(true);
               return;
             }
 
             let memberIdToSubmit = "";
-            if (memberIdResponse.isError) {
-              // We need to make new member
+
+            if (memberResponse.isError || memberResponse.data === undefined) {
+              // We need to make a new member first
               await createMember({
-                orgId: id,
+                orgId: props.organization.id,
                 member: {
-                  firstName: values.firstName,
-                  lastName: values.lastName,
-                  organizationId: id,
-                  orgAssignedMemberId: orgAssignedMemberId,
+                  organizationId: props.organization.id,
+                  orgAssignedMemberId: props.user.id.toString(),
+                  firstName: props.user.firstName,
+                  lastName: props.user.lastName,
+                  email: props.user.email,
                 },
               })
                 .unwrap()
@@ -272,7 +272,7 @@ const CreateRaceResultPage = () => {
                   error = true;
                 });
             } else {
-              memberIdToSubmit = memberIdResponse.data as string;
+              memberIdToSubmit = memberResponse.data.id;
             }
 
             if (error) {
@@ -293,11 +293,11 @@ const CreateRaceResultPage = () => {
             }
 
             await createRaceResult({
-              orgId: id,
+              orgId: props.organization.id,
               memberId: memberIdToSubmit,
               raceResult: {
-                memberId: memberIdToSubmit,
                 raceId: raceIdToSubmit,
+                memberId: memberIdToSubmit,
                 time: timeToSubmit,
                 comments: values.comments || "",
                 dataSource: "user-submission",
@@ -309,10 +309,10 @@ const CreateRaceResultPage = () => {
               })
               .catch(() => {
                 error = true;
-                setError(true);
               });
 
             if (error) {
+              setError(true);
               return;
             }
 
@@ -533,6 +533,28 @@ const CreateRaceResultPage = () => {
           }}
         </Formik>
       </BasePage>
+    </LoadingOrError>
+  );
+};
+
+const CreateRaceResultPage = () => {
+  const { id: orgId } = useParams();
+  const accountId = useAppSelector((state) => state.wildApricotAuth.accountId);
+  const userResponse = useFetchUserInfoQuery(accountId);
+
+  const organization = useFetchOrganizationQuery(orgId || "");
+
+  return (
+    <LoadingOrError
+      isLoading={userResponse.isLoading || organization.isLoading}
+      hasError={userResponse.isError || organization.isError}
+    >
+      <RequireWildApricotLogin organization={organization.data as Organization}>
+        <CreateRaceResultPageForm
+          user={userResponse.data as UserInfo}
+          organization={organization.data as Organization}
+        />
+      </RequireWildApricotLogin>
     </LoadingOrError>
   );
 };

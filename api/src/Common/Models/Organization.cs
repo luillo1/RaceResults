@@ -10,6 +10,12 @@ namespace RaceResults.Common.Models
         [Required]
         public string Name { get; set; }
 
+        [Required]
+        public string WildApricotDomain { get; set; }
+
+        [Required]
+        public string WildApricotClientId { get; set; }
+
         public string GetPartitionKey()
         {
             return Id.ToString();
