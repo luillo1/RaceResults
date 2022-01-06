@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Internal.RaceResults.Api.Utils
+namespace Internal.Api.Utils
 {
     public static class ValidationTools
     {

@@ -5,7 +5,7 @@ using Microsoft.Azure.Cosmos;
 using NSubstitute;
 using RaceResults.Common.Models;
 
-namespace Internal.RaceResults.Data.Utils
+namespace Internal.Data.Utils
 {
     public static class MockContainerProvider<T>
         where T : IModel
@@ -60,7 +60,7 @@ namespace Internal.RaceResults.Data.Utils
                     });
 
             container.GetItemLinqQueryable<T>().Returns(data.AsQueryable());
-            
+
             container.GetItemLinqQueryable<T>(Arg.Any<bool>()).Returns(data.AsQueryable());
 
             return container;

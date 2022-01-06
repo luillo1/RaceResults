@@ -1,7 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Data.Core;
 
-namespace Internal.RaceResults.Data.Core
+namespace Internal.Data.Tests
 {
     [TestClass]
     public class ContainerConstantsTests

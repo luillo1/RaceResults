@@ -1,0 +1,28 @@
+name: Build and test RaceResults backend
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "api/**"
+      - ".github/workflows/backendDeploy.yaml"
+      - ".github/workflows/backendCI.yaml"
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: restore
+        run: dotnet restore ./RaceResults.sln
+      - name: build
+        run: dotnet build ./RaceResults.sln --no-restore
+      - name: test
+        run: dotnet test ./RaceResults.sln --no-build --verbosity normal
