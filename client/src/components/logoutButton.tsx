@@ -9,7 +9,7 @@ function LogoutButton() {
     instance.logoutRedirect();
   };
 
-  return <Button inverted onClick={() => handleLogout()} content="Log out" />;
+  return <Button primary onClick={() => handleLogout()} content="Log out" />;
 }
 
 export default LogoutButton;

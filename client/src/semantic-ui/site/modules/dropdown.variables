@@ -1,0 +1,6 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+// Fix for an issue in upstream package not having parens aroud division
+@selectionIconPadding: (@selectionIconHitbox / @dropdownIconSize);

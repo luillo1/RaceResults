@@ -24,18 +24,18 @@ function Navbar(props: NavbarProps) {
   // A menu item containing the app name + icon
   const brandMenuItem = (
     <Menu.Item>
-      <FontAwesomeIcon size="2x" icon={faRunning} color="white" />
+      <FontAwesomeIcon size="2x" icon={faRunning} className="color-primary" />
       <Menu.Header style={{ paddingLeft: 15 }}>RaceResults</Menu.Header>
     </Menu.Item>
   );
 
   const normalNavbarMenu = (
-    <Menu as="nav" inverted stackable attached>
+    <Menu as="nav" stackable attached>
       <Container fluid>
         {brandMenuItem}
         <NavLinks />
         <AuthenticatedTemplate>
-          <Menu.Item className="borderless" position="right">
+          <Menu.Item position="right">
             {accounts[0] != null && (
               <span>Logged in as {accounts[0].username}&nbsp;&nbsp;</span>
             )}
@@ -43,7 +43,7 @@ function Navbar(props: NavbarProps) {
           </Menu.Item>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
-          <Menu.Item className="borderless" position="right">
+          <Menu.Item position="right">
             <LoginButton />
           </Menu.Item>
         </UnauthenticatedTemplate>
@@ -52,7 +52,7 @@ function Navbar(props: NavbarProps) {
   );
 
   const mobileNavbarMenu = (
-    <Menu as="nav" inverted attached borderless>
+    <Menu as="nav" pointing attached borderless>
       <Container fluid>
         {brandMenuItem}
         <Menu.Item position="right">
@@ -61,7 +61,6 @@ function Navbar(props: NavbarProps) {
               name="bars"
               link
               size="big"
-              inverted
               onClick={() => props.setSidebarIsVisible(!props.sidebarIsVisible)}
             />
           </Menu.Header>

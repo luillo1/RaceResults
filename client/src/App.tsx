@@ -37,7 +37,6 @@ function App() {
           className="flex-container"
           as={Menu}
           animation="overlay"
-          inverted
           vertical
           onHide={() => setSidebarIsVisible(false)}
           visible={sidebarIsVisible}

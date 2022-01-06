@@ -128,7 +128,7 @@ const CreateRaceModal = (props: CreateRaceModalProps) => {
               </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-              <Button secondary onClick={() => props.handleClose()}>
+              <Button negative onClick={() => props.handleClose()}>
                 Cancel
               </Button>
               <Button primary type="button" onClick={() => handleSubmit()}>

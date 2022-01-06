@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Button, Divider, Header, List } from "semantic-ui-react";
+import { Button, Header, List } from "semantic-ui-react";
+import MainDivider from "../../components/mainDivider";
 import { useFetchOrganizationsQuery } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
@@ -16,7 +17,7 @@ const OrganizationsPage = () => {
     >
       <BasePage>
         <Header as="h2" content="Your Organizations" />
-        <Divider />
+        <MainDivider />
         <List divided relaxed selection verticalAlign="middle">
           {queryResponse.data?.map((organization) => (
             <List.Item

@@ -10,7 +10,7 @@ function LoginButton() {
     instance.loginRedirect(loginRequest);
   };
 
-  return <Button inverted onClick={() => handleLogin()} content="Log in" />;
+  return <Button primary onClick={() => handleLogin()} content="Log in" />;
 }
 
 export default LoginButton;

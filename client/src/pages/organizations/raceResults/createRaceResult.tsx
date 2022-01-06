@@ -1,13 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSearchParams } from "react-router-dom";
-import {
-  Divider,
-  DropdownProps,
-  Form,
-  Header,
-  Message,
-} from "semantic-ui-react";
+import { DropdownProps, Form, Header, Message } from "semantic-ui-react";
 import * as Yup from "yup";
 import {
   useCreateMemberMutation,
@@ -25,6 +19,7 @@ import { LoadingOrError } from "../../../utils/loadingOrError";
 import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
+import MainDivider from "../../../components/mainDivider";
 
 /**
  * Groups the given race models by their eventId.
@@ -142,7 +137,7 @@ const CreateRaceResultPage = () => {
     return (
       <BasePage>
         <Header as="h2" content="Submit Race Result" />
-        <Divider />
+        <MainDivider />
         <Message positive>
           <Message.Header>Time submitted</Message.Header>
           <p>
@@ -182,7 +177,7 @@ const CreateRaceResultPage = () => {
     >
       <BasePage>
         <Header as="h2" content="Submit Race Result" />
-        <Divider />
+        <MainDivider />
         <Formik
           initialValues={initialFormValues}
           validationSchema={Yup.object({
@@ -526,7 +521,7 @@ const CreateRaceResultPage = () => {
                       </Form.Group>
                     </>
                   )}
-                  <Form.Button>Submit</Form.Button>
+                  <Form.Button primary>Submit</Form.Button>
                 </Form>
               </div>
             );

@@ -13,6 +13,7 @@ import {
 import submitImgUrl from "../../images/submit.png";
 import createRaceUrl from "../../images/create_race.png";
 import racesImgUrl from "../../images/races.png";
+import "../styles/home.less";
 
 function Home() {
   return (
@@ -26,10 +27,10 @@ function Home() {
       >
         <Container fluid>
           <div>
-            <Header as="h1" inverted icon textAlign="center">
+            <Header as="h1" textAlign="center">
               {"Welcome to RaceResults"}
             </Header>
-            <Header as="h2" inverted textAlign="center">
+            <Header as="h2" textAlign="center">
               {"Automate your club's race time collection."}
             </Header>
           </div>
@@ -73,14 +74,22 @@ function Home() {
               only="computer tablet"
               style={{ display: "flex", alignItems: "center" }}
             >
-              <Icon name="arrow circle right" size="huge" />
+              <Icon
+                name="arrow circle right"
+                className="color-secondary"
+                size="huge"
+              />
             </GridColumn>
             <GridColumn
               width={2}
               only="mobile"
               style={{ display: "flex", alignItems: "center" }}
             >
-              <Icon name="arrow circle down" size="huge" />
+              <Icon
+                name="arrow circle down"
+                className="color-secondary"
+                size="huge"
+              />
             </GridColumn>
             <GridColumn width={7} floated="right">
               <Image size="large" bordered rounded src={racesImgUrl} />
