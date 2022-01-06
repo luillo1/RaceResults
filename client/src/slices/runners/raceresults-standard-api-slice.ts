@@ -99,12 +99,15 @@ export const raceResultsApiSlice = createApi({
         },
         providesTags: ["Organization"]
       }),
-      createOrganization: builder.mutation<Organization, Partial<Organization>>(
+      createOrganization: builder.mutation<Organization, {name: string, domain: string, clientId: string, clientSecret: string}>(
         {
-          query: (post) => ({
+          query: (params) => ({
             url: "/organizations",
             method: "POST",
-            body: post
+            body: {
+              organization: {name: params.name, wildApricotDomain: params.domain, wildApricotClientId: params.clientId},
+              clientSecret: params.clientSecret
+            }
           }),
           invalidatesTags: ["Organization"]
         }

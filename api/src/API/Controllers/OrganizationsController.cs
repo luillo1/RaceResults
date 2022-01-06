@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
+using RaceResults.Data.KeyVault;
 
 namespace RaceResults.Api.Controllers
 {
@@ -42,12 +43,23 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateNewOrganization(Organization organization)
+        public class NewOrganizationBody
         {
-            organization.Id = Guid.NewGuid();
+            public Organization Organization { get; set; }
+
+            public string ClientSecret { get; set; }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateNewOrganization([FromBody] NewOrganizationBody body)
+        {
+            var organization = body.Organization;
             OrganizationContainerClient container = containerProvider.OrganizationContainer;
             var addedOrg = await container.AddOneAsync(organization);
+
+            var secretName = addedOrg.Id + "-client-secret";
+            await new RaceResults.Data.KeyVault.KeyVaultClient().PutSecretAsync(secretName, body.ClientSecret);
+
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = addedOrg.Id }, addedOrg);
         }
     }

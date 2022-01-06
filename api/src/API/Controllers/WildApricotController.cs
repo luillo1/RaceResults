@@ -25,7 +25,7 @@ namespace RaceResults.Api.Controllers
         {
             public string OrganizationId { get; set; }
 
-            public string CientId { get; set; }
+            public string ClientId { get; set; }
 
             public string RedirectURI { get; set; }
 
@@ -35,8 +35,8 @@ namespace RaceResults.Api.Controllers
         [HttpPost("oauth/{authorization_code}")]
         public async Task<IActionResult> GetAccessToken(string authorization_code, [FromBody] GetAccessTokenBody body)
         {
-            // TODO: get from AKV
-            var clientSecret = "";
+            var secretName = body.OrganizationId + "-client-secret";
+            var clientSecret = await new RaceResults.Data.KeyVault.KeyVaultClient().GetSecretAsync(secretName);
 
             using (var client = new HttpClient())
             {
@@ -44,13 +44,13 @@ namespace RaceResults.Api.Controllers
                 postData.Add(new KeyValuePair<string, string>("grant_type", "authorization_code"));
                 postData.Add(new KeyValuePair<string, string>("code", authorization_code));
                 postData.Add(new KeyValuePair<string, string>("scope", body.Scope));
-                postData.Add(new KeyValuePair<string, string>("client_id", body.CientId));
+                postData.Add(new KeyValuePair<string, string>("client_id", body.ClientId));
                 postData.Add(new KeyValuePair<string, string>("redirect_uri", body.RedirectURI));
 
                 HttpContent content = new FormUrlEncodedContent(postData);
                 content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
 
-                var authValue = new AuthenticationHeaderValue("Basic", Base64Encode(body.CientId + ":" + clientSecret));
+                var authValue = new AuthenticationHeaderValue("Basic", Base64Encode(body.ClientId + ":" + clientSecret));
                 client.DefaultRequestHeaders.Authorization = authValue;
 
                 var responseResult = await client.PostAsync("https://oauth.wildapricot.org/auth/token", content);
