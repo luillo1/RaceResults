@@ -28,6 +28,12 @@ export default defineConfig(({ mode }) => {
   } else {
     return {
       plugins: [react()],
+      alias: {
+        "../../theme.config": path.join(
+          __dirname,
+          "./src/semantic-ui/theme.config"
+        ),
+      },
       build: {
         outDir: "./build",
       },

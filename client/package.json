@@ -29,7 +29,6 @@
     "yup": "^0.32.11"
   },
   "devDependencies": {
-    "@craco/craco": "^6.4.3",
     "@neocoast/semantic-ui-less": "^2.5.0",
     "@types/react": "^17.0.0",
     "@types/react-datepicker": "^4.3.3",
