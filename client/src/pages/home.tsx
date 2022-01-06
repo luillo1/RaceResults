@@ -27,10 +27,10 @@ function Home() {
       >
         <Container fluid>
           <div>
-            <Header as="h1" inverted textAlign="center">
+            <Header as="h1" textAlign="center">
               {"Welcome to RaceResults"}
             </Header>
-            <Header as="h2" inverted textAlign="center">
+            <Header as="h2" textAlign="center">
               {"Automate your club's race time collection."}
             </Header>
           </div>
