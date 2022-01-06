@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { string } from "yup/lib/locale";
 import { loginRequest } from "../../authConfig";
 import { Race } from "../../common";
 import { msalInstance } from "../../utils/mcalInstance";
@@ -153,10 +152,10 @@ export const raceResultsApiSlice = createApi({
         }),
         invalidatesTags: ["Race"]
       }),
-      fetchRaceResults: builder.query<RaceResultResponse[], {orgId: string, startDate: Date | null, endDate: Date | null}>({
+      fetchRaceResults: builder.query<RaceResultResponse[], {orgId: string, startDate: string | null, endDate: string | null}>({
         query({orgId, startDate, endDate}) {
           const url = `/organizations/${orgId}/raceresults`;
-          return url + constructQueryParams({startDate: startDate?.toISOString(), endDate: endDate?.toISOString()});
+          return url + constructQueryParams({startDate, endDate});
         },
         providesTags: ["RaceResult"]
       }),

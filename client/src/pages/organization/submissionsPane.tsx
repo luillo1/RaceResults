@@ -57,8 +57,8 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
 
   const raceResultsResponse = useFetchRaceResultsQuery({
     orgId: props.orgId,
-    startDate: dateRange.startDate,
-    endDate: dateRange.endDate,
+    startDate: dateRange.startDate.toISOString(),
+    endDate: dateRange.endDate.toISOString(),
   });
 
   const [deleteRaceResult] = useDeleteRaceResultMutation();

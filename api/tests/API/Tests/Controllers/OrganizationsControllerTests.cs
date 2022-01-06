@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Internal.RaceResults.Api.Utils;
-using Internal.RaceResults.Data.Utils;
+using Internal.Api.Utils;
+using Internal.Data.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -12,7 +12,7 @@ using RaceResults.Api.Controllers;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace Internal.RaceResults.Api.Controllers
+namespace Internal.Api.Tests
 {
     [TestClass]
     public class OrganizationsControllerTests

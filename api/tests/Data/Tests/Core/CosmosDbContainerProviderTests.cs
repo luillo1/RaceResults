@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using Internal.RaceResults.Data.Utils;
+using Internal.Data.Utils;
 using Microsoft.Azure.Cosmos;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
 
-namespace Internal.RaceResults.Data.Core
+namespace Internal.Data.Tests
 {
     [TestClass]
     public class CosmosDbContainerProviderTests

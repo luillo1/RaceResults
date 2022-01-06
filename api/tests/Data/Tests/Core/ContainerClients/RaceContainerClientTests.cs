@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Internal.RaceResults.Data.Core
+namespace Internal.Data.Tests
 {
     [TestClass]
     public class RaceContainerClientTests
