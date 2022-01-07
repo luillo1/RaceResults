@@ -40,7 +40,7 @@ namespace RaceResults.Api.Controllers
             }
 
             var waResponse = await WildApricotController.GetCurrentUserFromWildApricot(accountId, authorization);
-            if (waResponse.id.ToString() != orgAssignedMemberId)
+            if (waResponse.Id.ToString() != orgAssignedMemberId)
             {
                 return false;
             }
