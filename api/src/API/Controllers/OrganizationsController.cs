@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
+using RaceResults.Common.Requests;
 using RaceResults.Data.Core;
 using RaceResults.Data.KeyVault;
 
@@ -19,11 +20,15 @@ namespace RaceResults.Api.Controllers
 
         private readonly ILogger<OrganizationsController> logger;
 
+        private readonly IKeyVaultClient keyVaultClient;
+
         public OrganizationsController(
                 ICosmosDbContainerProvider cosmosDbContainerProvider,
+                IKeyVaultClient keyVaultClient,
                 ILogger<OrganizationsController> logger)
         {
             this.containerProvider = cosmosDbContainerProvider;
+            this.keyVaultClient = keyVaultClient;
             this.logger = logger;
         }
 
@@ -43,22 +48,15 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
-        public class NewOrganizationBody
-        {
-            public Organization Organization { get; set; }
-
-            public string ClientSecret { get; set; }
-        }
-
         [HttpPost]
-        public async Task<IActionResult> CreateNewOrganization([FromBody] NewOrganizationBody body)
+        public async Task<IActionResult> CreateNewOrganization([FromBody] CreateOrganizationRequest body)
         {
             var organization = body.Organization;
             OrganizationContainerClient container = containerProvider.OrganizationContainer;
             var addedOrg = await container.AddOneAsync(organization);
 
             var secretName = addedOrg.Id + "-client-secret";
-            await new RaceResults.Data.KeyVault.KeyVaultClient().PutSecretAsync(secretName, body.ClientSecret);
+            await this.keyVaultClient.PutSecretAsync(secretName, body.ClientSecret);
 
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = addedOrg.Id }, addedOrg);
         }

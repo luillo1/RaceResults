@@ -4,9 +4,10 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using RaceResults.Common.Models;
+using RaceResults.Data.KeyVault;
 using RestSharp;
-
 
 namespace RaceResults.Api.Controllers
 {
@@ -20,6 +21,54 @@ namespace RaceResults.Api.Controllers
             return System.Convert.ToBase64String(plainTextBytes);
         }
 
+        // FOR TESTING. Need to figure out something better...
+        public static bool OverrideAuth { get; set; }
+
+        public static async Task<bool> Authorized(HttpRequest request, string orgAssignedMemberId)
+        {
+            if (OverrideAuth)
+            {
+                return true;
+            }
+
+            var hasAccount = int.TryParse(request.Headers["WA-AccountId"], out var accountId);
+            var authorization = request.Headers["WA-Authorization"];
+
+            if (!hasAccount || string.IsNullOrEmpty(authorization))
+            {
+                return false;
+            }
+
+            var waResponse = await WildApricotController.GetCurrentUserFromWildApricot(accountId, authorization);
+            if (waResponse.id.ToString() != orgAssignedMemberId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static async Task<WildApricotMember> GetCurrentUserFromWildApricot(int accountId, string authorization)
+        {
+            var client = new RestClient("https://api.wildapricot.org/publicview/v1");
+
+            var request = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=false", DataFormat.Json);
+            request.AddHeader("Authorization", authorization);
+
+            return await client.GetAsync<WildApricotMember>(request);
+        }
+
+        private readonly ILogger<OrganizationsController> logger;
+
+        private readonly IKeyVaultClient keyVaultClient;
+
+        public WildApricotController(
+                IKeyVaultClient keyVaultClient,
+                ILogger<OrganizationsController> logger)
+        {
+            this.keyVaultClient = keyVaultClient;
+            this.logger = logger;
+        }
 
         public class GetAccessTokenBody
         {
@@ -36,7 +85,7 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> GetAccessToken(string authorization_code, [FromBody] GetAccessTokenBody body)
         {
             var secretName = body.OrganizationId + "-client-secret";
-            var clientSecret = await new RaceResults.Data.KeyVault.KeyVaultClient().GetSecretAsync(secretName);
+            var clientSecret = await this.keyVaultClient.GetSecretAsync(secretName);
 
             using (var client = new HttpClient())
             {
@@ -65,35 +114,6 @@ namespace RaceResults.Api.Controllers
         {
             var resp = await GetCurrentUserFromWildApricot(accountId, Request.Headers["WA-Authorization"]);
             return Ok(resp);
-        }
-
-        public static async Task<bool> Authorized(HttpRequest request, string orgAssignedMemberId)
-        {
-            var hasAccount = int.TryParse(request.Headers["WA-AccountId"], out var accountId);
-            var authorization = request.Headers["WA-Authorization"];
-
-            if (!hasAccount || string.IsNullOrEmpty(authorization))
-            {
-                return false;
-            }
-
-            var waResponse = await WildApricotController.GetCurrentUserFromWildApricot(accountId, authorization);
-            if (waResponse.id.ToString() != orgAssignedMemberId)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public static async Task<WildApricotMember> GetCurrentUserFromWildApricot(int accountId, string authorization)
-        {
-            var client = new RestClient("https://api.wildapricot.org/publicview/v1");
-
-            var request = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=false", DataFormat.Json);
-            request.AddHeader("Authorization", authorization);
-
-            return await client.GetAsync<WildApricotMember>(request);
         }
     }
 }

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RaceResults.Api.Controllers;
 using RaceResults.Common.Models;
+using RaceResults.Common.Requests;
 using RaceResults.Data.Core;
 
 namespace Internal.Api.Tests
@@ -38,10 +39,14 @@ namespace Internal.Api.Tests
 
         private OrganizationsController controller;
 
+        private MockKeyVaultClient keyVaultClient;
+
         [TestInitialize]
         public void TestInitialize()
         {
             Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(organizations);
+
+            keyVaultClient = new MockKeyVaultClient();
 
             MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
             cosmosDbClient.AddEmptyMemberContainer();
@@ -50,7 +55,7 @@ namespace Internal.Api.Tests
             cosmosDbClient.AddEmptyRaceResultContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
-            controller = new OrganizationsController(provider, NullLogger<OrganizationsController>.Instance);
+            controller = new OrganizationsController(provider, keyVaultClient, NullLogger<OrganizationsController>.Instance);
         }
 
         [TestMethod]
@@ -78,11 +83,25 @@ namespace Internal.Api.Tests
             Organization org = new Organization()
             {
                 Name = "Bob's Running Club",
+                WildApricotClientId = "myId",
+                WildApricotDomain = "myDomain",
             };
 
-            IActionResult result = await controller.CreateNewOrganization(org);
+            string secret = "mySecret";
+
+            var request = new CreateOrganizationRequest()
+            {
+                Organization = org,
+                ClientSecret = secret,
+            };
+
+            IActionResult result = await controller.CreateNewOrganization(request);
             Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
             Assert.IsNotNull(org.Id);
+
+            var addedSecrets = keyVaultClient.GetSecrets();
+            Assert.AreEqual(1, addedSecrets.Count());
+            Assert.IsTrue(addedSecrets.Contains("mySecret"));
         }
     }
 }

@@ -57,6 +57,8 @@ namespace Internal.Api.Tests
         [TestInitialize]
         public void TestInitialize()
         {
+            WildApricotController.OverrideAuth = true;
+
             Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(members);
 
             MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();

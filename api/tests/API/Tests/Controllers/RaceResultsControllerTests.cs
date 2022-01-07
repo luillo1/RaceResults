@@ -128,6 +128,8 @@ namespace Internal.Api.Tests
         [TestInitialize]
         public void TestInitialize()
         {
+            WildApricotController.OverrideAuth = true;
+
             Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(members);
             Container raceContainer = MockContainerProvider<Race>.CreateMockContainer(races);
             Container raceResultContainer = MockContainerProvider<RaceResult>.CreateMockContainer(raceResults);

@@ -7,7 +7,6 @@ import OrganizationPage from "../pages/organization";
 import OrganizationsPage from "../pages/organizations/organizations";
 import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceResult";
 import OAuthLogin from "../pages/oauthLogin";
-import RequireWildApricotLogin from "../pages/organizations/raceResults/requireWildApricotLogin";
 
 export interface RouteWrapper {
   path: string;
