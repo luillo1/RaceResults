@@ -9,7 +9,6 @@ namespace RaceResults.Common.Models
         public Guid Id { get; set; }
 
         [Required]
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Guid MemberId { get; set; }
 
         [Required]
