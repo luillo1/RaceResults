@@ -91,6 +91,11 @@ namespace RaceResults.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
         {
+            if (raceResult.MemberId != Guid.Parse(memberId))
+            {
+                return BadRequest();
+            }
+
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
 
             RaceContainerClient raceContainer = containerProvider.RaceContainer;
