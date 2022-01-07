@@ -45,7 +45,7 @@ export const raceresultsWaApiSlice = createApi({
         { orgId: string; orgAssignedMemberId: string }
       >({
         query: ({ orgId, orgAssignedMemberId }) => ({
-          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
+          url: `/organizations/${orgId}/members/?orgAssignedMemberId=${orgAssignedMemberId}`,
         }),
       }),
       createMember: builder.mutation<

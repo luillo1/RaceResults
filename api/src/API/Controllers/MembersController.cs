@@ -30,32 +30,37 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllMembers(string orgId)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetAllMembers(string orgId, [FromQuery] string orgAssignedMemberId)
         {
             MemberContainerClient container = containerProvider.MemberContainer;
-            IEnumerable<Member> result = (await container.GetAllMembersAsDictAsync(orgId)).Values;
-            return Ok(result);
-        }
 
-        [HttpGet("orgAssignedMemberId/{orgAssignedMemberId}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetOneMemberFromOrgAssignedMemberId(string orgId, string orgAssignedMemberId)
-        {
-            if (!await WildApricotController.Authorized(Request, orgAssignedMemberId))
+            if (orgAssignedMemberId != null)
+            {
+                // We just require WA auth for this
+                if (!await WildApricotController.Authorized(Request, orgAssignedMemberId))
+                {
+                    return Unauthorized();
+                }
+
+                try
+                {
+                    return Ok(await container.GetOneMemberAsync(orgAssignedMemberId, orgId));
+                }
+                catch (MemberIdNotFoundException)
+                {
+                    return BadRequest();
+                }
+            }
+
+            // For normal GET, we need admin auth
+            if (!User.Identity.IsAuthenticated)
             {
                 return Unauthorized();
             }
 
-            MemberContainerClient container = containerProvider.MemberContainer;
-            try
-            {
-                Member result = await container.GetOneMemberAsync(orgAssignedMemberId, orgId);
-                return Ok(result);
-            }
-            catch (MemberIdNotFoundException)
-            {
-                return BadRequest();
-            }
+            IEnumerable<Member> result = (await container.GetAllMembersAsDictAsync(orgId)).Values;
+            return Ok(result);
         }
 
         [HttpGet("{memberId}")]
