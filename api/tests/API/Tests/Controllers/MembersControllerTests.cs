@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Internal.Api.Utils;
 using Internal.Data.Utils;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -69,13 +71,20 @@ namespace Internal.Api.Tests
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             controller = new MembersController(provider, NullLogger<MembersController>.Instance);
+            controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext
+                {
+                    User = new ClaimsPrincipal(new AuthenticatedIdentity()),
+                },
+            };
         }
 
         [TestMethod]
         public async Task GetAllMembersTest()
         {
             Guid orgId = organizationA;
-            IActionResult result = await controller.GetAllMembers(orgId.ToString());
+            IActionResult result = await controller.GetMembers(orgId.ToString(), null);
 
             HashSet<Member> expectedResult = members.Where(member => member.OrganizationId == orgId).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 member.");

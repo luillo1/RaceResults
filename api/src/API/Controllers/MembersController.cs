@@ -31,7 +31,7 @@ namespace RaceResults.Api.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> GetAllMembers(string orgId, [FromQuery] string orgAssignedMemberId)
+        public async Task<IActionResult> GetMembers(string orgId, [FromQuery] string orgAssignedMemberId)
         {
             MemberContainerClient container = containerProvider.MemberContainer;
 
