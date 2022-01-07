@@ -24,7 +24,7 @@ const RequireWildApricotLogin: FC<{ organization: Organization }> = ({
     accountId === undefined ||
     Date.now() > loggedInAt + expiresIn * 1000 - 5 * 60 * 1000
   ) {
-    const redirect = `https://${organization.wildApricotDomain}/sys/login/OAuthLogin?client_Id=${organization.wildApricotClientId}&scope=auto&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauth%2Foauth&state=${organization.id}`;
+    const redirect = `${organization.wildApricotDomain}/sys/login/OAuthLogin?client_Id=${organization.wildApricotClientId}&scope=auto&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauth%2Foauth&state=${organization.id}`;
     window.location.replace(redirect);
 
     return <LoginLoading />;
