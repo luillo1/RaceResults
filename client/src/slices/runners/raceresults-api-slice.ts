@@ -142,7 +142,7 @@ export const raceResultsApiSlice = createApi({
           return `/organizations/${id}`;
         },
         transformResponse: (response: Organization) => {
-          return { ...response, authType: AuthType[response.authType]};
+          return { ...response, authType: AuthType[response.authType] as unknown as AuthType};
         }
       }),
       fetchOrganizations: builder.query<Organization[], void>({

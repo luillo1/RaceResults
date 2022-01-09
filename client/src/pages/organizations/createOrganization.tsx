@@ -44,8 +44,6 @@ const CreateOrganizationPage = () => {
           await createOrganization({
             organization: {
               name: values.name,
-              wildApricotDomain: values.domain,
-              wildApricotClientId: values.clientId,
             },
             clientSecret: values.clientSecret,
           })
