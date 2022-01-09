@@ -1,6 +1,6 @@
 import React from "react";
 import { Header, Icon, Loader, Dimmer, Table } from "semantic-ui-react";
-import { useFetchMembersQuery } from "../../slices/runners/raceresults-standard-api-slice";
+import { useFetchMembersQuery } from "../../slices/runners/raceresults-api-slice";
 
 interface MembersPaneProps {
   orgId: string;

@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { loginRequest } from "../../authConfig";
 import { Race } from "../../common";
+import { RootState } from "../../redux/store";
 import { msalInstance } from "../../utils/mcalInstance";
 
 interface Member {
@@ -16,8 +17,7 @@ interface Member {
 interface Organization {
   id: string;
   name: string;
-  wildApricotClientId: string;
-  wildApricotDomain: string;
+  authType: AuthType;
 }
 
 interface RaceResponse {
@@ -47,8 +47,47 @@ interface RaceResultResponse {
   member: Member | null;
 }
 
+interface OrganizationLoginResponse {
+  orgAssignedMemberId: string;
+  requiredHeaders: { key: string, value: string }[];
+}
+
 interface QueryParams {
   [key: string]: string | null | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface LoginRequest {
+}
+
+// interface RaceResultsLoginRequest extends LoginRequest {}
+
+interface WildApricotLoginRequest extends LoginRequest {
+  authorizationCode: string;
+  redirectUri: string;
+  scope: string;
+}
+
+export enum AuthType {
+  RaceResults,
+  WildApricot,
+}
+
+interface Auth {
+  id: string;
+  organizationId: string;
+  authType: AuthType;
+}
+
+interface WildApricotAuth extends Auth {
+  domain: string;
+  clientId: string;
+  authType: AuthType.WildApricot;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface RaceResultsAuth extends Auth {
+  authType: AuthType.RaceResults;
 }
 
 function constructQueryParams(params: QueryParams){
@@ -65,7 +104,7 @@ export const raceResultsApiSlice = createApi({
   reducerPath: "raceResultsApi",
   baseQuery: fetchBaseQuery({
     baseUrl: import.meta.env.VITE_API_URL,
-    prepareHeaders: async (headers) => {
+    prepareHeaders: async (headers, api) => {
       //
       // See if we're logged in. If we are, attach the bearer
       // token to this request.
@@ -82,15 +121,28 @@ export const raceResultsApiSlice = createApi({
         headers.set("Authorization", "Bearer " + response.accessToken);
       }
 
+      // Attach any headers we need for organization auths.
+      // TODO: these MAY conflict (e.g. if there's two WildApricot auths).
+      const state = api.getState() as RootState;
+      const orgAuths = state.organizationAuth.orgAuths;
+      Object.values(orgAuths).forEach((loginResponse) => {
+        loginResponse.requiredHeaders.forEach((requiredHeader) => {
+          headers.set(requiredHeader.key, requiredHeader.value);
+        });
+      });
+
       return headers;
     }
   }),
-  tagTypes: ["Organization", "Race", "RaceResult"],
+  tagTypes: ["Organization", "Race", "RaceResult", "Auth"],
   endpoints(builder) {
     return {
       fetchOrganization: builder.query<Organization, string>({
         query(id) {
           return `/organizations/${id}`;
+        },
+        transformResponse: (response: Organization) => {
+          return { ...response, authType: AuthType[response.authType]};
         }
       }),
       fetchOrganizations: builder.query<Organization[], void>({
@@ -168,7 +220,65 @@ export const raceResultsApiSlice = createApi({
           method: "DELETE"
         }),
         invalidatesTags: ["RaceResult"]
-      })
+      }),
+      fetchAuth: builder.query<Auth, string>({
+        query(orgId) {
+          return `/organizations/${orgId}/auth`;
+        },
+        providesTags: ["Auth"]
+      }),
+      createAuth: builder.mutation<RaceResponse, {orgId: string, auth: Partial<Auth>}>({
+        query: ({orgId, auth}) => ({
+          url: `/organizations/${orgId}/auth`,
+          method: "POST",
+          body: auth
+        }),
+        invalidatesTags: ["Auth"]
+      }),
+      loginRaceResults: builder.mutation<OrganizationLoginResponse, {orgId: string}>({
+        query: ({ orgId }) => ({
+          url: `/organizations/${orgId}/auth/login/raceresults`,
+          method: "POST"
+        }),
+      }),
+      loginWildApricot: builder.mutation<OrganizationLoginResponse, {orgId: string, loginRequest: WildApricotLoginRequest}>({
+        query: ({ orgId, loginRequest }) => ({
+          url: `/organizations/${orgId}/auth/login/wildapricot`,
+          method: "POST",
+          body: loginRequest
+        }),
+      }),
+      fetchMember: builder.query<
+        Member,
+        { orgId: string; orgAssignedMemberId: string }
+      >({
+        query: ({ orgId, orgAssignedMemberId }) => ({
+          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
+        }),
+      }),
+      createMember: builder.mutation<
+        Member,
+        { orgId: string; orgAssignedMemberId: string }
+      >({
+        query: ({ orgId, orgAssignedMemberId }) => ({
+          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
+          method: "POST",
+        }),
+      }),
+      createRaceResult: builder.mutation<
+        RaceResult,
+        {
+          orgId: string;
+          memberId: string;
+          raceResult: Partial<RaceResult>;
+        }
+      >({
+        query: ({ orgId, memberId, raceResult }) => ({
+          url: `/organizations/${orgId}/members/${memberId}/raceresults`,
+          method: "POST",
+          body: raceResult,
+        }),
+      }),
     };
   }
 });
@@ -184,12 +294,24 @@ export const {
   useCreateRaceMutation,
   useUpdateRaceMutation,
   useFetchRaceResultsQuery,
-  useDeleteRaceResultMutation
+  useDeleteRaceResultMutation,
+  useFetchAuthQuery,
+  useCreateAuthMutation,
+  useLoginRaceResultsMutation,
+  useLoginWildApricotMutation,
+  useFetchMemberQuery,
+  useCreateMemberMutation,
+  useCreateRaceResultMutation,
 } = raceResultsApiSlice;
 
 export type {
   Member,
   Organization,
   RaceResult,
-  RaceResponse
+  RaceResponse,
+  OrganizationLoginResponse,
+  Auth,
+  WildApricotAuth,
+  RaceResultsAuth,
+  WildApricotLoginRequest,
 };

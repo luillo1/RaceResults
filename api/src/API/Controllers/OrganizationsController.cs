@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.Authorization;
+using RaceResults.Api.Parameters;
 using RaceResults.Common.Models;
 using RaceResults.Common.Requests;
 using RaceResults.Data.Core;
@@ -41,13 +43,16 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet("{orgId}")]
-        public async Task<IActionResult> GetOneOrganization(string orgId)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetOneOrganization([OrganizationId] string orgId)
         {
             OrganizationContainerClient container = containerProvider.OrganizationContainer;
             Organization result = await container.GetOneAsync(orgId, orgId);
             return Ok(result);
         }
 
+        // TODO: this endpoint is completely broken. Need to refactor the creation logic
+        /*
         [HttpPost]
         public async Task<IActionResult> CreateNewOrganization([FromBody] CreateOrganizationRequest body)
         {
@@ -60,5 +65,6 @@ namespace RaceResults.Api.Controllers
 
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = addedOrg.Id }, addedOrg);
         }
+        */
     }
 }

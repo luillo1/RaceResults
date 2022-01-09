@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using RaceResults.Api.Authorization;
 using RaceResults.Data.Core;
 using RaceResults.Data.KeyVault;
 
@@ -35,6 +36,7 @@ namespace RaceResults.Api
                         ICosmosDbClient client = services.GetRequiredService<ICosmosDbClient>();
                         return new CosmosDbContainerProvider(client);
                     });
+            services.AddScoped<RequireOrganizationAuthorizationAttribute>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,4 +1,4 @@
-namespace RaceResults.Common.Models
+namespace RaceResults.Api.MemberProviders.WildApricot
 {
     public struct WildApricotMember
     {

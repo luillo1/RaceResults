@@ -1,21 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
-import wildApricotAuthSlice from "../slices/wild-apricot-auth/wild-apricot-auth-slice";
-import { wildApricotApiSlice } from "../slices/wild-apricot/wild-apricot-api-slice";
-import { raceResultsApiSlice } from "../slices/runners/raceresults-standard-api-slice";
-import { raceresultsWaApiSlice } from "../slices/runners/raceresults-wa-api-slice";
+import organizationAuthSlice from "../slices/auth/organization-auth-slice";
+import { raceResultsApiSlice } from "../slices/runners/raceresults-api-slice";
 
 export const store = configureStore({
   reducer: {
-    wildApricotAuth: wildApricotAuthSlice,
-    [wildApricotApiSlice.reducerPath]: wildApricotApiSlice.reducer,
-    [raceresultsWaApiSlice.reducerPath]: raceresultsWaApiSlice.reducer,
+    organizationAuth: organizationAuthSlice,
     [raceResultsApiSlice.reducerPath]: raceResultsApiSlice.reducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware()
-      .concat(raceResultsApiSlice.middleware)
-      .concat(raceresultsWaApiSlice.middleware)
-      .concat(wildApricotApiSlice.middleware);
+    return getDefaultMiddleware().concat(raceResultsApiSlice.middleware);
   },
 });
 

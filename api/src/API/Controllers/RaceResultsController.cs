@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.Authorization;
+using RaceResults.Api.Parameters;
 using RaceResults.Api.ResponseObjects;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -89,7 +91,8 @@ namespace RaceResults.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
+        [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
+        public async Task<IActionResult> Create([OrganizationId] string orgId, string memberId, RaceResult raceResult)
         {
             if (raceResult.MemberId != Guid.Parse(memberId))
             {
@@ -114,12 +117,6 @@ namespace RaceResults.Api.Controllers
 
             var member = await memberContainer.GetOneAsync(raceResult.MemberId.ToString(), orgId);
 
-            // Verify the logged in user is for the member referenced by the POSTed RaceResult
-            if (!await WildApricotController.Authorized(Request, member.OrgAssignedMemberId))
-            {
-                return Unauthorized();
-            }
-
             raceResult.Submitted = DateTime.UtcNow;
 
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
@@ -128,7 +125,7 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpDelete("{resultId}")]
-        public async Task<IActionResult> Delete(string orgId, string memberId, string resultId)
+        public async Task<IActionResult> Delete([OrganizationId] string orgId, string memberId, string resultId)
         {
             if (!await MemberBelongsToOrg(orgId, memberId))
             {

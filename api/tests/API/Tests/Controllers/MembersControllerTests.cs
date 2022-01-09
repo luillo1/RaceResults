@@ -67,6 +67,8 @@ namespace Internal.Api.Tests
             cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
             cosmosDbClient.AddEmptyOrganizationContainer();
             cosmosDbClient.AddEmptyRaceContainer();
+            cosmosDbClient.AddEmptyRaceResultAuthContainer();
+            cosmosDbClient.AddEmptyWildApricotAuthContainer();
             cosmosDbClient.AddEmptyRaceResultContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);

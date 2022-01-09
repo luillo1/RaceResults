@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.MemberProviders.WildApricot;
 using RaceResults.Common.Models;
 using RaceResults.Data.KeyVault;
 using RestSharp;
@@ -52,7 +53,7 @@ namespace RaceResults.Api.Controllers
         {
             var client = new RestClient("https://api.wildapricot.org/publicview/v1");
 
-            var request = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=false", DataFormat.Json);
+            var request = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=true", DataFormat.Json);
             request.AddHeader("Authorization", authorization);
 
             return await client.GetAsync<WildApricotMember>(request);

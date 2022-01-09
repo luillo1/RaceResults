@@ -15,7 +15,7 @@ import {
   useCreateRaceMutation,
   useFetchRacesQuery,
   useUpdateRaceMutation,
-} from "../../slices/runners/raceresults-standard-api-slice";
+} from "../../slices/runners/raceresults-api-slice";
 import { groupByEventId } from "../../utils/helpers";
 
 interface ModalState {

@@ -2,7 +2,7 @@ import { Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
-import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-standard-api-slice";
+import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import routes from "../../utils/routes";
 import * as Yup from "yup";

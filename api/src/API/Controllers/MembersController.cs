@@ -1,11 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Core;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.Authorization;
+using RaceResults.Api.MemberProviders.WildApricot;
+using RaceResults.Api.Parameters;
 using RaceResults.Common.Exceptions;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -30,8 +31,7 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetMembers(string orgId, [FromQuery] string orgAssignedMemberId)
+        public async Task<IActionResult> GetMembers([OrganizationId] string orgId, [FromQuery] string orgAssignedMemberId)
         {
             MemberContainerClient container = containerProvider.MemberContainer;
 
@@ -63,6 +63,48 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        [HttpGet("orgAssignedMemberId/{orgAssignedMemberId}")]
+        [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
+        public async Task<IActionResult> GetMemberByOrgAssignedMemberId([OrganizationId] string orgId, string orgAssignedMemberId)
+        {
+            try
+            {
+                return Ok(await containerProvider.MemberContainer.GetOneMemberAsync(orgAssignedMemberId, orgId));
+            }
+            catch (MemberIdNotFoundException)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("orgAssignedMemberId/{orgAssignedMemberId}")]
+        [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
+        public async Task<IActionResult> CreateMemberByOrgAssignedMemberId([OrganizationId] string orgId, string orgAssignedMemberId)
+        {
+            var org = await containerProvider.OrganizationContainer.GetOneAsync(orgId, orgId);
+            Member memberToCreate;
+            switch (org.AuthType)
+            {
+                case AuthType.WildApricot:
+                    var response = await WildApricotApi.GetMemberModelForLoggedInUser(Request);
+                    if (!response.success)
+                    {
+                        return BadRequest();
+                    }
+                    memberToCreate = (Member)response.member;
+                    memberToCreate.OrganizationId = Guid.Parse(orgId);
+
+                    MemberContainerClient container = containerProvider.MemberContainer;
+                    var addedMember = await container.AddOneAsync(memberToCreate);
+                    return CreatedAtAction(nameof(CreateMemberByOrgAssignedMemberId), new { id = addedMember.Id }, addedMember);
+                case AuthType.RaceResults:
+                    // TODO
+                    throw new InvalidOperationException();
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
         [HttpGet("{memberId}")]
         public async Task<IActionResult> GetOneMember(string orgId, string memberId)
         {
@@ -71,7 +113,6 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {

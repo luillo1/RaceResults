@@ -55,5 +55,17 @@ namespace Internal.Data.Utils
             Container raceResultContainer = MockContainerProvider<RaceResult>.CreateMockContainer(new List<RaceResult>());
             this.AddNewContainer(ContainerConstants.RaceResultContainerName, raceResultContainer);
         }
+
+        public void AddEmptyRaceResultAuthContainer()
+        {
+            Container raceResultContainer = MockContainerProvider<RaceResultsAuth>.CreateMockContainer(new List<RaceResultsAuth>());
+            this.AddNewContainer(ContainerConstants.RaceResultsAuthContainerName, raceResultContainer);
+        }
+
+        public void AddEmptyWildApricotAuthContainer()
+        {
+            Container raceResultContainer = MockContainerProvider<WildApricotAuth>.CreateMockContainer(new List<WildApricotAuth>());
+            this.AddNewContainer(ContainerConstants.WildApricotAuthContainerName, raceResultContainer);
+        }
     }
 }

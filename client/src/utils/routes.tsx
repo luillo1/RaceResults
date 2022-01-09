@@ -6,7 +6,7 @@ import CreateOrganizationPage from "../pages/organizations/createOrganization";
 import OrganizationPage from "../pages/organization";
 import OrganizationsPage from "../pages/organizations/organizations";
 import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceResult";
-import OAuthLogin from "../pages/oauthLogin";
+import WildApricotOAuthLogin from "../pages/wildApricotOAuthLogin";
 
 export interface RouteWrapper {
   path: string;
@@ -84,7 +84,11 @@ const routes = {
 
   logout: createRouteWrapper("logout", <Logout />, false),
 
-  oauthLogin: createRouteWrapper("/auth/oauth", <OAuthLogin />, false),
+  wildApricotOAuthLogin: createRouteWrapper(
+    "/auth/wildapricot",
+    <WildApricotOAuthLogin />,
+    false
+  ),
 } as const;
 
 /**
