@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using RaceResults.Api.Authorization;
+using RaceResults.Api.Parameters;
 using RaceResults.Api.ResponseObjects;
 using RaceResults.Common.Models;
 using RaceResults.Data.Core;
@@ -82,34 +84,39 @@ namespace RaceResults.Api.Controllers
         public async Task<IActionResult> GetOneRaceResult(string orgId, string memberId, string resultId)
         {
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
+
             RaceResult result = await container.GetOneAsync(resultId, memberId);
             return Ok(result);
         }
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Create(string orgId, string memberId, RaceResult raceResult)
+        [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
+        public async Task<IActionResult> Create([OrganizationId] string orgId, string memberId, RaceResult raceResult)
         {
             if (raceResult.MemberId != Guid.Parse(memberId))
             {
                 return BadRequest();
             }
 
-            // Verify member and race exist
             MemberContainerClient memberContainer = containerProvider.MemberContainer;
+
             RaceContainerClient raceContainer = containerProvider.RaceContainer;
 
-            if (!(await memberContainer.ItemExistsAsync(raceResult.MemberId.ToString(), orgId)))
+            // Verify race exists
+            if (!await raceContainer.ItemExistsAsync(raceResult.RaceId.ToString(), raceResult.RaceId.ToString()))
             {
-                return BadRequest($"A member with ID {raceResult.MemberId.ToString()} could not be found");
+                return BadRequest($"A race with ID {raceResult.RaceId} could not be found");
             }
 
-            if (!(await raceContainer.ItemExistsAsync(raceResult.RaceId.ToString(), raceResult.RaceId.ToString())))
+            // Verify member exists
+            if (!await memberContainer.ItemExistsAsync(raceResult.MemberId.ToString(), orgId))
             {
-                return BadRequest($"A race with ID {raceResult.RaceId.ToString()} could not be found");
+                return BadRequest($"A member with ID {raceResult.MemberId} could not be found");
             }
 
-            raceResult.Id = Guid.NewGuid();
+            var member = await memberContainer.GetOneAsync(raceResult.MemberId.ToString(), orgId);
+
             raceResult.Submitted = DateTime.UtcNow;
 
             RaceResultContainerClient container = containerProvider.RaceResultContainer;
@@ -118,9 +125,9 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpDelete("{resultId}")]
-        public async Task<IActionResult> Delete(string orgId, string memberId, string resultId)
+        public async Task<IActionResult> Delete([OrganizationId] string orgId, string memberId, string resultId)
         {
-            if (!(await MemberBelongsToOrg(orgId, memberId)))
+            if (!await MemberBelongsToOrg(orgId, memberId))
             {
                 return BadRequest();
             }

@@ -25,5 +25,11 @@ namespace RaceResults.Data.KeyVault
             Response<KeyVaultSecret> response = await secretClient.GetSecretAsync(secretName);
             return response.Value.Value;
         }
+
+        public async Task<string> PutSecretAsync(string secretName, string secret)
+        {
+            Response<KeyVaultSecret> response = await secretClient.SetSecretAsync(secretName, secret);
+            return response.Value.Value;
+        }
     }
 }

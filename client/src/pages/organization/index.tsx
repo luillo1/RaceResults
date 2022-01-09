@@ -6,6 +6,7 @@ import { useFetchOrganizationQuery } from "../../slices/runners/raceresults-api-
 import BasePage from "../../utils/basePage";
 import { LoadingOrError } from "../../utils/loadingOrError";
 import NotFound from "../notFound";
+import LinksPane from "./linksPane";
 import MembersPane from "./membersPane";
 import RacesPane from "./racesPane";
 import SubmissionsPane from "./submissionsPane";
@@ -43,6 +44,14 @@ const OrganizationPage = () => {
         render: () => (
           <Tab.Pane>
             <MembersPane orgId={id} />
+          </Tab.Pane>
+        ),
+      },
+      {
+        menuItem: "Links",
+        render: () => (
+          <Tab.Pane>
+            <LinksPane orgId={id} />
           </Tab.Pane>
         ),
       },

@@ -1,3 +1,5 @@
+using RaceResults.Common.Models;
+
 namespace RaceResults.Data.Core
 {
     public class CosmosDbContainerProvider : ICosmosDbContainerProvider
@@ -10,6 +12,10 @@ namespace RaceResults.Data.Core
 
         public OrganizationContainerClient OrganizationContainer { get; }
 
+        public AuthContainerClient<RaceResultsAuth> RaceResultsAuthContainer { get; }
+
+        public AuthContainerClient<WildApricotAuth> WildApricotAuthContainer { get; }
+
         public CosmosDbContainerProvider(ICosmosDbClient cosmosDbClient)
         {
             this.RaceResultContainer = new RaceResultContainerClient(cosmosDbClient);
@@ -19,6 +25,10 @@ namespace RaceResults.Data.Core
             this.MemberContainer = new MemberContainerClient(cosmosDbClient);
 
             this.OrganizationContainer = new OrganizationContainerClient(cosmosDbClient);
+
+            this.RaceResultsAuthContainer = new AuthContainerClient<RaceResultsAuth>(cosmosDbClient, ContainerConstants.RaceResultsAuthContainerName);
+
+            this.WildApricotAuthContainer = new AuthContainerClient<WildApricotAuth>(cosmosDbClient, ContainerConstants.WildApricotAuthContainerName);
         }
     }
 }

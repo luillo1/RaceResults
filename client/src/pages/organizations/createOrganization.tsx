@@ -1,57 +1,97 @@
-import React, { ChangeEvent, useState } from "react";
+import { Formik } from "formik";
+import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
 import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-api-slice";
 import BasePage from "../../utils/basePage";
 import routes from "../../utils/routes";
+import * as Yup from "yup";
+import { SemanticTextInputField } from "../../components/SemanticFields/SemanticTextInputField";
 
 const CreateOrganizationPage = () => {
-  const [
-    createOrganization, // This is the mutation trigger
-    { isLoading: isUpdating } // This is the destructured mutation result
-  ] = useCreateOrganizationMutation();
+  const [createOrganization] = useCreateOrganizationMutation();
 
   const navigate = useNavigate();
 
-  const [name, setName] = useState("");
-
   const [error, setError] = useState(false);
-
-  const updateName = (event: ChangeEvent<HTMLInputElement>) => {
-    setError(false);
-    setName(event.target.value);
-  };
-
-  const submitForm = () => {
-    setError(false);
-    createOrganization({ name: name })
-      .unwrap()
-      .then((createdOrg) =>
-        navigate(routes.organization.createPath(createdOrg.id))
-      )
-      .catch(() => setError(true));
-  };
 
   return (
     <BasePage>
       <Header as="h2" content="Create Organization" />
       <Divider />
-      {error && (
-        <Message negative>
-          <Message.Header>
-            There was a problem creating your organization.
-          </Message.Header>
-        </Message>
-      )}
-      <Form loading={isUpdating} onSubmit={submitForm}>
-        <Form.Input
-          placeholder="Name"
-          name="name"
-          value={name}
-          onChange={updateName}
-        />
-        <Button type="submit">Submit</Button>
-      </Form>
+      <Formik
+        initialValues={{ name: "", domain: "", clientId: "", clientSecret: "" }}
+        validationSchema={Yup.object({
+          name: Yup.string()
+            .max(255, "The entered value is too long.")
+            .required("This field is required."),
+          domain: Yup.string()
+            .url("Not a valid url")
+            .matches(/^https:.*$/, "Must start with https")
+            .matches(/^.*[^/\\]$/, "Cannot end with slash")
+            .max(255, "The entered value is too long.")
+            .required("This field is required."),
+          clientId: Yup.string()
+            .max(255, "The entered value is too long.")
+            .required("This field is required."),
+          clientSecret: Yup.string()
+            .max(255, "The entered value is too long.")
+            .required("This field is required."),
+        })}
+        onSubmit={async (values, helpers) => {
+          setError(false);
+          helpers.setSubmitting(true);
+          await createOrganization({
+            organization: {
+              name: values.name,
+            },
+            clientSecret: values.clientSecret,
+          })
+            .unwrap()
+            .then((createdOrg) =>
+              navigate(routes.organization.createPath(createdOrg.id))
+            )
+            .catch(() => {
+              setError(true);
+              helpers.setSubmitting(false);
+            });
+        }}
+      >
+        {({ isSubmitting, handleSubmit }) => {
+          return (
+            <>
+              {error && (
+                <Message negative>
+                  <Message.Header>
+                    There was a problem creating your organization.
+                  </Message.Header>
+                </Message>
+              )}
+              <Form onSubmit={handleSubmit} loading={isSubmitting}>
+                <SemanticTextInputField
+                  name="name"
+                  label="Organization Name"
+                  placeholder="My Running Club"
+                />
+                <SemanticTextInputField
+                  name="domain"
+                  label="Wild Apricot Domain"
+                  placeholder="raceresults.run"
+                />
+                <SemanticTextInputField
+                  name="clientId"
+                  label="Wild Apricot Client ID"
+                />
+                <SemanticTextInputField
+                  name="clientSecret"
+                  label="Wild Apricot Client Secret"
+                />
+                <Button type="submit">Submit</Button>
+              </Form>
+            </>
+          );
+        }}
+      </Formik>
     </BasePage>
   );
 };

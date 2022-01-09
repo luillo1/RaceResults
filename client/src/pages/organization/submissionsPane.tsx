@@ -119,7 +119,9 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
           {raceResultsResponse.data?.map((raceResult) => (
             <Table.Row key={raceResult.raceResult.id}>
               <Table.Cell>
-                {raceResult.race !== null ? raceResult.race.name : "ERROR"}
+                {raceResult.race !== null
+                  ? `${raceResult.race.name} - ${raceResult.race.distance}`
+                  : "ERROR"}
               </Table.Cell>
               <Table.Cell>
                 {raceResult.member !== null

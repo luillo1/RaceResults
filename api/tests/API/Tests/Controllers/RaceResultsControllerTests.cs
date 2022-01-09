@@ -135,6 +135,8 @@ namespace Internal.Api.Tests
             MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
             cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
             cosmosDbClient.AddEmptyOrganizationContainer();
+            cosmosDbClient.AddEmptyRaceResultAuthContainer();
+            cosmosDbClient.AddEmptyWildApricotAuthContainer();
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceResultContainerName, raceResultContainer);
 

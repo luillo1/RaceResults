@@ -10,6 +10,9 @@ namespace RaceResults.Common.Models
         [Required]
         public string Name { get; set; }
 
+        [Required]
+        public AuthType AuthType { get; set; }
+
         public string GetPartitionKey()
         {
             return Id.ToString();

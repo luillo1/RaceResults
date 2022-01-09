@@ -6,6 +6,10 @@ namespace RaceResults.Data.Core
 
         public const string OrganizationContainerName = "OrganizationContainer";
 
+        public const string RaceResultsAuthContainerName = "RaceResultsAuthContainer";
+
+        public const string WildApricotAuthContainerName = "WildApricotAuthContainer";
+
         public const string RaceContainerName = "RaceContainer";
 
         public const string RaceResultContainerName = "RaceResultContainer";

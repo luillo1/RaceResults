@@ -1,11 +1,12 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
+using RaceResults.Api.Authorization;
 using RaceResults.Data.Core;
+using RaceResults.Data.KeyVault;
 
 namespace RaceResults.Api
 {
@@ -35,6 +36,8 @@ namespace RaceResults.Api
                         ICosmosDbClient client = services.GetRequiredService<ICosmosDbClient>();
                         return new CosmosDbContainerProvider(client);
                     });
+            services.AddScoped<RequireOrganizationAuthenticationAttribute>();
+            services.AddScoped<RequireOrganizationAuthorizationAttribute>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
