@@ -27,7 +27,7 @@ namespace RaceResults.Api.MemberProviders.WildApricot
             request.AddHeader("Authorization", "Basic " + Base64Encode(clientId + ":" + clientSecret));
             request.AddBody(new Dictionary<string, string>()
             {
-                { "grant_type", "authorization_code"},
+                { "grant_type", "authorization_code" },
                 { "code", loginRequest.AuthorizationCode },
                 { "scope", loginRequest.Scope },
                 { "client_id", clientId },

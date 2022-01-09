@@ -18,6 +18,7 @@ namespace RaceResults.Common.Models
             {
                 return AuthType.RaceResults;
             }
+
             set
             {
             }

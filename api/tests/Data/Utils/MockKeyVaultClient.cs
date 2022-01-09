@@ -16,15 +16,15 @@ namespace Internal.Data.Utils
             this.database = new Dictionary<string, string>();
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<string> GetSecretAsync(string secretName)
         {
-            return database[secretName];
+            return Task.FromResult(database[secretName]);
         }
 
-        public async Task<string> PutSecretAsync(string secretName, string secret)
+        public Task<string> PutSecretAsync(string secretName, string secret)
         {
             database[secretName] = secret;
-            return secret;
+            return Task.FromResult(secret);
         }
 
         public IEnumerable<string> GetSecrets()
