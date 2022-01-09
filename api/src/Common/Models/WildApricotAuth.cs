@@ -24,7 +24,7 @@ namespace RaceResults.Common.Models
             {
                 return AuthType.WildApricot;
             }
-            
+
             set
             {
             }

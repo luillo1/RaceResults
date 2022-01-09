@@ -42,6 +42,8 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
+        // TODO: this endpoint should really require organization authentication. Frontend needs to be
+        // refactored a bit to allow for this.
         [HttpGet("{orgId}")]
         [AllowAnonymous]
         public async Task<IActionResult> GetOneOrganization([OrganizationId] string orgId)

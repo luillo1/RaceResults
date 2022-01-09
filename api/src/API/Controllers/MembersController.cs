@@ -66,7 +66,7 @@ namespace RaceResults.Api.Controllers
                     {
                         return BadRequest();
                     }
-                    
+
                     memberToCreate = (Member)response.member;
                     memberToCreate.OrganizationId = Guid.Parse(orgId);
 

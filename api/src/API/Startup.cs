@@ -36,6 +36,7 @@ namespace RaceResults.Api
                         ICosmosDbClient client = services.GetRequiredService<ICosmosDbClient>();
                         return new CosmosDbContainerProvider(client);
                     });
+            services.AddScoped<RequireOrganizationAuthenticationAttribute>();
             services.AddScoped<RequireOrganizationAuthorizationAttribute>();
         }
 

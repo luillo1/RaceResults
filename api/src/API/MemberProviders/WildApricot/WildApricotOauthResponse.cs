@@ -6,19 +6,19 @@ namespace RaceResults.Api.MemberProviders.WildApricot
     {
         public struct WildApricotOauthPermissionsObject
         {
-            public int accountId { get; set; }
+            public int AccountId { get; set; }
 
-            public IEnumerable<string> availableScopes { get; set; }
+            public IEnumerable<string> AvailableScopes { get; set; }
         }
 
-        public string access_token { get; set; }
+        public string AccessToken { get; set; }
 
-        public string token_type { get; set; }
+        public string TokenType { get; set; }
 
-        public uint expires_in { get; set; }
+        public uint ExpiresIn { get; set; }
 
-        public string refresh_token { get; set; }
+        public string RefreshToken { get; set; }
 
-        public IEnumerable<WildApricotOauthPermissionsObject> permissions { get; set; }
+        public IEnumerable<WildApricotOauthPermissionsObject> Permissions { get; set; }
     }
 }

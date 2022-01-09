@@ -108,8 +108,8 @@ namespace RaceResults.Api.Controllers
 
             var requiredHeaders = new List<KeyValuePair<string, string>>()
             {
-                new KeyValuePair<string, string>(RequireOrganizationAuthorizationAttribute.WildApricotAccountIdHeader, loginResponse.accountId),
-                new KeyValuePair<string, string>(RequireOrganizationAuthorizationAttribute.WildApricotAuthorizationHeader, loginResponse.authorization),
+                new KeyValuePair<string, string>(RequireOrganizationAuthenticationAttribute.WildApricotAccountIdHeader, loginResponse.accountId),
+                new KeyValuePair<string, string>(RequireOrganizationAuthenticationAttribute.WildApricotAuthorizationHeader, loginResponse.authorization),
             };
 
             foreach (var header in requiredHeaders)

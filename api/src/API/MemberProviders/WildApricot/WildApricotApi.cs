@@ -41,13 +41,13 @@ namespace RaceResults.Api.MemberProviders.WildApricot
                 return (false, string.Empty, string.Empty);
             }
 
-            return (true, loginResponse.Data.permissions.First().accountId.ToString(), loginResponse.Data.token_type + " " + loginResponse.Data.access_token);
+            return (true, loginResponse.Data.Permissions.First().AccountId.ToString(), loginResponse.Data.TokenType + " " + loginResponse.Data.AccessToken);
         }
 
         public static async Task<(bool success, string memberId)> GetLoggedInMembersOrgIdAsync(HttpRequest request)
         {
-            var hasAccountId = request.Headers.TryGetValue(RequireOrganizationAuthorizationAttribute.WildApricotAccountIdHeader, out var accountId);
-            var hasAuthorization = request.HttpContext.Request.Headers.TryGetValue(RequireOrganizationAuthorizationAttribute.WildApricotAuthorizationHeader, out var authorization);
+            var hasAccountId = request.Headers.TryGetValue(RequireOrganizationAuthenticationAttribute.WildApricotAccountIdHeader, out var accountId);
+            var hasAuthorization = request.HttpContext.Request.Headers.TryGetValue(RequireOrganizationAuthenticationAttribute.WildApricotAuthorizationHeader, out var authorization);
             if (!hasAccountId || !hasAuthorization)
             {
                 return (false, string.Empty);
@@ -70,8 +70,8 @@ namespace RaceResults.Api.MemberProviders.WildApricot
 
         public static async Task<(bool success, Member? member)> GetMemberModelForLoggedInUser(HttpRequest request)
         {
-            var hasAccountId = request.Headers.TryGetValue(RequireOrganizationAuthorizationAttribute.WildApricotAccountIdHeader, out var accountId);
-            var hasAuthorization = request.HttpContext.Request.Headers.TryGetValue(RequireOrganizationAuthorizationAttribute.WildApricotAuthorizationHeader, out var authorization);
+            var hasAccountId = request.Headers.TryGetValue(RequireOrganizationAuthenticationAttribute.WildApricotAccountIdHeader, out var accountId);
+            var hasAuthorization = request.HttpContext.Request.Headers.TryGetValue(RequireOrganizationAuthenticationAttribute.WildApricotAuthorizationHeader, out var authorization);
             if (!hasAccountId || !hasAuthorization)
             {
                 return (false, null);
