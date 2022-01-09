@@ -91,11 +91,6 @@ namespace RaceResults.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateNewMember(string orgId, Member member)
         {
-            if (!await WildApricotController.Authorized(Request, member.OrgAssignedMemberId))
-            {
-                return Unauthorized();
-            }
-
             member.Id = Guid.NewGuid();
             if (member.OrganizationId != Guid.Parse(orgId))
             {

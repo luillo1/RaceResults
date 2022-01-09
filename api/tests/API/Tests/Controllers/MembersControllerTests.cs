@@ -59,8 +59,6 @@ namespace Internal.Api.Tests
         [TestInitialize]
         public void TestInitialize()
         {
-            WildApricotController.OverrideAuth = true;
-
             Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(members);
 
             MockCosmosDbClient cosmosDbClient = new MockCosmosDbClient();
@@ -86,7 +84,7 @@ namespace Internal.Api.Tests
         public async Task GetAllMembersTest()
         {
             Guid orgId = organizationA;
-            IActionResult result = await controller.GetMembers(orgId.ToString(), null);
+            IActionResult result = await controller.GetMembers(orgId.ToString());
 
             HashSet<Member> expectedResult = members.Where(member => member.OrganizationId == orgId).ToHashSet();
             Assert.IsTrue(expectedResult.Count > 1, "Expected to query for more than 1 member.");
