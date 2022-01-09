@@ -39,6 +39,7 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet("orgAssignedMemberId/{orgAssignedMemberId}")]
+        [AllowAnonymous]
         [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
         public async Task<IActionResult> GetMemberByOrgAssignedMemberId([OrganizationId] string orgId, string orgAssignedMemberId)
         {
@@ -53,6 +54,7 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpPost("orgAssignedMemberId/{orgAssignedMemberId}")]
+        [AllowAnonymous]
         [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
         public async Task<IActionResult> CreateMemberByOrgAssignedMemberId([OrganizationId] string orgId, string orgAssignedMemberId)
         {

@@ -89,8 +89,8 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
-        [AllowAnonymous]
         [HttpPost]
+        [AllowAnonymous]
         [ServiceFilter(typeof(RequireOrganizationAuthorizationAttribute))]
         public async Task<IActionResult> Create([OrganizationId] string orgId, string memberId, RaceResult raceResult)
         {
