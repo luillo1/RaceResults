@@ -64,13 +64,6 @@ namespace RaceResults.Api.Authorization
             ActionExecutingContext context,
             string orgAssignedMemberId)
         {
-            var hasAccountId = context.HttpContext.Request.Headers.TryGetValue(WildApricotAccountIdHeader, out var accountId);
-            var hasAuthorization = context.HttpContext.Request.Headers.TryGetValue(WildApricotAuthorizationHeader, out var authorization);
-            if (!hasAccountId || !hasAuthorization)
-            {
-                return false;
-            }
-
             var response = await WildApricotApi.GetLoggedInMembersOrgIdAsync(context.HttpContext.Request);
             if (!response.success)
             {

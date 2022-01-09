@@ -31,34 +31,9 @@ namespace RaceResults.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMembers([OrganizationId] string orgId, [FromQuery] string orgAssignedMemberId)
+        public async Task<IActionResult> GetMembers([OrganizationId] string orgId)
         {
             MemberContainerClient container = containerProvider.MemberContainer;
-
-            if (orgAssignedMemberId != null)
-            {
-                // We just require WA auth for this
-                if (!await WildApricotController.Authorized(Request, orgAssignedMemberId))
-                {
-                    return Unauthorized();
-                }
-
-                try
-                {
-                    return Ok(await container.GetOneMemberAsync(orgAssignedMemberId, orgId));
-                }
-                catch (MemberIdNotFoundException)
-                {
-                    return BadRequest();
-                }
-            }
-
-            // For normal GET, we need admin auth
-            if (!User.Identity.IsAuthenticated)
-            {
-                return Unauthorized();
-            }
-
             IEnumerable<Member> result = (await container.GetAllMembersAsDictAsync(orgId)).Values;
             return Ok(result);
         }
