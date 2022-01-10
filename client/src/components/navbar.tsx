@@ -10,7 +10,7 @@ import { faRunning } from "@fortawesome/free-solid-svg-icons";
 import LogoutButton from "./logoutButton";
 import LoginButton from "./loginButton";
 import NavLinks from "./navbarlinks";
-import { useLocation, useResolvedPath } from "react-router";
+import { useLocation } from "react-router";
 import routes from "../utils/routes";
 
 interface NavbarProps {
