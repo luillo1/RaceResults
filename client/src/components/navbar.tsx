@@ -10,6 +10,8 @@ import { faRunning } from "@fortawesome/free-solid-svg-icons";
 import LogoutButton from "./logoutButton";
 import LoginButton from "./loginButton";
 import NavLinks from "./navbarlinks";
+import { useLocation, useResolvedPath } from "react-router";
+import routes from "../utils/routes";
 
 interface NavbarProps {
   // Used to make the navbar sticky while scrolling the entire document
@@ -20,6 +22,8 @@ interface NavbarProps {
 
 function Navbar(props: NavbarProps) {
   const { accounts } = useMsal();
+
+  const location = useLocation();
 
   // A menu item containing the app name + icon
   const brandMenuItem = (
@@ -43,9 +47,11 @@ function Navbar(props: NavbarProps) {
           </Menu.Item>
         </AuthenticatedTemplate>
         <UnauthenticatedTemplate>
-          <Menu.Item className="borderless" position="right">
-            <LoginButton />
-          </Menu.Item>
+          {location.pathname === routes.home.path && (
+            <Menu.Item className="borderless" position="right">
+              <LoginButton />
+            </Menu.Item>
+          )}
         </UnauthenticatedTemplate>
       </Container>
     </Menu>
