@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import "./App.css";
 import Navbar from "./components/navbar";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -30,6 +30,8 @@ function App() {
 
   const { accounts } = useMsal();
 
+  const location = useLocation();
+
   return (
     <div ref={appRef} className="full-height">
       <Sidebar.Pushable style={{ transform: "none" }}>
@@ -56,9 +58,11 @@ function App() {
               </Menu.Item>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
-              <Menu.Item className="borderless">
-                <LoginButton />
-              </Menu.Item>
+              {location.pathname === routes.home.path && (
+                <Menu.Item className="borderless">
+                  <LoginButton />
+                </Menu.Item>
+              )}
             </UnauthenticatedTemplate>
           </div>
         </Sidebar>
