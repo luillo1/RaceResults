@@ -10,19 +10,6 @@ namespace RaceResults.Common.Models
         [Required]
         public Guid OrganizationId { get; set; }
 
-        [Required]
-        public AuthType AuthType
-        {
-            get
-            {
-                return AuthType.RaceResults;
-            }
-
-            set
-            {
-            }
-        }
-
         public string GetPartitionKey()
         {
             return OrganizationId.ToString();
