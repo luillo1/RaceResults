@@ -22,7 +22,7 @@ namespace RaceResults.Api.Authorization
 
         protected override Task<bool> TestAgainstRaceResultsAuth(ActionExecutingContext context, Organization org)
         {
-            // TODO: do something
+            // This is by design. RaceResults admins implicitly are authorized on every RaceResults organization.
             return base.TestAgainstRaceResultsAuth(context, org);
         }
 

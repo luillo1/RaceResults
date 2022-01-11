@@ -2,14 +2,19 @@ import { Formik } from "formik";
 import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import { Button, Divider, Form, Header, Message } from "semantic-ui-react";
-import { useCreateOrganizationMutation } from "../../slices/runners/raceresults-api-slice";
-import BasePage from "../../utils/basePage";
-import routes from "../../utils/routes";
+import {
+  AuthType,
+  useCreateOrganizationMutation,
+  useCreateWildApricotAuthMutation,
+} from "../../../slices/runners/raceresults-api-slice";
+import BasePage from "../../../utils/basePage";
+import routes from "../../../utils/routes";
 import * as Yup from "yup";
-import { SemanticTextInputField } from "../../components/SemanticFields/SemanticTextInputField";
+import { SemanticTextInputField } from "../../../components/SemanticFields/SemanticTextInputField";
 
-const CreateOrganizationPage = () => {
+const CreateWildApricotOrganizationPage = () => {
   const [createOrganization] = useCreateOrganizationMutation();
+  const [createWildApricotAuth] = useCreateWildApricotAuthMutation();
 
   const navigate = useNavigate();
 
@@ -17,7 +22,7 @@ const CreateOrganizationPage = () => {
 
   return (
     <BasePage>
-      <Header as="h2" content="Create Organization" />
+      <Header as="h2" content="Create Organization - Wild Apricot" />
       <Divider />
       <Formik
         initialValues={{ name: "", domain: "", clientId: "", clientSecret: "" }}
@@ -41,15 +46,38 @@ const CreateOrganizationPage = () => {
         onSubmit={async (values, helpers) => {
           setError(false);
           helpers.setSubmitting(true);
+
+          let createdOrgId: string | undefined;
           await createOrganization({
-            organization: {
-              name: values.name,
-            },
-            clientSecret: values.clientSecret,
+            name: values.name,
+            authType: AuthType.WildApricot,
           })
             .unwrap()
-            .then((createdOrg) =>
-              navigate(routes.organization.createPath(createdOrg.id))
+            .then((createdOrg) => {
+              createdOrgId = createdOrg.id;
+            })
+            .catch(() => {
+              setError(true);
+              helpers.setSubmitting(false);
+            });
+
+          if (createdOrgId === undefined) {
+            return;
+          }
+
+          await createWildApricotAuth({
+            orgId: createdOrgId,
+            body: {
+              clientSecret: values.clientSecret,
+              auth: {
+                organizationId: createdOrgId,
+                clientId: values.clientId,
+                domain: values.domain,
+              },
+            },
+          })
+            .then(() =>
+              navigate(routes.organization.createPath(createdOrgId as string))
             )
             .catch(() => {
               setError(true);
@@ -96,4 +124,4 @@ const CreateOrganizationPage = () => {
   );
 };
 
-export default CreateOrganizationPage;
+export default CreateWildApricotOrganizationPage;

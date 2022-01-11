@@ -87,7 +87,6 @@ const RequireOrganizationLogin: FC<{ organization: Organization }> = ({
   );
 
   if (currentAuth[organization.id] === undefined) {
-    // const redirect = `${organization.wildApricotDomain}/sys/login/OAuthLogin?client_Id=${organization.wildApricotClientId}&scope=auto&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauth%2Foauth&state=${organization.id}`;
     return <LoggingIntoAuth organization={organization} />;
   } else {
     return <React.Fragment>{children}</React.Fragment>;

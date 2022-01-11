@@ -53,9 +53,9 @@ namespace RaceResults.Api.MemberProviders.WildApricot
                 return (false, string.Empty);
             }
 
-            var client = new RestClient("https://api.wildapricot.org/publicview/v1");
+            var client = new RestClient("https://api.wildapricot.org/v2.2");
 
-            var accountRequest = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=false", DataFormat.Json);
+            var accountRequest = new RestRequest($"accounts/{accountId}/contacts/me?includeDetails=true", DataFormat.Json);
             accountRequest.AddHeader("Authorization", authorization);
 
             var memberResponse = await client.ExecuteGetAsync<WildApricotMember>(accountRequest);

@@ -2,11 +2,13 @@ import Home from "../pages/home";
 import LoginSuccess from "../pages/loginSuccess";
 import { Logout } from "../pages/logout";
 import NotFound from "../pages/notFound";
-import CreateOrganizationPage from "../pages/organizations/createOrganization";
+import CreateOrganizationPage from "../pages/organizations/create/createOrganization";
 import OrganizationPage from "../pages/organization";
 import OrganizationsPage from "../pages/organizations/organizations";
 import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceResult";
 import WildApricotOAuthLogin from "../pages/wildApricotOAuthLogin";
+import CreateWildApricotOrganizationPage from "../pages/organizations/create/createWildApricot";
+import CreateRaceResultsOrganizationPage from "../pages/organizations/create/createRaceResults";
 
 export interface RouteWrapper {
   path: string;
@@ -64,8 +66,20 @@ const routes = {
   ),
 
   createOrganization: createRouteWrapper(
-    "/organizations/new",
+    "/organizations/create",
     <CreateOrganizationPage />,
+    true
+  ),
+
+  createRaceResultsOrganization: createRouteWrapper(
+    "/organizations/create/raceresults",
+    <CreateRaceResultsOrganizationPage />,
+    true
+  ),
+
+  createWildApricotOrganization: createRouteWrapper(
+    "/organizations/create/wildapricot",
+    <CreateWildApricotOrganizationPage />,
     true
   ),
 

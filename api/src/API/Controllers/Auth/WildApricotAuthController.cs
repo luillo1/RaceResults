@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,8 +15,8 @@ namespace RaceResults.Api.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("organizations/{orgId}/auth")]
-    public class OrganizationAuthController : ControllerBase
+    [Route("organizations/{orgId}/auth/wildapricot")]
+    public class WildApricotAuthController : ControllerBase
     {
         private readonly ICosmosDbContainerProvider containerProvider;
 
@@ -27,7 +24,7 @@ namespace RaceResults.Api.Controllers
 
         private readonly IKeyVaultClient keyVaultClient;
 
-        public OrganizationAuthController(
+        public WildApricotAuthController(
                 ICosmosDbContainerProvider cosmosDbContainerProvider,
                 IKeyVaultClient keyVaultClient,
                 ILogger<OrganizationsController> logger)
@@ -37,53 +34,29 @@ namespace RaceResults.Api.Controllers
             this.logger = logger;
         }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetAuthForOrganization(string orgId)
-        {
-            var org = await containerProvider.OrganizationContainer.GetOneAsync(orgId, orgId);
-            switch (org.AuthType)
-            {
-                case AuthType.RaceResults:
-                    return Ok(await containerProvider.RaceResultsAuthContainer.GetAuthForOrganization(orgId));
-                case AuthType.WildApricot:
-                    return Ok(await containerProvider.WildApricotAuthContainer.GetAuthForOrganization(orgId));
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
         [HttpPost]
-        [AllowAnonymous]
-        [Route("login/raceresults")]
-        public async Task<IActionResult> LoginRaceResults(string orgId)
+        public async Task<IActionResult> CreateWildApricotAuth(string orgId, [FromBody] CreateWildApricotAuthRequest body)
         {
-            var org = await containerProvider.OrganizationContainer.GetOneAsync(orgId, orgId);
-
-            if (org.AuthType != AuthType.RaceResults)
+            var auth = body.Auth;
+            if (auth.OrganizationId.ToString() != orgId)
             {
                 return BadRequest();
             }
 
-            if (!User.Identity.IsAuthenticated)
+            if (!await containerProvider.OrganizationContainer.ItemExistsAsync(orgId, orgId))
             {
-                return Unauthorized();
+                return BadRequest($"An organization with id {orgId} was not found.");
             }
 
-            // TODO: do this a better way
-            var name = User.Identity.Name;
-            var response = new OrganizationLoginResponse()
-            {
-                OrgAssignedMemberId = name,
-                RequiredHeaders = new List<KeyValuePair<string, string>>(),
-            };
+            var secretName = orgId + "-client-secret";
+            await this.keyVaultClient.PutSecretAsync(secretName, body.ClientSecret);
 
-            return Ok(response);
+            var addedAuth = await containerProvider.WildApricotAuthContainer.AddOneAsync(auth);
+            return CreatedAtAction(nameof(CreateWildApricotAuth), new { id = addedAuth.Id }, addedAuth);
         }
 
-        [HttpPost]
+        [HttpPost("login")]
         [AllowAnonymous]
-        [Route("login/wildapricot")]
         public async Task<IActionResult> LoginWildApricot(string orgId, WildApricotLoginRequest loginRequest)
         {
             var org = await containerProvider.OrganizationContainer.GetOneAsync(orgId, orgId);

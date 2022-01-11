@@ -79,34 +79,18 @@ namespace Internal.Api.Tests
             ValidationTools.AssertFoundItem(orgToFind, result);
         }
 
-        // TODO: re-add this once this endpoint is fixed
-        /*
         [TestMethod]
         public async Task CreateNewOrganizationTest()
         {
             Organization org = new Organization()
             {
                 Name = "Bob's Running Club",
-                WildApricotClientId = "myId",
-                WildApricotDomain = "myDomain",
+                AuthType = AuthType.RaceResults,
             };
 
-            string secret = "mySecret";
-
-            var request = new CreateOrganizationRequest()
-            {
-                Organization = org,
-                ClientSecret = secret,
-            };
-
-            IActionResult result = await controller.CreateNewOrganization(request);
+            IActionResult result = await controller.CreateNewOrganization(org);
             Assert.IsInstanceOfType(result, typeof(CreatedAtActionResult));
             Assert.IsNotNull(org.Id);
-
-            var addedSecrets = keyVaultClient.GetSecrets();
-            Assert.AreEqual(1, addedSecrets.Count());
-            Assert.IsTrue(addedSecrets.Contains("mySecret"));
         }
-        */
     }
 }

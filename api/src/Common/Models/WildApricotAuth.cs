@@ -5,7 +5,6 @@ namespace RaceResults.Common.Models
 {
     public struct WildApricotAuth : IAuthModel
     {
-        [Required]
         public Guid Id { get; set; }
 
         [Required]
@@ -16,19 +15,6 @@ namespace RaceResults.Common.Models
 
         [Required]
         public string ClientId { get; set; }
-
-        [Required]
-        public AuthType AuthType
-        {
-            get
-            {
-                return AuthType.WildApricot;
-            }
-
-            set
-            {
-            }
-        }
 
         public string GetPartitionKey()
         {

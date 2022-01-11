@@ -5,7 +5,6 @@ namespace RaceResults.Common.Models
 {
     public struct RaceResultsAuth : IAuthModel
     {
-        [Required]
         public Guid Id { get; set; }
 
         [Required]

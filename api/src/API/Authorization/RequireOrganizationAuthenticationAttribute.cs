@@ -63,7 +63,7 @@ namespace RaceResults.Api.Authorization
 
         protected virtual Task<bool> TestAgainstRaceResultsAuth(ActionExecutingContext context, Organization org)
         {
-            // TODO: find a better way to do this
+            // TODO (#85): find a better way to do this
             return Task.FromResult(context.HttpContext.User.Identity.IsAuthenticated);
         }
 
@@ -78,6 +78,7 @@ namespace RaceResults.Api.Authorization
             }
             else
             {
+                // TODO (#84): Ensure the current user is authenticated against this specific org
                 return true;
             }
         }
