@@ -4,7 +4,6 @@ import {
   Header,
   List,
   ListItem,
-  Image,
   ListContent,
   ListIcon,
 } from "semantic-ui-react";
