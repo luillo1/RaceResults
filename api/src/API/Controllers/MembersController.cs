@@ -76,7 +76,7 @@ namespace RaceResults.Api.Controllers
                     var addedMember = await container.AddOneAsync(memberToCreate);
                     return CreatedAtAction(nameof(CreateMemberByOrgAssignedMemberId), new { id = addedMember.Id }, addedMember);
                 case AuthType.RaceResults:
-                    // TODO
+                    // TODO (#87): Create a new Member based on the logged-in RaceResults administrator
                     throw new InvalidOperationException();
                 default:
                     throw new InvalidOperationException();

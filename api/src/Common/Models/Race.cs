@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace RaceResults.Common.Models
 {
+    // TODO (#52): Make races specific to organizations
     public struct Race : IModel
     {
         public Guid Id { get; set; }
@@ -27,6 +28,7 @@ namespace RaceResults.Common.Models
 
         public string GetPartitionKey()
         {
+            // TODO (#52): Make races specific to organizations
             return Id.ToString();
         }
     }

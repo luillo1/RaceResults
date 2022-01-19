@@ -53,20 +53,13 @@ namespace RaceResults.Api.Controllers
             return Ok(result);
         }
 
-        // TODO: this endpoint is completely broken. Need to refactor the creation logic
-        /*
         [HttpPost]
-        public async Task<IActionResult> CreateNewOrganization([FromBody] CreateOrganizationRequest body)
+        public async Task<IActionResult> CreateNewOrganization(Organization organization)
         {
-            var organization = body.Organization;
             OrganizationContainerClient container = containerProvider.OrganizationContainer;
             var addedOrg = await container.AddOneAsync(organization);
 
-            var secretName = addedOrg.Id + "-client-secret";
-            await this.keyVaultClient.PutSecretAsync(secretName, body.ClientSecret);
-
             return CreatedAtAction(nameof(CreateNewOrganization), new { id = addedOrg.Id }, addedOrg);
         }
-        */
     }
 }

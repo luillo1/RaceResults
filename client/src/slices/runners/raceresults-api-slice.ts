@@ -76,18 +76,15 @@ export enum AuthType {
 interface Auth {
   id: string;
   organizationId: string;
-  authType: AuthType;
 }
 
 interface WildApricotAuth extends Auth {
   domain: string;
   clientId: string;
-  authType: AuthType.WildApricot;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface RaceResultsAuth extends Auth {
-  authType: AuthType.RaceResults;
 }
 
 function constructQueryParams(params: QueryParams){
@@ -151,15 +148,12 @@ export const raceResultsApiSlice = createApi({
         },
         providesTags: ["Organization"]
       }),
-      createOrganization: builder.mutation<Organization, {clientSecret: string, organization: Partial<Organization>}>(
+      createOrganization: builder.mutation<Organization, Partial<Organization>>(
         {
-          query: (params) => ({
+          query: (organization) => ({
             url: "/organizations",
             method: "POST",
-            body: {
-              organization: params.organization,
-              clientSecret: params.clientSecret
-            }
+            body: organization
           }),
           invalidatesTags: ["Organization"]
         }
@@ -171,14 +165,14 @@ export const raceResultsApiSlice = createApi({
       }),
       fetchRaces: builder.query<RaceResponse[], void>({
         query() {
-          // TODO: this needs to be org-specific
+          // TODO (#52): this needs to be org-specific
           return "/races";
         },
         providesTags: ["Race"]
       }),
       fetchPublicRaces: builder.query<RaceResponse[], void>({
         query() {
-          // TODO: this needs to be org-specific
+          // TODO (#52): this needs to be org-specific
           return "/races/public";
         },
         providesTags: ["Race"]
@@ -227,23 +221,31 @@ export const raceResultsApiSlice = createApi({
         },
         providesTags: ["Auth"]
       }),
-      createAuth: builder.mutation<RaceResponse, {orgId: string, auth: Partial<Auth>}>({
+      createRaceResultsAuth: builder.mutation<RaceResponse, {orgId: string, auth: Partial<RaceResultsAuth>}>({
         query: ({orgId, auth}) => ({
-          url: `/organizations/${orgId}/auth`,
+          url: `/organizations/${orgId}/auth/raceresults`,
           method: "POST",
           body: auth
         }),
         invalidatesTags: ["Auth"]
       }),
+      createWildApricotAuth: builder.mutation<RaceResponse, {orgId: string, body: {clientSecret: string, auth: Partial<WildApricotAuth>}}>({
+        query: ({orgId, body}) => ({
+          url: `/organizations/${orgId}/auth/wildapricot`,
+          method: "POST",
+          body: body
+        }),
+        invalidatesTags: ["Auth"]
+      }),
       loginRaceResults: builder.mutation<OrganizationLoginResponse, {orgId: string}>({
         query: ({ orgId }) => ({
-          url: `/organizations/${orgId}/auth/login/raceresults`,
+          url: `/organizations/${orgId}/auth/raceresults/login`,
           method: "POST"
         }),
       }),
       loginWildApricot: builder.mutation<OrganizationLoginResponse, {orgId: string, loginRequest: WildApricotLoginRequest}>({
         query: ({ orgId, loginRequest }) => ({
-          url: `/organizations/${orgId}/auth/login/wildapricot`,
+          url: `/organizations/${orgId}/auth/wildapricot/login`,
           method: "POST",
           body: loginRequest
         }),
@@ -296,7 +298,8 @@ export const {
   useFetchRaceResultsQuery,
   useDeleteRaceResultMutation,
   useFetchAuthQuery,
-  useCreateAuthMutation,
+  useCreateRaceResultsAuthMutation,
+  useCreateWildApricotAuthMutation,
   useLoginRaceResultsMutation,
   useLoginWildApricotMutation,
   useFetchMemberQuery,

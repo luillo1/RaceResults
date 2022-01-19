@@ -10,6 +10,7 @@ using RaceResults.Data.Core;
 
 namespace RaceResults.Api.Controllers
 {
+    // TODO (#52): Make races specific to organizations
     [Authorize]
     [ApiController]
     [Route("races")]

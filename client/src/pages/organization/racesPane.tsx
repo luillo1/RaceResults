@@ -34,6 +34,7 @@ const RacesPane = () => {
   const [isMutating, setisMutating] = useState(false);
   const [addRaceModalOpen, setAddRaceModalOpen] = useState(false);
 
+  // TODO (#52): Make races specific to organizations
   const racesResponse = useFetchRacesQuery();
   const [updateRace] = useUpdateRaceMutation();
   const [createRace] = useCreateRaceMutation();
@@ -65,7 +66,10 @@ const RacesPane = () => {
     if (racesResponse.isSuccess && racesResponse.data !== undefined) {
       // We need to first convert the ISO strings to Date objects.
       const races = racesResponse.data.map((resp) => {
-        return { ...resp, date: new Date(Date.parse(resp.date)) };
+        return {
+          ...resp,
+          date: new Date(Date.parse(resp.date)),
+        };
       });
 
       // Replace all race events with what just came from the backend
@@ -75,7 +79,10 @@ const RacesPane = () => {
 
   const [addDistanceModalState, setAddDistanceModalState] = useState<
     ModalState
-  >({ isOpen: false, race: undefined });
+  >({
+    isOpen: false,
+    race: undefined,
+  });
 
   const addDistanceForRace = (race: Race): void => {
     setAddDistanceModalState({ race, isOpen: true });
@@ -131,7 +138,11 @@ const RacesPane = () => {
       <CreateRaceModal
         showDistanceField
         open={addRaceModalOpen}
-        initialRace={{ name: "", distance: "", location: "" }}
+        initialRace={{
+          name: "",
+          distance: "",
+          location: "",
+        }}
         distanceOnly={false}
         onSubmit={async (race) => {
           setisMutating(true);
@@ -164,7 +175,10 @@ const RacesPane = () => {
           distanceOnly={true}
           onSubmit={async (race) => {
             setisMutating(true);
-            setAddDistanceModalState({ race: undefined, isOpen: false });
+            setAddDistanceModalState({
+              race: undefined,
+              isOpen: false,
+            });
             await createRace({
               name: race.name,
               date: race.date?.toISOString(),
@@ -175,7 +189,10 @@ const RacesPane = () => {
             }).then(() => setisMutating(false));
           }}
           handleClose={function(): void {
-            setAddDistanceModalState({ race: undefined, isOpen: false });
+            setAddDistanceModalState({
+              race: undefined,
+              isOpen: false,
+            });
           }}
           header={"Add Public Distance - " + addDistanceModalState.race.name}
         />
@@ -198,7 +215,10 @@ const RacesPane = () => {
             }
 
             setisMutating(true);
-            setEditRaceModalState({ race: undefined, isOpen: false });
+            setEditRaceModalState({
+              race: undefined,
+              isOpen: false,
+            });
 
             raceEvents[editEventIndex].forEach(async (raceToUpdate) => {
               await updateRace({
@@ -212,7 +232,10 @@ const RacesPane = () => {
             setisMutating(false);
           }}
           handleClose={function(): void {
-            setEditRaceModalState({ race: undefined, isOpen: false });
+            setEditRaceModalState({
+              race: undefined,
+              isOpen: false,
+            });
           }}
           header={"Edit Race - " + editRaceModalState.race.name}
         />
