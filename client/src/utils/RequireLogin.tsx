@@ -11,7 +11,7 @@ import LoginLoading from "../pages/loginLoading";
 */
 export const RequireLogin: FC<unknown> = ({ children }) => {
   const authRequest = {
-    ...loginRequest
+    ...loginRequest,
   };
 
   return (

@@ -11,7 +11,7 @@ export function Logout() {
     instance.handleRedirectPromise().then(() => {
       instance.logoutRedirect({
         account: instance.getActiveAccount(),
-        onRedirectNavigate: () => !BrowserUtils.isInIframe()
+        onRedirectNavigate: () => !BrowserUtils.isInIframe(),
       });
     });
   }, [instance]);

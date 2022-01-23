@@ -21,3 +21,9 @@ running `npm run dev`.
 While running in development mode, all calls to a backend will be forwarded to the proxy server
 `https://localhost:5001/`. This can be configured by editing `vite.config.ts`. This proxy is the default
 URL when running the backend API (which can be started by running `dotnet run` from the `/api/src/API` directory).
+
+## Useful documentation
+- [Semantic React docs](https://react.semantic-ui.com/) for reference when consturcting pages/components
+- [React Redux RTK Query docs](https://redux-toolkit.js.org/rtk-query/overview) for understanding how to interact with the backup
+
+## Folder structure
