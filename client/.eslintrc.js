@@ -27,7 +27,6 @@ module.exports = {
     quotes: [2, "double"],
     semi: ["warn", "always"],
     "no-use-before-define": "off",
-    "comma-dangle": ["error", "only-multiline"],
     "@typescript-eslint/no-use-before-define": ["error"],
     "no-unused-vars": "off",
     "@typescript-eslint/no-unused-vars": ["error"],
