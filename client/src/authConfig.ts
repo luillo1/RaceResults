@@ -15,17 +15,24 @@ const isFirefox = firefox > 0; // Only needed if you need to support the redirec
 export const msalConfig = {
   auth: {
     clientId: import.meta.env.VITE_AZURE_APP_CLIENT_ID,
-    authority: "https://login.microsoftonline.com/" + import.meta.env.VITE_AZURE_TENANT_ID + "/",
+    authority:
+      "https://login.microsoftonline.com/" +
+      import.meta.env.VITE_AZURE_TENANT_ID +
+      "/",
     redirectUri: "/auth/loginSuccess",
-    postLogoutRedirectUri: "/"
+    postLogoutRedirectUri: "/",
   },
   cache: {
     cacheLocation: "localStorage",
-    storeAuthStateInCookie: isIE || isEdge || isFirefox
+    storeAuthStateInCookie: isIE || isEdge || isFirefox,
   },
   system: {
     loggerOptions: {
-      loggerCallback: (level: LogLevel, message: string, containsPii: boolean) => {
+      loggerCallback: (
+        level: LogLevel,
+        message: string,
+        containsPii: boolean
+      ) => {
         if (containsPii) {
           return;
         }
@@ -44,12 +51,12 @@ export const msalConfig = {
             break;
           default:
         }
-      }
-    }
-  }
+      },
+    },
+  },
 };
 
 // Add here scopes for id token to be used at MS Identity Platform endpoints.
 export const loginRequest = {
-  scopes: ["api://c0fa99d9-ffc5-4e38-8a87-a0c0e5774150/RaceResults.ReadWrite"]
+  scopes: ["api://c0fa99d9-ffc5-4e38-8a87-a0c0e5774150/RaceResults.ReadWrite"],
 };

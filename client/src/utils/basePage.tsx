@@ -3,10 +3,12 @@ import { Container, Segment, SemanticTEXTALIGNMENTS } from "semantic-ui-react";
 
 export const BasePage: FC<{
   textAlign?: SemanticTEXTALIGNMENTS;
-  fluid?: boolean
+  fluid?: boolean;
 }> = ({ textAlign, fluid, children }) => (
   <Segment vertical>
-    <Container fluid={fluid} textAlign={textAlign}>{children}</Container>
+    <Container fluid={fluid} textAlign={textAlign}>
+      {children}
+    </Container>
   </Segment>
 );
 

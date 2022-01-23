@@ -20,8 +20,9 @@ module.exports = {
     },
     ecmaVersion: 13,
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: ["react", "@typescript-eslint", "prettier"],
   rules: {
+    "prettier/prettier": "error",
     "react/jsx-uses-react": 1,
     quotes: [2, "double"],
     semi: ["warn", "always"],
