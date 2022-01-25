@@ -9,6 +9,7 @@ import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceR
 import WildApricotOAuthLogin from "../pages/wildApricotOAuthLogin";
 import CreateWildApricotOrganizationPage from "../pages/organizations/create/createWildApricot";
 import CreateRaceResultsOrganizationPage from "../pages/organizations/create/createRaceResults";
+import UnexpectedError from "../pages/error";
 
 export interface RouteWrapper {
   path: string;
@@ -49,6 +50,8 @@ const createRouteWrapper = (
  */
 const routes = {
   notFound: createRouteWrapper("*", <NotFound />, false),
+
+  error: createRouteWrapper("/error", <UnexpectedError />, false),
 
   home: createRouteWrapper("/", <Home />, false),
 

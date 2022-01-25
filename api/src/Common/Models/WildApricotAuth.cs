@@ -11,7 +11,7 @@ namespace RaceResults.Common.Models
         public Guid OrganizationId { get; set; }
 
         [Required]
-        public string Domain { get; set; }
+        public string[] Domains { get; set; }
 
         [Required]
         public string ClientId { get; set; }
