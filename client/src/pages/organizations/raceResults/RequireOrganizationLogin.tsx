@@ -39,6 +39,10 @@ const LoggingIntoAuth: FC<{ organization: Organization }> = ({
   };
 
   const startWildApricotLogin = (auth: WildApricotAuth) => {
+    const query = new URLSearchParams(location.search);
+    const hostname = query.get("hostname");
+    const loginDomain = hostname !== null ? "https://" + hostname : auth.domain;
+
     const stateEncoded = encodeURIComponent(
       organization.id + " " + location.pathname
     );
@@ -47,7 +51,7 @@ const LoggingIntoAuth: FC<{ organization: Organization }> = ({
       window.location.origin + routes.wildApricotOAuthLogin.createPath()
     );
 
-    const loginUri = `${auth.domain}/sys/login/OAuthLogin?client_Id=${auth.clientId}&scope=auto&redirect_uri=${redirectUriEncoded}&state=${stateEncoded}`;
+    const loginUri = `${loginDomain}/sys/login/OAuthLogin?client_Id=${auth.clientId}&scope=auto&redirect_uri=${redirectUriEncoded}&state=${stateEncoded}`;
     window.location.replace(loginUri);
   };
 
