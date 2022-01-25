@@ -79,7 +79,7 @@ interface Auth {
 }
 
 interface WildApricotAuth extends Auth {
-  domain: string;
+  domains: string[];
   clientId: string;
 }
 

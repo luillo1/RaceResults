@@ -72,7 +72,7 @@ const CreateWildApricotOrganizationPage = () => {
               auth: {
                 organizationId: createdOrgId,
                 clientId: values.clientId,
-                domain: values.domain,
+                domains: [values.domain],
               },
             },
           })

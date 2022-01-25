@@ -1,6 +1,6 @@
 import { useMsal } from "@azure/msal-react";
 import React, { FC, useEffect } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { loginRequest } from "../../../authConfig";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { login } from "../../../slices/auth/organization-auth-slice";
@@ -26,6 +26,7 @@ const LoggingIntoAuth: FC<{ organization: Organization }> = ({
   const [postLogin] = useLoginRaceResultsMutation();
 
   const location = useLocation();
+  const navigate = useNavigate();
 
   const startRaceResultsLogin = async () => {
     await instance.loginPopup(loginRequest);
@@ -41,7 +42,13 @@ const LoggingIntoAuth: FC<{ organization: Organization }> = ({
   const startWildApricotLogin = (auth: WildApricotAuth) => {
     const query = new URLSearchParams(location.search);
     const hostname = query.get("hostname");
-    const loginDomain = hostname !== null ? "https://" + hostname : auth.domain;
+
+    if (hostname !== null && !auth.domains.includes(hostname)) {
+      navigate(routes.error.createPath());
+      return;
+    }
+
+    const loginDomain = hostname !== null ? hostname : auth.domains[0];
 
     const stateEncoded = encodeURIComponent(
       organization.id + " " + location.pathname
