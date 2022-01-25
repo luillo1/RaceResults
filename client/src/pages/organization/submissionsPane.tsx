@@ -7,6 +7,7 @@ import {
   Table,
   Button,
   Form,
+  Modal,
 } from "semantic-ui-react";
 import DatePickerInput from "../../components/DatePickerInput";
 import {
@@ -136,20 +137,33 @@ const SubmissionsPane = (props: SubmissionsPaneProps) => {
               </Table.Cell>
               <Table.Cell>{raceResult.raceResult.comments}</Table.Cell>
               <Table.Cell>
-                <Button
-                  title="Delete"
-                  color="red"
-                  negative
-                  compact
-                  basic
-                  icon="delete"
-                  onClick={() =>
-                    deleteRaceResult({
-                      orgId: props.orgId,
-                      memberId: raceResult.raceResult.memberId,
-                      raceResultId: raceResult.raceResult.id,
-                    })
+                <Modal
+                  trigger={
+                    <Button
+                      title="Delete"
+                      color="red"
+                      negative
+                      compact
+                      basic
+                      icon="delete"
+                    />
                   }
+                  header="Confirm Delete"
+                  content="Are you sure you want to remove this submission?"
+                  actions={[
+                    "Cancel",
+                    {
+                      key: "confirm",
+                      content: "Delete",
+                      negative: true,
+                      onClick: () =>
+                        deleteRaceResult({
+                          orgId: props.orgId,
+                          memberId: raceResult.raceResult.memberId,
+                          raceResultId: raceResult.raceResult.id,
+                        }),
+                    },
+                  ]}
                 />
               </Table.Cell>
             </Table.Row>
