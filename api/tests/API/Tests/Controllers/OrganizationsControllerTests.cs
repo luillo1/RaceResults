@@ -55,6 +55,7 @@ namespace Internal.Api.Tests
             cosmosDbClient.AddEmptyRaceResultAuthContainer();
             cosmosDbClient.AddEmptyWildApricotAuthContainer();
             cosmosDbClient.AddEmptyRaceResultContainer();
+            cosmosDbClient.AddEmptySubmissionCheckpointContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             controller = new OrganizationsController(provider, keyVaultClient, NullLogger<OrganizationsController>.Instance);

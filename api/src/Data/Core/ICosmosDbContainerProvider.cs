@@ -10,6 +10,8 @@ namespace RaceResults.Data.Core
 
         MemberContainerClient MemberContainer { get; }
 
+        SubmissionCheckpointContainerClient SubmissionCheckpointContainer { get; }
+
         OrganizationContainerClient OrganizationContainer { get; }
 
         AuthContainerClient<RaceResultsAuth> RaceResultsAuthContainer { get; }

@@ -15,5 +15,7 @@ namespace RaceResults.Data.Core
         public const string RaceResultContainerName = "RaceResultContainer";
 
         public const string MemberMatchRecordContainerName = "MemberMatchRecordContainer";
+
+        public const string SubmissionCheckpointContainerName = "SubmissionCheckpointContainer";
     }
 }

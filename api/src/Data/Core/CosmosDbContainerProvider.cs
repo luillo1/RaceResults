@@ -10,6 +10,8 @@ namespace RaceResults.Data.Core
 
         public MemberContainerClient MemberContainer { get; }
 
+        public SubmissionCheckpointContainerClient SubmissionCheckpointContainer { get; }
+
         public OrganizationContainerClient OrganizationContainer { get; }
 
         public AuthContainerClient<RaceResultsAuth> RaceResultsAuthContainer { get; }
@@ -23,6 +25,8 @@ namespace RaceResults.Data.Core
             this.RaceContainer = new RaceContainerClient(cosmosDbClient);
 
             this.MemberContainer = new MemberContainerClient(cosmosDbClient);
+
+            this.SubmissionCheckpointContainer = new SubmissionCheckpointContainerClient(cosmosDbClient);
 
             this.OrganizationContainer = new OrganizationContainerClient(cosmosDbClient);
 

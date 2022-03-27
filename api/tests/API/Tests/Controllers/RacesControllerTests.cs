@@ -59,6 +59,7 @@ namespace Internal.Api.Tests
             cosmosDbClient.AddEmptyOrganizationContainer();
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
             cosmosDbClient.AddEmptyRaceResultContainer();
+            cosmosDbClient.AddEmptySubmissionCheckpointContainer();
 
             ICosmosDbContainerProvider provider = new CosmosDbContainerProvider(cosmosDbClient);
             controller = new RacesController(provider, NullLogger<RacesController>.Instance);
