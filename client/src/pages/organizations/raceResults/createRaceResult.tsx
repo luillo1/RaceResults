@@ -41,8 +41,8 @@ function groupByEventId(races: Race[]): Race[][] {
   }
 
   const racesByEventId: Map<string, Race[]> = new Map<string, Race[]>();
-
-  races.forEach((item) => {
+  const sortedRaces = races.sort((a, b) => a.name.localeCompare(b.name));
+  sortedRaces.forEach((item) => {
     if (
       item.eventId === null ||
       item.eventId === undefined ||
