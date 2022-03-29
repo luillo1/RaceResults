@@ -77,7 +77,14 @@ const NewsletterPane = (props: NewsletterPaneProps) => {
       }
 
       if (racesByEvent.has(race.eventId)) {
-        racesByEvent.get(race.eventId)?.push(race);
+        const currentRacesForEvent = racesByEvent.get(
+          race.eventId
+        ) as RaceResponse[];
+        if (
+          !currentRacesForEvent.some((knownRace) => knownRace.id === race.id)
+        ) {
+          currentRacesForEvent.push(race);
+        }
       } else {
         racesByEvent.set(race.eventId, [race]);
       }
