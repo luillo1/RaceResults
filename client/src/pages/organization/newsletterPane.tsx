@@ -125,9 +125,9 @@ ${submissionsList}`
 
       const distanceText = multipleDistances
         ? ""
-        : `a ${raceForInfo.distance} race`;
+        : `a ${raceForInfo.distance} race `;
 
-      const eventText = `We had members run ${distanceText} at ${
+      const eventText = `We had members run ${distanceText}at ${
         raceForInfo.name
       } on ${new Date(Date.parse(raceForInfo.date)).toDateString()}.
 ${raceStrings.join("\n")}`;
