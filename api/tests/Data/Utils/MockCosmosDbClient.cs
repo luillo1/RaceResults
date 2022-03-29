@@ -38,6 +38,12 @@ namespace Internal.Data.Utils
             this.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
         }
 
+        public void AddEmptySubmissionCheckpointContainer()
+        {
+            Container raceResultContainer = MockContainerProvider<SubmissionCheckpoint>.CreateMockContainer(new List<SubmissionCheckpoint>());
+            this.AddNewContainer(ContainerConstants.SubmissionCheckpointContainerName, raceResultContainer);
+        }
+
         public void AddEmptyOrganizationContainer()
         {
             Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(new List<Organization>());

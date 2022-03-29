@@ -15,6 +15,7 @@ namespace Internal.Data.Tests
         {
             Container memberContainer = MockContainerProvider<Member>.CreateMockContainer(new List<Member>());
             Container organizationContainer = MockContainerProvider<Organization>.CreateMockContainer(new List<Organization>());
+            Container submissionCheckpointContainer = MockContainerProvider<SubmissionCheckpoint>.CreateMockContainer(new List<SubmissionCheckpoint>());
             Container raceContainer = MockContainerProvider<Race>.CreateMockContainer(new List<Race>());
             Container raceResultContainer = MockContainerProvider<RaceResult>.CreateMockContainer(new List<RaceResult>());
             Container raceResultAuthContainer = MockContainerProvider<RaceResultsAuth>.CreateMockContainer(new List<RaceResultsAuth>());
@@ -24,6 +25,7 @@ namespace Internal.Data.Tests
 
             cosmosDbClient.AddNewContainer(ContainerConstants.MemberContainerName, memberContainer);
             cosmosDbClient.AddNewContainer(ContainerConstants.OrganizationContainerName, organizationContainer);
+            cosmosDbClient.AddNewContainer(ContainerConstants.SubmissionCheckpointContainerName, submissionCheckpointContainer);
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceContainerName, raceContainer);
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceResultContainerName, raceResultContainer);
             cosmosDbClient.AddNewContainer(ContainerConstants.RaceResultsAuthContainerName, raceResultAuthContainer);

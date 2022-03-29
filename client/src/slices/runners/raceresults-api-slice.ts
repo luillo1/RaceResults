@@ -68,6 +68,13 @@ interface WildApricotLoginRequest extends LoginRequest {
   scope: string;
 }
 
+interface SubmissionCheckpoint
+{
+  id: string;
+  organizationId: string;
+  checkpointed: string;
+}
+
 export enum AuthType {
   RaceResults,
   WildApricot,
@@ -131,9 +138,10 @@ export const raceResultsApiSlice = createApi({
       return headers;
     }
   }),
-  tagTypes: ["Organization", "Race", "RaceResult", "Auth"],
+  tagTypes: ["Organization", "Race", "RaceResult", "Auth", "SubmissionCheckpoint"],
   endpoints(builder) {
     return {
+      // Organizations
       fetchOrganization: builder.query<Organization, string>({
         query(id) {
           return `/organizations/${id}`;
@@ -158,11 +166,32 @@ export const raceResultsApiSlice = createApi({
           invalidatesTags: ["Organization"]
         }
       ),
+
+      // Members
       fetchMembers: builder.query<Member[], string>({
         query(orgId) {
           return `/organizations/${orgId}/members`;
         }
       }),
+      fetchMember: builder.query<
+        Member,
+        { orgId: string; orgAssignedMemberId: string }
+      >({
+        query: ({ orgId, orgAssignedMemberId }) => ({
+          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
+        }),
+      }),
+      createMember: builder.mutation<
+        Member,
+        { orgId: string; orgAssignedMemberId: string }
+      >({
+        query: ({ orgId, orgAssignedMemberId }) => ({
+          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
+          method: "POST",
+        }),
+      }),
+
+      // Races
       fetchRaces: builder.query<RaceResponse[], void>({
         query() {
           // TODO (#52): this needs to be org-specific
@@ -201,6 +230,8 @@ export const raceResultsApiSlice = createApi({
         }),
         invalidatesTags: ["Race"]
       }),
+
+      // RaceResults
       fetchRaceResults: builder.query<RaceResultResponse[], {orgId: string, startDate: string | null, endDate: string | null}>({
         query({orgId, startDate, endDate}) {
           const url = `/organizations/${orgId}/raceresults`;
@@ -215,6 +246,38 @@ export const raceResultsApiSlice = createApi({
         }),
         invalidatesTags: ["RaceResult"]
       }),
+      createRaceResult: builder.mutation<
+        RaceResult,
+        {
+          orgId: string;
+          memberId: string;
+          raceResult: Partial<RaceResult>;
+        }
+      >({
+        query: ({ orgId, memberId, raceResult }) => ({
+          url: `/organizations/${orgId}/members/${memberId}/raceresults`,
+          method: "POST",
+          body: raceResult,
+        }),
+      }),
+
+      // SubmissionCheckpoints
+      fetchSubmissionCheckpoints: builder.query<SubmissionCheckpoint[], {orgId: string}>({
+        query({orgId}) {
+          return `/organizations/${orgId}/submissionCheckpoints`;
+        },
+        providesTags: ["SubmissionCheckpoint"]
+      }),
+      createSubmissionCheckpoint: builder.mutation<SubmissionCheckpoint, {orgId: string, checkpoint: Partial<SubmissionCheckpoint>}>({
+        query: ({orgId, checkpoint}) => ({
+          url: `/organizations/${orgId}/submissionCheckpoints`,
+          method: "POST",
+          body: checkpoint
+        }),
+        invalidatesTags: ["SubmissionCheckpoint"]
+      }),
+
+      // Auth
       fetchAuth: builder.query<Auth, string>({
         query(orgId) {
           return `/organizations/${orgId}/auth`;
@@ -250,37 +313,6 @@ export const raceResultsApiSlice = createApi({
           body: loginRequest
         }),
       }),
-      fetchMember: builder.query<
-        Member,
-        { orgId: string; orgAssignedMemberId: string }
-      >({
-        query: ({ orgId, orgAssignedMemberId }) => ({
-          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
-        }),
-      }),
-      createMember: builder.mutation<
-        Member,
-        { orgId: string; orgAssignedMemberId: string }
-      >({
-        query: ({ orgId, orgAssignedMemberId }) => ({
-          url: `/organizations/${orgId}/members/orgAssignedMemberId/${orgAssignedMemberId}`,
-          method: "POST",
-        }),
-      }),
-      createRaceResult: builder.mutation<
-        RaceResult,
-        {
-          orgId: string;
-          memberId: string;
-          raceResult: Partial<RaceResult>;
-        }
-      >({
-        query: ({ orgId, memberId, raceResult }) => ({
-          url: `/organizations/${orgId}/members/${memberId}/raceresults`,
-          method: "POST",
-          body: raceResult,
-        }),
-      }),
     };
   }
 });
@@ -296,6 +328,7 @@ export const {
   useCreateRaceMutation,
   useUpdateRaceMutation,
   useFetchRaceResultsQuery,
+  useLazyFetchRaceResultsQuery,
   useDeleteRaceResultMutation,
   useFetchAuthQuery,
   useCreateRaceResultsAuthMutation,
@@ -305,6 +338,8 @@ export const {
   useFetchMemberQuery,
   useCreateMemberMutation,
   useCreateRaceResultMutation,
+  useFetchSubmissionCheckpointsQuery,
+  useCreateSubmissionCheckpointMutation,
 } = raceResultsApiSlice;
 
 export type {
@@ -312,9 +347,11 @@ export type {
   Organization,
   RaceResult,
   RaceResponse,
+  RaceResultResponse,
   OrganizationLoginResponse,
   Auth,
   WildApricotAuth,
   RaceResultsAuth,
   WildApricotLoginRequest,
+  SubmissionCheckpoint,
 };
