@@ -1,4 +1,4 @@
-name: Build and deploy RaceResults backend
+name: Build and deploy RaceResults dev backend
 
 on:
   push:
