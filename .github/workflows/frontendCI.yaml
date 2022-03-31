@@ -1,20 +1,20 @@
-name: RaceResults Dev CI
+name: RaceResults CI
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - dev
+      - main
     paths:
       - "client/**"
-      - ".github/workflows/frontendDevCI.yaml"
+      - ".github/workflows/frontendCI.yaml"
   pull_request:
     types: [opened, synchronize, reopened, closed]
     branches:
-      - dev
+      - main
     paths:
       - "client/**"
-      - ".github/workflows/frontendDevCI.yaml"
+      - ".github/workflows/frontendCI.yaml"
 
 jobs:
   Lint:
@@ -33,7 +33,7 @@ jobs:
         run: npm run lint
 
   build-and-deploy:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
     runs-on: ubuntu-latest
     name: Build and Deploy
     steps:
@@ -43,8 +43,19 @@ jobs:
       - name: Build And Deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_DEV_API_TOKEN }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
           app_location: "/client"
           output_location: "/build"
+
+  close-pull-request-job:
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    name: Close Pull Request
+    steps:
+      - name: Close Pull Request
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          action: "close"
