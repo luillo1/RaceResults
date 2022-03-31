@@ -46,6 +46,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_DEV_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_build_commad: "npm run stage"
+          app_build_command: "npm run stage"
           app_location: "/client"
           output_location: "/build"
