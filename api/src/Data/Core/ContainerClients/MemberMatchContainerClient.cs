@@ -8,20 +8,12 @@ using RaceResults.Common.Models;
 
 namespace RaceResults.Data.Core
 {
-    public class MemberMatchContainerClient
+    public class MemberMatchContainerClient : ContainerClient<MemberMatchRecord>
     {
-        private readonly Container container;
-
-        public MemberMatchContainerClient(Container container)
+        // TODO: Determine whether or not this needs to implement ContainerClient<IModel> (all of the other ones do and it makes it easier E2E)
+        public MemberMatchContainerClient(ICosmosDbClient cosmosDbClient)
+            : base(cosmosDbClient.GetContainer(ContainerConstants.MemberMatchRecordContainerName))
         {
-            this.container = container;
-        }
-
-        public async Task<MemberMatchRecord> GetOneAsync(string id, string partitionKey)
-        {
-            PartitionKey partition = new PartitionKey(partitionKey);
-            ItemResponse<MemberMatchRecord> response = await this.container.ReadItemAsync<MemberMatchRecord>(id, partition);
-            return response.Resource;
         }
     }
 }

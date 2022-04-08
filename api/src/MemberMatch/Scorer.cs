@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Microsoft.Azure.Cosmos;
+using RaceResults.Common.Models;
+using RaceResults.Data.Core;
 
 namespace RaceResults.MemberMatch
 {
@@ -10,31 +14,36 @@ namespace RaceResults.MemberMatch
     {
         public static double DefaultPriorScore = -11.51291546;
         public static double DefaultProbabilityAppearsInLineFromReference = 0.6;
+        private readonly ICosmosDbContainerProvider containerProvider;
+        private readonly string somePartitionKey = "0";
         private static double defaultRare = 1e-5;
 
-        public Scorer(Dictionary<string, double> nameToProbability)
+        public Scorer(ICosmosDbContainerProvider cosmosDbContainerProvider)
         {
-            this.nameToProbability = nameToProbability;
+            this.containerProvider = cosmosDbContainerProvider;
         }
 
-        public Scorer(string nameToProbabilityFileName)
-        {
-            nameToProbability = new Dictionary<string, double>();
-            int index = -1;
-            foreach (string line in File.ReadLines(nameToProbabilityFileName))
+        public async Task<double> GetNameToProbability(string name){
+            try
             {
-                index++;
-                if (index == 0)
+                MemberMatchContainerClient container = this.containerProvider.MemberMatchRecordContainer;
+                MemberMatchRecord memberMatch = await container.GetOneAsync(name, somePartitionKey);
+                var result = memberMatch.Probability;
+                return result;
+            }
+            catch (CosmosException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
                 {
-                    continue;
+                    return Scorer.defaultRare;
                 }
-
-                var fields = line.Split('\t');
-                nameToProbability[fields[0]] = double.Parse(fields[1]);
+                else
+                {
+                    // TODO: This is a placeholder, anything specific we should do here instead?
+                    throw ex;
+                }
             }
         }
-
-        private Dictionary<string, double> nameToProbability;
 
         public static double Delta(
                                    IList<double> probabilityAppearsInLineByCoincidenceList,
@@ -119,7 +128,9 @@ namespace RaceResults.MemberMatch
             bool isContained,
             double probabilityAppearsInLineFromReference = double.NaN)
         {
-            var probabilityAppearsInLineByCoincidence = this.nameToProbability.GetValueOrDefault(name, Scorer.defaultRare);
+            // TODO: Come back to this -- didn't await it b/c just wanted to get something that builds while waiting for some answers lol
+            var probabilityAppearsInLineByCoincidence = this.GetNameToProbability(name).Result;
+
             return Delta(probabilityAppearsInLineByCoincidence, isContained, probabilityAppearsInLineFromReference);
         }
 

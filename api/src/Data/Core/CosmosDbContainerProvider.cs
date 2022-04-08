@@ -14,6 +14,8 @@ namespace RaceResults.Data.Core
 
         public OrganizationContainerClient OrganizationContainer { get; }
 
+        public MemberMatchContainerClient MemberMatchRecordContainer { get; }
+
         public AuthContainerClient<RaceResultsAuth> RaceResultsAuthContainer { get; }
 
         public AuthContainerClient<WildApricotAuth> WildApricotAuthContainer { get; }
@@ -29,6 +31,8 @@ namespace RaceResults.Data.Core
             this.SubmissionCheckpointContainer = new SubmissionCheckpointContainerClient(cosmosDbClient);
 
             this.OrganizationContainer = new OrganizationContainerClient(cosmosDbClient);
+
+            this.MemberMatchRecordContainer = new MemberMatchContainerClient(cosmosDbClient);
 
             this.RaceResultsAuthContainer = new AuthContainerClient<RaceResultsAuth>(cosmosDbClient, ContainerConstants.RaceResultsAuthContainerName);
 

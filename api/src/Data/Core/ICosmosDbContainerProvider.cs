@@ -18,6 +18,6 @@ namespace RaceResults.Data.Core
 
         AuthContainerClient<WildApricotAuth> WildApricotAuthContainer { get; }
 
-        // ICosmosDbContainerClient<MemberMatchRecord> MemberMatchRecordContainer { get; }
+        MemberMatchContainerClient MemberMatchRecordContainer { get; }
     }
 }
