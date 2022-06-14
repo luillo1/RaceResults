@@ -77,7 +77,14 @@ const NewsletterPane = (props: NewsletterPaneProps) => {
       }
 
       if (racesByEvent.has(race.eventId)) {
-        racesByEvent.get(race.eventId)?.push(race);
+        const currentRacesForEvent = racesByEvent.get(
+          race.eventId
+        ) as RaceResponse[];
+        if (
+          !currentRacesForEvent.some((knownRace) => knownRace.id === race.id)
+        ) {
+          currentRacesForEvent.push(race);
+        }
       } else {
         racesByEvent.set(race.eventId, [race]);
       }
@@ -118,9 +125,9 @@ ${submissionsList}`
 
       const distanceText = multipleDistances
         ? ""
-        : `a ${raceForInfo.distance} race`;
+        : `a ${raceForInfo.distance} race `;
 
-      const eventText = `We had members run ${distanceText} at ${
+      const eventText = `We had members run ${distanceText}at ${
         raceForInfo.name
       } on ${new Date(Date.parse(raceForInfo.date)).toDateString()}.
 ${raceStrings.join("\n")}`;
