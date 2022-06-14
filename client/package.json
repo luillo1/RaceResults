@@ -4,6 +4,7 @@
   "scripts": {
     "dev": "vite --host --https",
     "build": "tsc && vite build",
+    "stage": "tsc && vite build --mode staging",
     "serve": "vite preview",
     "lint": "eslint . --max-warnings 0"
   },
