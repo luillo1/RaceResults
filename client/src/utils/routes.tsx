@@ -9,7 +9,8 @@ import CreateRaceResultPage from "../pages/organizations/raceResults/createRaceR
 import WildApricotOAuthLogin from "../pages/wildApricotOAuthLogin";
 import CreateWildApricotOrganizationPage from "../pages/organizations/create/createWildApricot";
 import CreateRaceResultsOrganizationPage from "../pages/organizations/create/createRaceResults";
-import UnexpectedError from "../pages/error";
+import UnexpectedError from "../pages/UnexpectedError";
+import ViewRaceResultPage from "../pages/organizations/raceResults/viewRaceResults";
 
 export interface RouteWrapper {
   path: string;
@@ -91,6 +92,13 @@ const routes = {
     <CreateRaceResultPage />,
     false,
     (orgId: string) => `/organizations/${orgId}/raceresults/create`
+  ),
+
+  submittedRaceResults: createParameterizedRouteWrapper(
+    "/organizations/:id/raceresults",
+    <ViewRaceResultPage />,
+    false,
+    (orgId: string) => `/organizations/${orgId}/raceresults`
   ),
 
   loginSuccess: createRouteWrapper(

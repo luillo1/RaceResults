@@ -1,9 +1,9 @@
 import { useMsal } from "@azure/msal-react";
 import React, { FC, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { loginRequest } from "../../../authConfig";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { login } from "../../../slices/auth/organization-auth-slice";
+import { loginRequest } from "../authConfig";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { login } from "../slices/auth/organization-auth-slice";
 import {
   Auth,
   AuthType,
@@ -11,10 +11,11 @@ import {
   useFetchAuthQuery,
   useLoginRaceResultsMutation,
   WildApricotAuth,
-} from "../../../slices/runners/raceresults-api-slice";
-import routes from "../../../utils/routes";
-import UnexpectedError from "../../error";
-import LoginLoading from "../../loginLoading";
+} from "../slices/runners/raceresults-api-slice";
+import routes from "./routes";
+import UnexpectedError from "../pages/UnexpectedError";
+import LoginLoading from "../pages/loginLoading";
+import RequireValidOrganization from "./RequireValidOrganization";
 
 const LoggingIntoAuth: FC<{ organization: Organization }> = ({
   organization,
@@ -89,10 +90,10 @@ const LoggingIntoAuth: FC<{ organization: Organization }> = ({
   return <LoginLoading />;
 };
 
-const RequireOrganizationLogin: FC<{ organization: Organization }> = ({
-  organization,
-  children,
-}) => {
+const RequireOrganizationLogin2: FC<{
+  organization: Organization;
+  children: (props: RenderProps) => React.ReactNode;
+}> = ({ organization, children }) => {
   const currentAuth = useAppSelector(
     (state) => state.organizationAuth.orgAuths
   );
@@ -100,8 +101,30 @@ const RequireOrganizationLogin: FC<{ organization: Organization }> = ({
   if (currentAuth[organization.id] === undefined) {
     return <LoggingIntoAuth organization={organization} />;
   } else {
-    return <React.Fragment>{children}</React.Fragment>;
+    return (
+      <React.Fragment>
+        {children({ organization: organization })}
+      </React.Fragment>
+    );
   }
+};
+
+type RenderProps = {
+  organization: Organization;
+};
+
+const RequireOrganizationLogin: React.FC<{
+  children: (props: RenderProps) => React.ReactNode;
+}> = ({ children }) => {
+  return (
+    <RequireValidOrganization>
+      {({ organization }) => (
+        <RequireOrganizationLogin2 organization={organization}>
+          {children}
+        </RequireOrganizationLogin2>
+      )}
+    </RequireValidOrganization>
+  );
 };
 
 export default RequireOrganizationLogin;

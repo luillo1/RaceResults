@@ -14,7 +14,6 @@ import {
   useCreatePublicRaceMutation,
   useCreateRaceResultMutation,
   useFetchMemberQuery,
-  useFetchOrganizationQuery,
   useFetchPublicRacesQuery,
 } from "../../../slices/runners/raceresults-api-slice";
 import BasePage from "../../../utils/basePage";
@@ -26,8 +25,8 @@ import { Race } from "../../../common";
 import { SemanticSelectField } from "../../../components/SemanticFields/SemanticSelectField";
 import { SemanticTextAreaField } from "../../../components/SemanticFields/SemanticTextAreaField";
 import { useAppSelector } from "../../../redux/hooks";
-import { useParams } from "react-router-dom";
-import RequireOrganizationLogin from "./RequireOrganizationLogin";
+import RequireOrganizationLogin from "../../../utils/RequireOrganizationLogin";
+import routes from "../../../utils/routes";
 
 /**
  * Groups the given race models by their eventId.
@@ -170,6 +169,17 @@ const CreateRaceResultPageForm = (props: { organization: Organization }) => {
               Click here
             </a>{" "}
             to submit another time.
+          </p>
+          <p>
+            <a
+              href={routes.submittedRaceResults.createPath(
+                props.organization.id
+              )}
+            >
+              Click here
+            </a>{" "}
+            to view recent submissions from other members of{" "}
+            {props.organization.name}.
           </p>
         </Message>
       </BasePage>
@@ -527,23 +537,12 @@ const CreateRaceResultPageForm = (props: { organization: Organization }) => {
 };
 
 const CreateRaceResultPage = () => {
-  const { id: orgId } = useParams();
-
-  const organization = useFetchOrganizationQuery(orgId || "");
-
   return (
-    <LoadingOrError
-      isLoading={organization.isLoading}
-      hasError={organization.isError}
-    >
-      <RequireOrganizationLogin
-        organization={organization.data as Organization}
-      >
-        <CreateRaceResultPageForm
-          organization={organization.data as Organization}
-        />
-      </RequireOrganizationLogin>
-    </LoadingOrError>
+    <RequireOrganizationLogin>
+      {({ organization }) => (
+        <CreateRaceResultPageForm organization={organization} />
+      )}
+    </RequireOrganizationLogin>
   );
 };
 
